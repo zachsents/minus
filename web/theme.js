@@ -1,6 +1,6 @@
 import { DEFAULT_THEME } from "@mantine/core"
 
-const primaryColor = "teal"
+const primaryColor = "violet"
 
 /** @type {import("@mantine/core").MantineThemeOverride} */
 export const mantineTheme = {
