@@ -17,7 +17,8 @@ export const mantineTheme = {
         xxs: "0.5rem",
         xxxs: "0.375rem",
     },
-    defaultRadius: "md",
+    // defaultRadius: "md",
+    defaultRadius: "sm",
     colors: {
         primary: DEFAULT_THEME.colors[primaryColor],
     },
