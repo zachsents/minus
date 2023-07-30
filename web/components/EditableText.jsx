@@ -2,15 +2,23 @@ import { ActionIcon, Group, TextInput } from "@mantine/core"
 import { getHotkeyHandler, useClickOutside } from "@mantine/hooks"
 import { stopPropagation } from "@web/modules/props"
 import classNames from "classnames"
+import { useEffect } from "react"
 import { useState } from "react"
 import { TbCheck, TbPencil } from "react-icons/tb"
 
 
-export default function EditableText({ children, value, onChange, cancelOnClickOutside = false, showSaveButton = false,
-    className = "", iconClassName = "" }) {
+export default function EditableText({
+    children, value, onChange, cancelOnClickOutside = false, showSaveButton = false,
+    className = "",
+    classNames: {
+        group: groupClassName = "",
+        icon: iconClassName = "",
+        input: inputClassName = "",
+    } = {},
+}) {
 
     const [editing, setEditing] = useState(false)
-    const [workingValue, setWorkingValue] = useState(value)
+    const [workingValue, setWorkingValue] = useState(value ?? "")
 
     const startEditing = () => {
         setEditing(true)
@@ -37,26 +45,39 @@ export default function EditableText({ children, value, onChange, cancelOnClickO
 
     const clickOutsideRef = useClickOutside(cancelOnClickOutside ? cancelEditing : finishEditing)
 
-    return editing ?
-        <TextInput
-            value={workingValue} onChange={ev => setWorkingValue(ev.target.value)}
-            onKeyDown={hotKeyHandler}
-            classNames={{ input: "min-h-[2em] h-[2em]" }}
-            rightSection={showSaveButton ?
-                <ActionIcon size="xs" radius="sm" {...stopPropagation()} onClick={finishEditing}>
-                    <TbCheck />
-                </ActionIcon> :
-                undefined}
-            w={`${workingValue.length + 2}ch`} miw="8rem" maw="100%"
-            ref={clickOutsideRef}
-        /> :
-        <Group
-            spacing="xs" onClick={startEditing}
-            className={classNames("group px-xs rounded-sm cursor-text hover:bg-gray-100", className)}
-        >
-            {children}
-            <TbPencil
-                className={classNames("opacity-0 group-hover:opacity-100", iconClassName)}
-            />
-        </Group>
+    useEffect(() => {
+        if (editing)
+            setTimeout(() => {
+                clickOutsideRef.current?.focus()
+                clickOutsideRef.current?.select()
+            })
+    }, [editing])
+
+    return (
+        <div className={className}>
+            {editing ?
+                <TextInput
+                    value={workingValue} onChange={ev => setWorkingValue(ev.target.value)}
+                    onKeyDown={hotKeyHandler}
+                    classNames={{ input: "min-h-[2em] h-[2em]" }}
+                    rightSection={showSaveButton ?
+                        <ActionIcon size="xs" radius="sm" {...stopPropagation()} onClick={finishEditing}>
+                            <TbCheck />
+                        </ActionIcon> :
+                        undefined}
+                    w={`${(workingValue?.length ?? 0) + 2}ch`} miw="8rem" maw="100%"
+                    ref={clickOutsideRef}
+                    className={inputClassName}
+                /> :
+                <Group
+                    spacing="xs" onClick={startEditing}
+                    className={classNames("group px-xs rounded-sm cursor-text hover:bg-gray-100", groupClassName)}
+                >
+                    {children}
+                    <TbPencil
+                        className={classNames("opacity-0 group-hover:opacity-100", iconClassName)}
+                    />
+                </Group>}
+        </div>
+    )
 }

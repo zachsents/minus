@@ -35,6 +35,5 @@ export default function MyApp({ Component, pageProps }) {
 }
 
 const modals = {
-
 }
 

@@ -56,7 +56,7 @@ export const tailwindTheme = {
     },
     borderRadius: {
         ...DEFAULT_THEME.radius,
-        DEFAULT: DEFAULT_THEME.radius.md,
+        DEFAULT: DEFAULT_THEME.radius[mantineTheme.defaultRadius],
     },
     boxShadow: {
         ...mantineTheme.shadows,

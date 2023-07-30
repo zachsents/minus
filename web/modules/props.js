@@ -1,4 +1,7 @@
 
+/**
+ * @param {string[] | Object.<string, Function>} events
+ */
 export function stopPropagation(events = ["onMouseDown", "onTouchStart"]) {
 
     if (Array.isArray(events))

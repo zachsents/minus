@@ -6,7 +6,7 @@ export default function TriggerBar() {
 
 
     return (
-        <Group position="apart" className="px-sm py-2 base-border">
+        <Group position="apart" className="px-sm py-2 border-solid border-0 border-b-1 border-gray-300">
             <Group>
                 <Text className="font-semibold">
                     Trigger

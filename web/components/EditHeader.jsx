@@ -3,17 +3,20 @@ import { useLocalStorage } from "@mantine/hooks"
 import classNames from "classnames"
 import { useRouter } from "next/router"
 import { useState } from "react"
-import { TbArrowLeft, TbChevronRight, TbDotsVertical, TbHeart, TbLayout, TbPointer, TbSettings } from "react-icons/tb"
+import { TbArrowLeft, TbChevronRight, TbDotsVertical, TbGridPattern, TbHeart, TbLayout, TbMap, TbPointer, TbSettings } from "react-icons/tb"
 import EditableText from "./EditableText"
 import LinkKeepParams from "./LinkKeepParams"
+import { LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 
 
 export default function EditHeader() {
 
     const [enabled, setEnabled] = useState(false)
 
-    const [followMouse, setFollowMouse] = useLocalStorage({ key: "editorFollowMouse", defaultValue: true })
-    const [autoLayout, setAutoLayout] = useLocalStorage({ key: "editorAutoLayout", defaultValue: true })
+    const [followMouse, setFollowMouse] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_FOLLOW_MOUSE, defaultValue: true })
+    const [autoLayout, setAutoLayout] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_AUTO_LAYOUT, defaultValue: true })
+    const [showGrid, setShowGrid] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_GRID, defaultValue: false })
+    const [showMinimap, setShowMinimap] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_MINIMAP, defaultValue: false })
 
     const [title, setTitle] = useState("Handle CVP form submissions")
 
@@ -41,32 +44,40 @@ export default function EditHeader() {
                                 Back to Workflows
                             </Menu.Item>
 
-                            <Menu trigger="hover" position="right-start" closeOnItemClick={false} shadow="md">
+                            <Menu
+                                trigger="hover" position="right-start" closeOnItemClick={false}
+                                width="15rem" shadow="md"
+                            >
                                 <Menu.Target>
                                     <Menu.Item icon={<TbSettings />} rightSection={<TbChevronRight />}>
                                         Editor Settings
                                     </Menu.Item>
                                 </Menu.Target>
                                 <Menu.Dropdown>
-                                    <Menu.Item
-                                        icon={<TbPointer />}
-                                        rightSection={<Checkbox
-                                            radius="sm" checked={followMouse}
-                                        />}
-                                        onClick={() => setFollowMouse(!followMouse)}
+                                    <CheckableMenuItem
+                                        icon={TbGridPattern}
+                                        value={showGrid} onChange={setShowGrid}
+                                    >
+                                        Show Grid
+                                    </CheckableMenuItem>
+                                    <CheckableMenuItem
+                                        icon={TbMap}
+                                        value={showMinimap} onChange={setShowMinimap}
+                                    >
+                                        Show Minimap
+                                    </CheckableMenuItem>
+                                    <CheckableMenuItem
+                                        icon={TbPointer}
+                                        value={followMouse} onChange={setFollowMouse}
                                     >
                                         Follow Mouse
-                                    </Menu.Item>
-                                    <Menu.Item
-                                        icon={<TbLayout />}
-                                        rightSection={<Checkbox
-                                            radius="sm" ml="xl" checked={autoLayout}
-                                        />}
-                                        onClick={() => setAutoLayout(!autoLayout)}
+                                    </CheckableMenuItem>
+                                    <CheckableMenuItem
+                                        icon={TbLayout}
+                                        value={autoLayout} onChange={setAutoLayout}
                                     >
-
                                         Auto-Layout
-                                    </Menu.Item>
+                                    </CheckableMenuItem>
                                 </Menu.Dropdown>
                             </Menu>
                         </Menu.Dropdown>
@@ -85,7 +96,7 @@ export default function EditHeader() {
                 <EditableText
                     value={title}
                     onChange={setTitle}
-                    className="hover:!bg-dark-400"
+                    classNames={{ group: "hover:!bg-dark-400" }}
                     showSaveButton
                 >
                     <Text>{title}</Text>
@@ -143,5 +154,21 @@ function TabLinks({ tabs }) {
                 </Button>
             )}
         </Group>
+    )
+}
+
+
+function CheckableMenuItem({ children, value, onChange, icon: Icon }) {
+
+    return (
+        <Menu.Item
+            icon={<Icon />}
+            rightSection={<Checkbox
+                radius="sm" checked={value}
+            />}
+            onClick={() => onChange?.(!value)}
+        >
+            {children}
+        </Menu.Item>
     )
 }

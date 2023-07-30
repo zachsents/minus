@@ -1,0 +1,24 @@
+{
+    "name": "nodes",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "build": "pnpm run build-web && pnpm run build-base && pnpm run build-server",
+        "build-web": "metadef build -o ./definitions/web-definitions.js -i \"\" -d ./definitions -s web.jsx -r",
+        "build-base": "metadef build -o ./definitions/base-definitions.js -i \"\" -d ./definitions -s index.js -r",
+        "build-server": "metadef build -o ./definitions/server-definitions.js -i \"\" -d ./definitions -s server.js -r",
+        "dev": "nodemon -q --watch **/index.js --watch **/web.jsx --watch **/server.js --exec \"pnpm run build\""
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "devDependencies": {
+        "@zachsents/meta-definitions": "^1.1.1",
+        "nodemon": "^3.0.1"
+    },
+    "dependencies": {
+        "lodash.merge": "^4.6.2"
+    }
+}
