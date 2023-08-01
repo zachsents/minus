@@ -1,7 +1,7 @@
-import { ActionIcon, Group, Tabs, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Group, Space, Tabs, Text, Tooltip } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
 import { LOCAL_STORAGE_KEYS } from "@web/modules/constants"
-import { TbArrowRightSquare, TbStack2, TbX } from "react-icons/tb"
+import { TbChartDots3, TbPlugConnected, TbRobot, TbStack2, TbX } from "react-icons/tb"
 import ScrollBox from "./ScrollBox"
 
 
@@ -25,7 +25,11 @@ export default function EditorActivityBar() {
         >
             <Tabs.List>
                 <ActivityTabIcon title="Resources" value="resources" icon={TbStack2} />
-                <ActivityTabIcon title="Actions" value="actions" icon={TbArrowRightSquare} />
+                <ActivityTabIcon title="Actions" value="actions" icon={TbChartDots3} />
+                <Space h="xs" />
+                <ActivityTabIcon title="Workflow Assistant" value="assistant" icon={TbRobot} />
+                <Space h="xs" />
+                <ActivityTabIcon title="Integration Accounts" value="accounts" icon={TbPlugConnected} />
             </Tabs.List>
 
             <ActivityPanel
@@ -40,6 +44,20 @@ export default function EditorActivityBar() {
                 value="actions"
             >
                 Actions
+            </ActivityPanel>
+
+            <ActivityPanel
+                title="Integration Accounts"
+                value="accounts"
+            >
+                Integration Accounts
+            </ActivityPanel>
+
+            <ActivityPanel
+                title="Workflow Assistant 🪄"
+                value="assistant"
+            >
+                Workflow Assistant
             </ActivityPanel>
         </Tabs>
     )

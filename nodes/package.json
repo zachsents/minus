@@ -16,7 +16,9 @@
     "type": "module",
     "devDependencies": {
         "@zachsents/meta-definitions": "^1.1.1",
-        "nodemon": "^3.0.1"
+        "nodemon": "^3.0.1",
+        "@mantine/core": "^6.0.16",
+        "web": "workspace:*"
     },
     "dependencies": {
         "lodash.merge": "^4.6.2"

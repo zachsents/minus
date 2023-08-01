@@ -23,3 +23,12 @@ export const INPUT_MODE = {
     CONFIGURATION: "config",
     HANDLE: "handle",
 }
+
+export const DEFAULT_INPUT_CONFIG_VALIDATION_ERROR = "Invalid input."
+
+export const GRAPH_DELETE_KEYS = ["Delete", "Backspace"]
+
+export const INPUT_MODE_DESCRIPTIONS = {
+    [INPUT_MODE.HANDLE]: "Currently being shown as an input on the node. Its value will come from the output of another node.",
+    [INPUT_MODE.CONFIGURATION]: "Currently using the fixed value below.",
+}

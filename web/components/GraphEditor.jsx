@@ -1,5 +1,5 @@
 import { useLocalStorage } from "@mantine/hooks"
-import { LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { useCallback } from "react"
 import { Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState } from "reactflow"
 
@@ -12,7 +12,9 @@ const initialNodes = [
         id: '1', type: "node-type:Action", position: { x: 0, y: 0 }, data: {
             definition: "text.Template",
             inputs: [
-                { id: "dwkjkdwkd", definition: "template", name: "Poopy", mode: "config" },
+                { id: "dwkjkdwkd", definition: "template", mode: "config" },
+                { id: "sub1", definition: "substitution", name: "Hello", mode: "config" },
+                { id: "sub2", definition: "substitution", name: "Poopy", mode: "config" },
             ]
         }
     },
@@ -53,7 +55,7 @@ export default function GraphEditor() {
                 selectionKeyCode={"Control"}
                 multiSelectionKeyCode={"Shift"}
                 zoomActivationKeyCode={null}
-                deleteKeyCode={deleteKeyCodes}
+                deleteKeyCode={GRAPH_DELETE_KEYS}
                 id="reactflow"
             >
                 {showMinimap &&
@@ -70,7 +72,6 @@ const nodeTypes = {
 }
 
 const snapGrid = [25, 25]
-const deleteKeyCodes = ["Delete", "Backspace"]
 
 const defaultEdgeOptions = {
     type: "edge-type:Data",

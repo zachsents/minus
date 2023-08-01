@@ -7,8 +7,24 @@ import { useState } from "react"
 import { TbCheck, TbPencil } from "react-icons/tb"
 
 
+/**
+ * @param {{
+ *     value: string,
+ *     onChange?: (value: any) => void,
+ *     cancelOnClickOutside?: boolean,
+ *     showSaveButton?: boolean,
+ *     iconTakesUpSpace?: boolean,
+ *     className?: string,
+ *     classNames?: {
+ *         group?: string,
+ *         icon?: string,
+ *         input?: string,
+ *     },
+ * }} props
+ */
 export default function EditableText({
     children, value, onChange, cancelOnClickOutside = false, showSaveButton = false,
+    iconTakesUpSpace = true,
     className = "",
     classNames: {
         group: groupClassName = "",
@@ -70,12 +86,15 @@ export default function EditableText({
                     className={inputClassName}
                 /> :
                 <Group
-                    spacing="xs" onClick={startEditing}
+                    spacing="xs" noWrap onClick={startEditing}
                     className={classNames("group px-xs rounded-sm cursor-text hover:bg-gray-100", groupClassName)}
                 >
                     {children}
                     <TbPencil
-                        className={classNames("opacity-0 group-hover:opacity-100", iconClassName)}
+                        className={classNames({
+                            "opacity-0 group-hover:opacity-100": iconTakesUpSpace,
+                            "hidden group-hover:block": !iconTakesUpSpace,
+                        }, iconClassName)}
                     />
                 </Group>}
         </div>

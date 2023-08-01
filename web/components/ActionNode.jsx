@@ -1,26 +1,30 @@
 import { ActionIcon, Group, Indicator, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
-import { HANDLE_TYPE, RF_STORE_PROPERTIES } from "@web/modules/constants"
-import { useDefinition, useStoreProperty } from "@web/modules/nodes"
+import { HANDLE_TYPE, INPUT_MODE, RF_STORE_PROPERTIES } from "@web/modules/constants"
+import { useDefinition, useNodeHasValidationErrors, useStoreProperty } from "@web/modules/nodes"
 import classNames from "classnames"
 import { TbAdjustments } from "react-icons/tb"
 import { Position, Handle as RFHandle } from "reactflow"
-import ConfigureNodeModal from "./ConfigureNodeModal"
+import ConfigureNodeModal from "./config-modal/ConfigureNodeModal"
+import { useMemo } from "react"
 
 
 export default function ActionNode({ id, data, selected }) {
 
     const definition = useDefinition()
-
     const displayName = data.name || definition?.name
 
     const [, setConfiguringNodeId] = useStoreProperty(RF_STORE_PROPERTIES.NODE_BEING_CONFIGURED)
     const openNodeConfiguration = () => setConfiguringNodeId(id)
 
+    const hasValidationErrors = useNodeHasValidationErrors(id)
+
+    const shownInputs = useMemo(() => data.inputs?.filter(input => input.mode == INPUT_MODE.HANDLE), [data.inputs])
+
     return definition ?
         <div
             className={classNames({
                 "rounded": true,
-                "outline outline-2 outline-yellow outline-offset-2": selected,
+                "outline outline-2 outline-blue-300 outline-offset-2": selected,
             })}
         >
             <div className={classNames({
@@ -33,7 +37,7 @@ export default function ActionNode({ id, data, selected }) {
                     bg={definition?.color}
                     className="text-white px-xs py-1 rounded-t"
                 >
-                    <Tooltip label={definition?.name} disabled={displayName == definition?.name}>
+                    <Tooltip label={definition?.name} disabled={displayName == definition?.name} withinPortal>
                         <Group spacing="xs">
                             {definition.icon &&
                                 <definition.icon />}
@@ -43,8 +47,8 @@ export default function ActionNode({ id, data, selected }) {
                     </Tooltip>
 
                     <Group>
-                        <Tooltip label="Configure">
-                            <Indicator color="yellow" disabled>
+                        <Tooltip label="Configure" withinPortal>
+                            <Indicator color="yellow" disabled={!hasValidationErrors}>
                                 <ActionIcon
                                     size="sm"
                                     className="nodrag bg-dark bg-opacity-25 hover:bg-dark hover:bg-opacity-50 text-gray-100"
@@ -66,7 +70,7 @@ export default function ActionNode({ id, data, selected }) {
                             Inputs
                         </Text>
 
-                        {data.inputs?.map(input =>
+                        {shownInputs?.map(input =>
                             <Handle {...input} type={HANDLE_TYPE.INPUT} key={input.id} />
                         )}
                     </Stack>
@@ -85,10 +89,20 @@ export default function ActionNode({ id, data, selected }) {
 }
 
 
-function Handle({ id, name, type, hideLabel = false }) {
+function Handle({ id, name, type, definition: defId, hideLabel = false }) {
 
     const theme = useMantineTheme()
     const nodeDefinition = useDefinition()
+
+    let definition
+    switch (type) {
+        case HANDLE_TYPE.INPUT:
+            definition = nodeDefinition?.inputs?.[defId]
+            break
+        case HANDLE_TYPE.OUTPUT:
+            definition = nodeDefinition?.outputs?.[defId]
+            break
+    }
 
     return (
         <div>
@@ -113,7 +127,9 @@ function Handle({ id, name, type, hideLabel = false }) {
                         <definition.icon size="0.7rem" color="currentColor" />} */}
 
                     {!hideLabel &&
-                        <Text className="text-xs text-current">{name ?? id}</Text>}
+                        <Text className="text-xs text-current">
+                            {definition?.nameEditable ? name : definition?.name}
+                        </Text>}
                 </Group>
             </RFHandle>
         </div>

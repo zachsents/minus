@@ -8,7 +8,11 @@ export default {
         template: {
             type: "string",
             required: true,
-        }
+        },
+        substitution: {
+            type: "string",
+            required: false,
+        },
     },
 
     outputs: {

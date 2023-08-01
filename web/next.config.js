@@ -1,6 +1,6 @@
 module.exports = {
     reactStrictMode: true,
-    transpilePackages: [],
+    transpilePackages: ["nodes"],
     output: "export",
     productionBrowserSourceMaps: true
 }

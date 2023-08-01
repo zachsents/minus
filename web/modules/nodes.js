@@ -3,6 +3,8 @@ import _ from "lodash"
 import WebDefinitions from "nodes/web"
 import { useCallback, useMemo } from "react"
 import { useNodeId, useReactFlow, useStore, useStoreApi } from "reactflow"
+import { INPUT_MODE } from "./constants"
+import { _get, _set, uniqueId } from "./util"
 
 
 /**
@@ -43,7 +45,7 @@ export function setNodeProperty(nodeId, path, value, rf) {
         if (node === undefined)
             throw new Error(`Node ${nodeId} not found`)
 
-        _.set(node, path, value)
+        _set(node, path, value)
     }))
 }
 
@@ -51,6 +53,7 @@ export function setNodeProperty(nodeId, path, value, rf) {
 /**
  * @param {string} nodeId
  * @param {string} path
+ * @return {[ any, (value: any) => void ]}
  */
 export function useNodeProperty(nodeId, path) {
     if (nodeId === undefined)
@@ -58,11 +61,104 @@ export function useNodeProperty(nodeId, path) {
 
     const rf = useReactFlow()
 
-    const value = useStore(state => _.get(state.nodeInternals.get(nodeId), path))
+    const value = useStore(state => _get(state.nodeInternals.get(nodeId), path))
 
     const setValue = useCallback(value => setNodeProperty(nodeId, path, value, rf), [nodeId, path, rf])
 
     return [value, setValue]
+}
+
+
+export function useInputValue(nodeId, inputId) {
+    if (inputId == null)
+        console.warn("useInputValue called with null inputId")
+
+    return useNodeProperty(nodeId, `data.inputs.id=${inputId}.value`)
+}
+
+
+export function useInputValidation(nodeId, inputId) {
+
+    const nodeDefinition = useDefinition(nodeId)
+
+    const [input] = useNodeProperty(nodeId, `data.inputs.id=${inputId}`)
+    const [inputs] = useNodeProperty(nodeId, `data.inputs`)
+
+    const error = useMemo(() => {
+        const inputDefinition = nodeDefinition?.inputs[input.definition]
+
+        const inputValidation = inputDefinition?.validateInput?.(input, inputs)
+        if (inputValidation)
+            return inputValidation
+
+        if (input.mode != INPUT_MODE.CONFIGURATION)
+            return false
+
+        const configValidation = inputDefinition?.validateConfiguration?.(input.value)
+        if (configValidation)
+            return configValidation
+    }, [input, inputs, nodeDefinition])
+
+    return error
+}
+
+
+export function useNodeHasValidationErrors(nodeId) {
+
+    const nodeDefinition = useDefinition(nodeId)
+
+    const [inputs] = useNodeProperty(nodeId, `data.inputs`)
+
+    const hasErrors = useMemo(() => inputs?.map(input => {
+        const inputDefinition = nodeDefinition?.inputs[input.definition]
+
+        const inputValidation = inputDefinition?.validateInput?.(input, inputs)
+        if (inputValidation)
+            return inputValidation
+
+        if (input.mode != INPUT_MODE.CONFIGURATION)
+            return false
+
+        const configValidation = inputDefinition?.validateConfiguration?.(input.value)
+        if (configValidation)
+            return configValidation
+    }).some(Boolean), [inputs, nodeDefinition])
+
+    return hasErrors
+}
+
+
+export function useDerivedInputs(nodeId, inputId) {
+
+    const nodeDefinition = useDefinition(nodeId)
+    const [input] = useNodeProperty(nodeId, `data.inputs.id=${inputId}`)
+    const [inputs, setInputs] = useNodeProperty(nodeId, `data.inputs`)
+
+    return useCallback(() => {
+        const inputDefinition = nodeDefinition?.inputs[input.definition]
+        const derivedInputs = inputDefinition?.deriveInputs?.(input)
+
+        if (!derivedInputs?.length)
+            return
+
+        setInputs(produce(inputs, draft => {
+            derivedInputs.forEach(derivedInput => {
+                const mergeEntries = Object.entries(derivedInput.merge)
+                const matchingInput = draft.find(i => mergeEntries.every(([key, value]) => i[key] == value))
+
+                if (matchingInput)
+                    _.merge(matchingInput, derivedInput.data ?? {})
+                else
+                    draft.push({
+                        id: uniqueId(),
+                        derived: true,
+                        mode: INPUT_MODE.CONFIGURATION,
+                        ...derivedInput.merge,
+                        ...derivedInput.data,
+                    })
+            })
+        }))
+    }, [input, inputs, nodeDefinition, setInputs])
 }
 
 
