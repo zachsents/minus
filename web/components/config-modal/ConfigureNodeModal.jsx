@@ -2,13 +2,13 @@ import { ActionIcon, Alert, Badge, Button, Grid, Group, Menu, Modal, Stack, Swit
 import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR, GRAPH_DELETE_KEYS, INPUT_MODE, INPUT_MODE_DESCRIPTIONS, RF_STORE_PROPERTIES } from "@web/modules/constants"
 import { useDefinition, useInputValidation, useNodeProperty, useStoreProperty } from "@web/modules/nodes"
 import classNames from "classnames"
+import { produce } from "immer"
 import { useMemo, useState } from "react"
-import { TbAlertTriangle, TbDots, TbEye, TbEyeOff, TbForms, TbFunction, TbSettings, TbSettingsOff, TbTrash, TbX } from "react-icons/tb"
+import { TbAdjustments, TbAlertTriangle, TbDots, TbEye, TbEyeOff, TbForms, TbFunction, TbSettings, TbSettingsOff, TbTrash, TbX } from "react-icons/tb"
 import { useNodeId } from "reactflow"
 import EditableText from "../EditableText"
 import ScrollBox from "../ScrollBox"
 import HandleDefinitionLabel from "./HandleDefinitionLabel"
-import { produce } from "immer"
 
 
 export default function ConfigureNodeModal() {
@@ -93,8 +93,14 @@ export default function ConfigureNodeModal() {
                         </Tabs>
                     </Grid.Col>
                     <Grid.Col span={9}>
-                        {selectedHandle &&
-                            <ConfigSection selectedHandle={selectedHandle} key={selectedHandle.id} />}
+                        {selectedHandle ?
+                            <ConfigSection selectedHandle={selectedHandle} key={selectedHandle.id} /> :
+                            <Group className="h-full pb-xl text-gray-400 font-medium text-lg" position="center">
+                                <TbAdjustments className="text-2xl" />
+                                <Text>
+                                    Select an input or output to configure
+                                </Text>
+                            </Group>}
                     </Grid.Col>
                 </Grid>
             </div>
