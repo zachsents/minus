@@ -7,6 +7,7 @@ module.exports = {
         "./components/**/*.{js,ts,jsx,tsx,mdx}",
         "./modules/**/*.{js,ts,jsx,tsx,mdx}",
         "../nodes/config-components/**/*.{js,ts,jsx,tsx,mdx}",
+        "../nodes/definitions/**/*.{js,ts,jsx,tsx,mdx}",
     ],
     theme: {
         extend: tailwindTheme,

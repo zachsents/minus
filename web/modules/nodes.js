@@ -142,20 +142,30 @@ export function useDerivedInputs(nodeId, inputId) {
             return
 
         setInputs(produce(inputs, draft => {
+
             derivedInputs.forEach(derivedInput => {
                 const mergeEntries = Object.entries(derivedInput.merge)
                 const matchingInput = draft.find(i => mergeEntries.every(([key, value]) => i[key] == value))
 
                 if (matchingInput)
-                    _.merge(matchingInput, derivedInput.data ?? {})
-                else
-                    draft.push({
-                        id: uniqueId(),
-                        derived: true,
-                        mode: INPUT_MODE.CONFIGURATION,
-                        ...derivedInput.merge,
-                        ...derivedInput.data,
-                    })
+                    return _.merge(matchingInput, derivedInput.data ?? {})
+
+                const newInput = {
+                    id: uniqueId(),
+                    derived: true,
+                    mode: inputDefinition?.defaultMode,
+                    ...derivedInput.merge,
+                    ...derivedInput.data,
+                }
+
+                const newInputDefinition = nodeDefinition?.inputs[newInput.definition]
+                if (newInputDefinition?.group) {
+                    const inputCount = draft.filter(i => i.definition == newInput.definition).length
+                    if (inputCount >= newInputDefinition?.groupMax)
+                        return
+                }
+
+                draft.push(newInput)
             })
         }))
     }, [input, inputs, nodeDefinition, setInputs])

@@ -2,6 +2,12 @@ import { ScrollArea } from "@mantine/core"
 import classNames from "classnames"
 
 
+/**
+ * @param {{
+ * insideFlex?: boolean,
+ * className?: string,
+ * } & import("@mantine/core").ScrollAreaAutosizeProps} props
+ */
 export default function ScrollBox({ children, insideFlex = false, className, ...props }) {
 
     const scrollAreaComponent =

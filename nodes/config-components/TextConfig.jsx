@@ -3,7 +3,10 @@ import { useInputValue } from "web/modules/nodes"
 
 
 /**
- * @param {{ inputId: string, multiline: boolean } & (import("@mantine/core").TextareaProps | import("@mantine/core").TextInputProps)} props
+ * @param {{ 
+ * inputId: string,
+ * multiline: boolean,
+ * } & (import("@mantine/core").TextareaProps | import("@mantine/core").TextInputProps)} props
  */
 export default function TextConfig({ inputId, multiline, onChange, ...otherProps }) {
 

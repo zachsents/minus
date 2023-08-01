@@ -8,10 +8,12 @@ export default {
         template: {
             type: "string",
             required: true,
+            group: false,
         },
         substitution: {
             type: "string",
             required: false,
+            group: true,
         },
     },
 

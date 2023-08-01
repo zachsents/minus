@@ -1,5 +1,5 @@
 import { Button, Group } from "@mantine/core"
-import { TbTemplate, TbWand } from "react-icons/tb"
+import { TbReplace, TbTemplate, TbWand } from "react-icons/tb"
 import { INPUT_MODE } from "web/modules/constants"
 import { useDerivedInputs, useNodeProperty } from "web/modules/nodes"
 import TextConfig from "../../config-components/TextConfig"
@@ -8,15 +8,17 @@ import TextConfig from "../../config-components/TextConfig"
 export default {
     id: "text.Template",
     icon: TbTemplate,
-    color: "green",
+    description: "Inserts values into a template.",
 
     inputs: {
         template: {
             name: "Template",
             nameEditable: false,
-            description: "Inserts values into a template.",
+            description: "The template to insert values into. Use {SubstitutionName} to insert a value.",
+            icon: TbTemplate,
+
+            defaultMode: INPUT_MODE.CONFIGURATION,
             allowedModes: [INPUT_MODE.HANDLE, INPUT_MODE.CONFIGURATION],
-            group: false,
 
             renderConfiguration: props => {
 
@@ -38,7 +40,7 @@ export default {
                     </Group>
                 </>)
             },
-            validateConfiguration: value => !value,
+            validateConfiguration: value => !value && "The template is blank.",
 
             deriveInputs: (input) => {
                 if (input.mode != INPUT_MODE.CONFIGURATION)
@@ -57,10 +59,14 @@ export default {
             name: "Substitution",
             groupName: "Substitutions",
             nameEditable: true,
-            description: "A value to insert into the template. If your template contains {FirstName}, you must have a substitution named FirstName.",
+            description: "A value to insert into the template. If your template contains {FirstName}, a substitution named FirstName will replace it.",
+            dynamicDescription: ({ input }) => `This is the value that will replace {${input.name}} in the template.`,
+            icon: TbReplace,
+
+            defaultMode: INPUT_MODE.HANDLE,
             allowedModes: [INPUT_MODE.CONFIGURATION, INPUT_MODE.HANDLE],
-            group: true,
-            groupMin: 2,
+
+            groupMin: 0,
             groupMax: Infinity,
 
             renderConfiguration: props => {

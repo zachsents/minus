@@ -3,10 +3,11 @@ import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR } from "@web/modules/constants"
 import classNames from "classnames"
 
 
-export default function HandleDefinitionLabel({ required, description, hidden, error, label, secondaryLabel,
+export default function HandleDefinitionLabel({ required, description, hidden, error, label, secondaryLabel, icon: Icon,
     className,
     classNames: {
         label: labelClassName,
+        icon: iconClassName,
     } = {},
 }) {
 
@@ -29,6 +30,9 @@ export default function HandleDefinitionLabel({ required, description, hidden, e
             withinPortal multiline maw="20rem"
         >
             <Group spacing="xs" noWrap className={className}>
+                {Icon &&
+                    <Icon className={classNames("text-sm", iconClassName)} />}
+
                 <Text className={classNames({
                     "text-sm": true,
                     "underline decoration-dashed underline-offset-2 decoration-gray hover:decoration-dark": !hideTooltip,

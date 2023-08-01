@@ -1,10 +1,11 @@
 import { ActionIcon, Alert, Badge, Button, Grid, Group, Menu, Modal, Stack, Switch, Tabs, Text, Tooltip } from "@mantine/core"
 import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR, GRAPH_DELETE_KEYS, INPUT_MODE, INPUT_MODE_DESCRIPTIONS, RF_STORE_PROPERTIES } from "@web/modules/constants"
 import { useDefinition, useInputValidation, useNodeProperty, useStoreProperty } from "@web/modules/nodes"
+import { uniqueId } from "@web/modules/util"
 import classNames from "classnames"
 import { produce } from "immer"
 import { useMemo, useState } from "react"
-import { TbAdjustments, TbAlertTriangle, TbDots, TbEye, TbEyeOff, TbForms, TbFunction, TbSettings, TbSettingsOff, TbTrash, TbX } from "react-icons/tb"
+import { TbAdjustments, TbAlertTriangle, TbDots, TbEye, TbEyeOff, TbForms, TbFunction, TbPlus, TbSettings, TbSettingsOff, TbTrash, TbX } from "react-icons/tb"
 import { useNodeId } from "reactflow"
 import EditableText from "../EditableText"
 import ScrollBox from "../ScrollBox"
@@ -77,7 +78,10 @@ export default function ConfigureNodeModal() {
 
                 <Grid gutter={0} className="grow">
                     <Grid.Col span={3} className="border-solid border-0 border-r-1 border-gray-300">
-                        <Tabs defaultValue="inputs">
+                        <Tabs defaultValue="inputs" classNames={{
+                            root: "h-full flex flex-col items-stretch",
+                            panel: "grow"
+                        }}>
                             <Tabs.List grow>
                                 <Tabs.Tab value="inputs">
                                     Inputs
@@ -94,7 +98,11 @@ export default function ConfigureNodeModal() {
                     </Grid.Col>
                     <Grid.Col span={9}>
                         {selectedHandle ?
-                            <ConfigSection selectedHandle={selectedHandle} key={selectedHandle.id} /> :
+                            <ConfigSection
+                                selectedHandle={selectedHandle}
+                                setSelectedHandle={setSelectedHandle}
+                                key={selectedHandle.id}
+                            /> :
                             <Group className="h-full pb-xl text-gray-400 font-medium text-lg" position="center">
                                 <TbAdjustments className="text-2xl" />
                                 <Text>
@@ -107,8 +115,6 @@ export default function ConfigureNodeModal() {
         </Modal>
     )
 }
-
-
 
 
 function InputsSection({ selectedHandle, setSelectedHandle }) {
@@ -130,31 +136,54 @@ function InputsSection({ selectedHandle, setSelectedHandle }) {
     })), [inputDefs, inputs])
 
     return (
-        <Stack spacing={0}>
-            {inputGroups.map(group => {
-                const rows = group.inputs.map(input =>
-                    <InputRow
-                        input={input}
-                        selected={selectedHandle?.id == input.id}
-                        onSelect={() => setSelectedHandle(input)}
-                        onDeselect={() => setSelectedHandle(null)}
-                        inGroup={group.definition.group}
-                        key={input.id}
-                    />
-                )
-
-                return group.definition.group ?
-                    <InputGroup definition={group.definition} key={group.definition.id}>
-                        {rows}
-                    </InputGroup> :
-                    rows
-            })}
-        </Stack>
+        <ScrollBox offsetScrollbars={false}>
+            <Stack spacing={0}>
+                {inputGroups.map(group => {
+                    const rows = group.inputs.map(input =>
+                        <InputRow
+                            input={input}
+                            selected={selectedHandle?.id == input.id}
+                            onSelect={() => setSelectedHandle(input)}
+                            onDeselect={() => setSelectedHandle(null)}
+                            inGroup={group.definition.group}
+                            key={input.id}
+                        />
+                    )
+                    return group.definition.group ?
+                        <InputGroup
+                            definition={group.definition}
+                            onCreate={input => setSelectedHandle(input)}
+                            key={group.definition.id}
+                        >
+                            {rows}
+                        </InputGroup> :
+                        rows
+                })}
+            </Stack>
+        </ScrollBox>
     )
 }
 
 
-function InputGroup({ children, definition }) {
+function InputGroup({ children, definition, onCreate }) {
+
+    const [inputs, setInputs] = useNodeProperty(undefined, "data.inputs")
+
+    const canBeAdded = useMemo(
+        () => inputs?.filter(i => i.definition == definition.id).length < definition?.groupMax,
+        [inputs]
+    )
+
+    const createInput = () => setInputs(produce(inputs, draft => {
+        const newInput = {
+            id: uniqueId(),
+            definition: definition?.id,
+            mode: definition?.defaultMode,
+            name: `New ${definition?.name}`,
+        }
+        draft.push(newInput)
+        onCreate?.(newInput)
+    }))
 
     return (
         <Stack spacing={0} className="border-solid border-0 border-b-1 border-gray-300">
@@ -163,11 +192,25 @@ function InputGroup({ children, definition }) {
                     required={definition?.required}
                     description={definition?.description}
                     label={definition?.groupName || definition?.name}
-                    className="pt-2 px-2"
+                    className="pt-2 pb-1 px-2"
                 />
             </div>
 
             {children}
+
+            {!children?.length &&
+                <Text className="text-xs text-center my-2" color="dimmed">
+                    No inputs.
+                </Text>}
+
+            {canBeAdded &&
+                <Button
+                    onClick={createInput}
+                    size="xs" compact variant="subtle" leftIcon={<TbPlus />}
+                    className="self-center my-1"
+                >
+                    New {definition?.name}
+                </Button>}
         </Stack>
     )
 }
@@ -201,11 +244,13 @@ function InputRow({ input, inGroup = false, selected, onSelect, onDeselect }) {
                     description: definition?.description,
                     secondaryLabel: name && definition?.name,
                 }}
+                icon={definition?.icon}
                 hidden={hidden}
                 error={error}
                 label={name || definition?.name}
                 classNames={{
-                    label: inGroup && "text-xs"
+                    label: inGroup && "text-xs",
+                    icon: inGroup && "text-xs",
                 }}
             />
 
@@ -222,20 +267,20 @@ function InputRow({ input, inGroup = false, selected, onSelect, onDeselect }) {
 }
 
 
-function ConfigSection({ selectedHandle }) {
+function ConfigSection({ selectedHandle, setSelectedHandle }) {
 
     const [inputs] = useNodeProperty(undefined, "data.inputs")
     // const [outputs] = useNodeProperty(undefined, "data.outputs")
 
     if (inputs?.find(input => input.id == selectedHandle?.id))
-        return <InputConfigSection input={selectedHandle} />
+        return <InputConfigSection input={selectedHandle} setSelectedHandle={setSelectedHandle} />
 
     // if (outputs?.find(output => output.id == selectedHandle?.id))
     //     return <OutputConfigSection output={selectedHandle} />
 }
 
 
-function InputConfigSection({ input }) {
+function InputConfigSection({ input, setSelectedHandle }) {
 
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.inputs[input.definition]
@@ -273,7 +318,7 @@ function InputConfigSection({ input }) {
 
                 <Group noWrap>
                     {definition?.group &&
-                        <InputConfigGroupControls input={input} />}
+                        <InputConfigGroupControls input={input} onDelete={() => setSelectedHandle(null)} />}
 
                     <Menu position="bottom-end" withinPortal shadow="sm">
                         <Menu.Target>
@@ -318,7 +363,7 @@ function InputConfigSection({ input }) {
                         {canBeHandleOrConfig &&
                             <Switch
                                 label="Show as a dynamic input"
-                                description={mode == INPUT_MODE.CONFIGURATION && INPUT_MODE_DESCRIPTIONS[mode]}
+                                description={INPUT_MODE_DESCRIPTIONS[mode]}
                                 checked={mode == INPUT_MODE.HANDLE}
                                 onChange={() => setMode(mode == INPUT_MODE.HANDLE ? INPUT_MODE.CONFIGURATION : INPUT_MODE.HANDLE)}
                             />}
@@ -342,14 +387,14 @@ function InputConfigSection({ input }) {
                                     </Tooltip>}
                             </Group>
 
-                            {mode == INPUT_MODE.CONFIGURATION &&
-                                definition?.renderConfiguration &&
-                                <definition.renderConfiguration inputId={input.id} />}
+                            <Text color="dimmed" fz="xs">
+                                {definition?.dynamicDescription ?
+                                    <definition.dynamicDescription input={input} /> :
+                                    definition?.description}
+                            </Text>
 
-                            {mode == INPUT_MODE.HANDLE &&
-                                <Text color="dimmed" fz="xs">
-                                    {INPUT_MODE_DESCRIPTIONS[mode]}
-                                </Text>}
+                            {mode == INPUT_MODE.CONFIGURATION && definition?.renderConfiguration &&
+                                <definition.renderConfiguration inputId={input.id} definition={definition} />}
                         </Stack>
                     </Stack>
                 </ScrollBox>}
@@ -358,7 +403,7 @@ function InputConfigSection({ input }) {
 }
 
 
-function InputConfigGroupControls({ input }) {
+function InputConfigGroupControls({ input, onDelete }) {
 
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.inputs[input.definition]
@@ -373,6 +418,7 @@ function InputConfigGroupControls({ input }) {
     const deleteInput = () => setInputs(produce(inputs, draft => {
         const index = draft.findIndex(i => i.id == input.id)
         draft.splice(index, 1)
+        onDelete?.()
     }))
 
     return (

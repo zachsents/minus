@@ -18,13 +18,16 @@ export default function ActionNode({ id, data, selected }) {
 
     const hasValidationErrors = useNodeHasValidationErrors(id)
 
-    const shownInputs = useMemo(() => data.inputs?.filter(input => input.mode == INPUT_MODE.HANDLE), [data.inputs])
+    const shownInputs = useMemo(() => data.inputs?.filter(
+        input => input.mode == INPUT_MODE.HANDLE &&
+            !input.hidden
+    ), [data.inputs])
 
     return definition ?
         <div
             className={classNames({
                 "rounded": true,
-                "outline outline-2 outline-blue-300 outline-offset-2": selected,
+                "outline outline-2 outline-primary-300 outline-offset-2": selected,
             })}
         >
             <div className={classNames({
