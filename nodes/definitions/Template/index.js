@@ -1,4 +1,5 @@
 
+/** @type {import("../../defaults/base-defaults.js").BaseNodeDefinition} */
 export default {
     id: "text.Template",
     name: "Fill Template",
@@ -8,11 +9,9 @@ export default {
         template: {
             type: "string",
             required: true,
-            group: false,
         },
         substitution: {
             type: "string",
-            required: false,
             group: true,
         },
     },

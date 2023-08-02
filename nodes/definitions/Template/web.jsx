@@ -5,20 +5,17 @@ import { useDerivedInputs, useNodeProperty } from "web/modules/nodes"
 import TextConfig from "../../config-components/TextConfig"
 
 
+/** @type {import("../../defaults/web-defaults.js").WebNodeDefinition} */
 export default {
-    id: "text.Template",
     icon: TbTemplate,
-    description: "Inserts values into a template.",
 
     inputs: {
         template: {
             name: "Template",
-            nameEditable: false,
             description: "The template to insert values into. Use {SubstitutionName} to insert a value.",
             icon: TbTemplate,
 
             defaultMode: INPUT_MODE.CONFIGURATION,
-            allowedModes: [INPUT_MODE.HANDLE, INPUT_MODE.CONFIGURATION],
 
             renderConfiguration: props => {
 
@@ -64,10 +61,6 @@ export default {
             icon: TbReplace,
 
             defaultMode: INPUT_MODE.HANDLE,
-            allowedModes: [INPUT_MODE.CONFIGURATION, INPUT_MODE.HANDLE],
-
-            groupMin: 0,
-            groupMax: Infinity,
 
             renderConfiguration: props => {
 

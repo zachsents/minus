@@ -285,6 +285,8 @@ function InputConfigSection({ input, setSelectedHandle }) {
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.inputs[input.definition]
 
+    console.log(definition)
+
     const [name, setName] = useNodeProperty(undefined, `data.inputs.id=${input.id}.name`)
     const [hidden, setHidden] = useNodeProperty(undefined, `data.inputs.id=${input.id}.hidden`)
     const [mode, setMode] = useNodeProperty(undefined, `data.inputs.id=${input.id}.mode`)

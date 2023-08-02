@@ -10,7 +10,7 @@ importers:
       prettier: ^2.8.8
       turbo: latest
     devDependencies:
-      '@turbo/gen': 1.10.12_qobivwqysb4oyvo7tfdjaajnaa
+      '@turbo/gen': 1.10.12_bir6x3g64ycygfv3l4v3letmxi
       eslint: 7.32.0
       eslint-config-custom: link:eslint-config-custom
       prettier: 2.8.8
@@ -49,10 +49,12 @@ importers:
     specifiers:
       '@mantine/core': ^6.0.16
       '@zachsents/meta-definitions': ^1.1.1
+      lodash.mapvalues: ^4.6.0
       lodash.merge: ^4.6.2
       nodemon: ^3.0.1
       web: workspace:*
     dependencies:
+      lodash.mapvalues: 4.6.0
       lodash.merge: 4.6.2
     devDependencies:
       '@mantine/core': 6.0.17_esnw5ufcogeez2scpxonphwfia
@@ -2102,7 +2104,7 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@turbo/gen/1.10.12_qobivwqysb4oyvo7tfdjaajnaa:
+  /@turbo/gen/1.10.12_bir6x3g64ycygfv3l4v3letmxi:
     resolution: {integrity: sha512-noop5+3MBFsgPQ7O2vQpS6YYiah+ZrOioa4cDDpZceUVsKVXvUHFmC2nEVyKSJZhO/8SLvbDE/esB/MGw5b2tw==}
     hasBin: true
     dependencies:
@@ -2114,7 +2116,7 @@ packages:
       node-plop: 0.26.3
       proxy-agent: 6.3.0
       semver: 7.5.4
-      ts-node: 10.9.1_qobivwqysb4oyvo7tfdjaajnaa
+      ts-node: 10.9.1_bir6x3g64ycygfv3l4v3letmxi
       update-check: 1.5.4
       validate-npm-package-name: 5.0.0
     transitivePeerDependencies:
@@ -6145,6 +6147,10 @@ packages:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
     dev: true
 
+  /lodash.mapvalues/4.6.0:
+    resolution: {integrity: sha512-JPFqXFeZQ7BfS00H58kClY7SPVeHertPE0lNuCyZ26/XlN8TvakYD7b9bGyNmXbT/D3BbtPAAmq90gPWqLkxlQ==}
+    dev: false
+
   /lodash.merge/4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
@@ -8080,7 +8086,7 @@ packages:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
 
-  /ts-node/10.9.1_qobivwqysb4oyvo7tfdjaajnaa:
+  /ts-node/10.9.1_bir6x3g64ycygfv3l4v3letmxi:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -8099,7 +8105,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 17.0.45
+      '@types/node': 20.4.5
       acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3
