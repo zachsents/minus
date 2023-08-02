@@ -32,6 +32,7 @@ export const WebNodeDefinitionDefaults = {
  * 
  * @property {boolean} defaultHidden Whether this interface should be hidden by default.
  * 
+ * @property {string} groupName A plural label to use when grouping this interface.
  * @property {number} groupMin If this is a grouped interface, the minimum number of inputs/outputs it can have.
  * @property {number} groupMax If this is a grouped interface, the maximum number of inputs/outputs it can have.
  */

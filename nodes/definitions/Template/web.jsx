@@ -1,5 +1,5 @@
 import { Button, Group } from "@mantine/core"
-import { TbReplace, TbTemplate, TbWand } from "react-icons/tb"
+import { TbReplace, TbTemplate, TbWand, TbTextPlus } from "react-icons/tb"
 import { INPUT_MODE } from "web/modules/constants"
 import { useDerivedInputs, useNodeProperty } from "web/modules/nodes"
 import TextConfig from "../../config-components/TextConfig"
@@ -77,6 +77,14 @@ export default {
             validateInput: (input, inputs) =>
                 inputs?.filter(i => i.definition === input?.definition && i.name === input?.name).length > 1 &&
                 "You can't have two substitutions with the same name.",
+        },
+    },
+
+    outputs: {
+        result: {
+            name: "Result",
+            description: "The result of the template with all substitutions inserted.",
+            icon: TbTextPlus,
         },
     }
 }

@@ -15,7 +15,10 @@ const initialNodes = [
                 { id: "dwkjkdwkd", definition: "template", mode: "config" },
                 { id: "sub1", definition: "substitution", name: "Hello", mode: "config" },
                 { id: "sub2", definition: "substitution", name: "Poopy", mode: "config" },
-            ]
+            ],
+            outputs: [
+                { id: "out1", definition: "result" },
+            ],
         }
     },
     {
