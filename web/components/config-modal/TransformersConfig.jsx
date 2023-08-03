@@ -24,6 +24,7 @@ export default function TransformersConfig({ interfaceId, dataKey }) {
                     placeholder="Select a transformer or choose &quot;Custom&quot;"
                     data={Object.keys(TRANSFORMER_MODES)}
                     value={mode} onChange={setMode}
+                    withinPortal
                 />
 
                 {mode === CUSTOM_TRANSFORMER_MODE &&

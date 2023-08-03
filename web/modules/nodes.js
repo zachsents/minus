@@ -1,11 +1,12 @@
+import { useClipboard } from "@mantine/hooks"
 import { produce } from "immer"
 import _ from "lodash"
 import WebDefinitions from "nodes/web"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { getRectOfNodes, useNodeId, useOnSelectionChange, useReactFlow, useStore, useStoreApi, useViewport, useUpdateNodeInternals } from "reactflow"
+import { getRectOfNodes, useNodeId, useOnSelectionChange, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals, useViewport } from "reactflow"
 import { NODE_TYPE } from "shared/constants"
 import { shallow } from "zustand/shallow"
-import { INPUT_MODE } from "./constants"
+import { GRAPH_MIME_TYPE, INPUT_MODE } from "./constants"
 import { _get, _set, uniqueId } from "./util"
 
 
@@ -49,6 +50,14 @@ export function setNodeProperty(nodeId, path, value, rf) {
 
         _set(node, path, value)
     }))
+}
+
+
+export function useNode(nodeId) {
+    if (nodeId === undefined)
+        nodeId = useNodeId()
+
+    return useStore(state => state.nodeInternals.get(nodeId))
 }
 
 
@@ -206,6 +215,16 @@ export function useStoreProperty(property) {
 }
 
 
+export function projectViewportCenter(rf) {
+    const rfPane = global.document.getElementById("reactflow")
+
+    return rf.project({
+        x: rfPane.offsetWidth / 2,
+        y: rfPane.offsetHeight / 2,
+    })
+}
+
+
 /**
  * @param {import("reactflow").ReactFlowInstance} rf
  * @param {string} definitionId
@@ -214,7 +233,14 @@ export function useStoreProperty(property) {
  * @param {number} position.y
  * @param {object} data
  */
-export function createActionNode(rf, definitionId, { x = 0, y = 0 } = {}, data = {}) {
+export function createActionNode(rf, definitionId, { x, y } = {}, data = {}) {
+
+    if (x == null || y == null) {
+        const center = projectViewportCenter(rf)
+        x ??= center.x
+        y ??= center.y
+    }
+
     const newNode = {
         id: uniqueId(),
         type: NODE_TYPE.ACTION,
@@ -237,7 +263,7 @@ export function createActionNode(rf, definitionId, { x = 0, y = 0 } = {}, data =
  * @param {number} position.y
  * @param {object} data
  */
-export function useCreateActionNode(definitionId, { x = 0, y = 0 } = {}, data = {}) {
+export function useCreateActionNode(definitionId, { x, y } = {}, data = {}) {
     const rf = useReactFlow()
 
     return useCallback(
@@ -280,85 +306,96 @@ export function useDeleteElements(nodes, edges) {
     }), [nodes, edges, rf])
 }
 
+/**
+ * @typedef {object} DuplicateElementsOptions
+ * @property {number} xOffset Overrides the default offset
+ * @property {number} yOffset Overrides the default offset
+ * @property {number} offset Offset used on both axes if xOffset and yOffset are not specified
+ * @property {object} position Overrides offset
+ * @property {boolean} deselect Deselects the original elements
+ */
+
 
 /**
- * @param {string} nodeId
- * @param {object} offset
- * @param {number} offset.x
- * @param {number} offset.y
+ * @param {import("reactflow").ReactFlowInstance} rf
+ * @param {import("reactflow").Node[]} nodes
+ * @param {import("reactflow").Edge[]} edges
+ * @param {DuplicateElementsOptions} options
  */
-export function useDuplicateNode(nodeId, { x: xOffset = 50, y: yOffset = 50 } = {}) {
-    const rf = useReactFlow()
+function duplicateElements(rf, nodes, edges, {
+    xOffset,
+    yOffset,
+    offset = 50,
+    position,
+    deselect = true,
+} = {}) {
 
-    if (nodeId === undefined)
-        nodeId = useNodeId()
+    const rect = getRectOfNodes(nodes)
+    const positionOffsetX = position ? position.x - rect.x : 0
+    const positionOffsetY = position ? position.y - rect.y : 0
 
-    return useCallback(() => {
-        const node = rf.getNode(nodeId)
-
-        if (!node)
-            return console.warn(`Node ${nodeId} not found`)
-
-        const newNode = structuredClone(node)
+    const nodeIdMap = {}
+    const newNodes = nodes?.map(n => {
+        const newNode = structuredClone(n)
         newNode.id = uniqueId()
-        newNode.position.x += xOffset
-        newNode.position.y += yOffset
-
-        rf.setNodes(produce(draft => {
-            draft.push(newNode)
-            draft.find(n => n.id === nodeId).selected = false
-        }))
-
+        newNode.position.x += position ? positionOffsetX : (xOffset ?? offset)
+        newNode.position.y += position ? positionOffsetY : (yOffset ?? offset)
+        nodeIdMap[n.id] = newNode.id
         return newNode
-    }, [rf, nodeId])
+    }) ?? []
+
+    const newEdges = edges?.map(e => {
+        const newEdge = structuredClone(e)
+        newEdge.id = uniqueId()
+        newEdge.source = nodeIdMap[e.source]
+        newEdge.target = nodeIdMap[e.target]
+
+        if (!newEdge.source || !newEdge.target)
+            return
+
+        return newEdge
+    }).filter(Boolean) ?? []
+
+    const newNodeIds = newNodes.map(n => n.id)
+    const newEdgeIds = newEdges.map(e => e.id)
+
+    rf.setNodes(produce(draft => {
+        newNodes.forEach(n => draft.push(n))
+
+        if (deselect)
+            draft.forEach(n => n.selected = newNodeIds.includes(n.id))
+    }))
+
+    rf.setEdges(produce(draft => {
+        newEdges.forEach(e => draft.push(e))
+
+        if (deselect)
+            draft.forEach(e => e.selected = newEdgeIds.includes(e.id))
+    }))
 }
 
+
 /**
  * @param {string} nodeId
- * @param {object} offset
- * @param {number} offset.x
- * @param {number} offset.y
+ * @param {DuplicateElementsOptions} options
  */
-export function useDuplicateElements(nodes, edges, { x: xOffset = 50, y: yOffset = 50 } = {}) {
+export function useDuplicateNode(nodeId, options) {
+    const rf = useReactFlow()
+    const node = useNode(nodeId)
+
+    return useCallback(() => duplicateElements(rf, [node], [], options), [rf, node])
+}
+
+
+/**
+ * @param {import("reactflow").Node[]} nodes
+ * @param {import("reactflow").Edge[]} edges
+ * @param {DuplicateElementsOptions} options
+ */
+export function useDuplicateElements(nodes, edges, options) {
     const rf = useReactFlow()
 
-    return useCallback(() => {
-
-        const nodeIdMap = {}
-        const newNodes = nodes?.map(n => {
-            const newNode = structuredClone(n)
-            newNode.id = uniqueId()
-            newNode.position.x += xOffset
-            newNode.position.y += yOffset
-            nodeIdMap[n.id] = newNode.id
-            return newNode
-        }) ?? []
-
-        const newEdges = edges?.map(e => {
-            const newEdge = structuredClone(e)
-            newEdge.id = uniqueId()
-            newEdge.source = nodeIdMap[e.source]
-            newEdge.target = nodeIdMap[e.target]
-
-            if (!newEdge.source || !newEdge.target)
-                return
-
-            return newEdge
-        }).filter(Boolean) ?? []
-
-        const originalNodeIds = nodes?.map(n => n.id) ?? []
-        const originalEdgeIds = edges?.map(e => e.id) ?? []
-
-        rf.setNodes(produce(draft => {
-            draft.filter(n => originalNodeIds.includes(n.id)).forEach(n => n.selected = false)
-            newNodes.forEach(n => draft.push(n))
-        }))
-
-        rf.setEdges(produce(draft => {
-            draft.filter(e => originalEdgeIds.includes(e.id)).forEach(e => e.selected = false)
-            newEdges.forEach(e => draft.push(e))
-        }))
-    }, [rf, nodes, edges])
+    return useCallback(() => duplicateElements(rf, nodes, edges, options), [rf, nodes, edges])
 }
 
 
@@ -429,4 +466,56 @@ export function useUpdateInternals(nodeId) {
     const update = useUpdateNodeInternals()
 
     return useCallback(() => update(nodeId), [nodeId, update])
+}
+
+
+/**
+ * @param {import("reactflow").Node[]} nodes
+ * @param {import("reactflow").Edge[]} edges
+ */
+export function useCopyElementsToClipboard(nodes, edges) {
+    const rf = useReactFlow()
+
+    const { copy } = useClipboard()
+
+    return useCallback(() => {
+        const nodeIds = nodes.map(n => n.id)
+        const edgesToCopy = edges.filter(e => nodeIds.includes(e.source) && nodeIds.includes(e.target))
+
+        copy(GRAPH_MIME_TYPE + JSON.stringify({
+            nodes,
+            edges: edgesToCopy,
+        }))
+    }, [rf, nodes, edges])
+}
+
+
+export function usePasteElementsFromClipboardCallback() {
+
+    const rf = useReactFlow()
+
+    return useCallback(ev => {
+        const textContent = ev.clipboardData.getData("text/plain")
+
+        if (!textContent.startsWith(GRAPH_MIME_TYPE))
+            return
+
+        const { nodes, edges } = JSON.parse(textContent.replace(GRAPH_MIME_TYPE, ""))
+
+        const center = projectViewportCenter(rf)
+        const rect = getRectOfNodes(nodes)
+
+        duplicateElements(rf, nodes, edges, {
+            position: {
+                x: center.x - rect.width / 2,
+                y: center.y - rect.height / 2,
+            },
+        })
+    }, [])
+}
+
+
+export function useCopyNodeToClipboard(nodeId) {
+    const node = useNode(nodeId)
+    return useCopyElementsToClipboard([node], [])
 }

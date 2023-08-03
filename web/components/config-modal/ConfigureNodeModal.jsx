@@ -40,6 +40,8 @@ export default function ConfigureNodeModal() {
                 if (GRAPH_DELETE_KEYS.includes(ev.key))
                     ev.stopPropagation()
             }}
+            // Prevent graph paste events while the modal is open
+            onPaste={ev => ev.stopPropagation()}
         >
             <div className="h-full flex flex-col rounded outline outline-1 outline-gray-300">
                 <Group

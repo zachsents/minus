@@ -1,14 +1,26 @@
 import { Group, Text } from "@mantine/core"
-import { useDeleteElements, useDuplicateElements, useSelection, useSelectionRect } from "@web/modules/nodes"
-import { TbCopy, TbTrash } from "react-icons/tb"
+import { useCopyElementsToClipboard, useDeleteElements, useDuplicateElements, useSelection, useSelectionRect } from "@web/modules/nodes"
+import { TbClipboardCopy, TbClipboardPlus, TbCopy, TbTrash } from "react-icons/tb"
 import ToolbarIcon from "./ToolbarIcon"
 import { modals } from "@mantine/modals"
+import { notifications } from "@mantine/notifications"
+import { useHotkeys } from "@mantine/hooks"
 
 
 export default function MultiNodeToolbar() {
 
     const { selected, selectedNodes, selectedEdges } = useSelection()
     const { screen } = useSelectionRect()
+
+    const _copyNode = useCopyElementsToClipboard(selectedNodes, selectedEdges)
+    const copyNode = () => {
+        _copyNode()
+        notifications.show({
+            title: "Copied!",
+            icon: <TbClipboardPlus />,
+            color: "green",
+        })
+    }
 
     const duplicate = useDuplicateElements(selectedNodes, selectedEdges)
     const deleteElements = useDeleteElements(selectedNodes, selectedEdges)
@@ -26,6 +38,11 @@ export default function MultiNodeToolbar() {
         onConfirm: deleteElements,
     })
 
+    useHotkeys(selected.length > 1 ? [
+        ["mod+c", copyNode],
+        ["mod+d", duplicate],
+    ] : [])
+
     return selected.length > 1 &&
         <div className="absolute z-[4] pointer-events-none outline-dashed outline-gray outline-1 outline-offset-8 rounded-sm" style={{
             top: `${screen.y}px`,
@@ -36,7 +53,15 @@ export default function MultiNodeToolbar() {
         }}>
             <Group noWrap className="pointer-events-auto gap-0 rounded-sm bg-white shadow-sm base-border mb-md absolute bottom-full left-1/2 -translate-x-1/2">
                 <ToolbarIcon
+                    label="Copy"
+                    secondaryLabel="Ctrl+C"
+                    onClick={copyNode}
+                    icon={TbClipboardCopy}
+                />
+
+                <ToolbarIcon
                     label="Duplicate"
+                    secondaryLabel="Ctrl+D"
                     onClick={duplicate}
                     icon={TbCopy}
                 />

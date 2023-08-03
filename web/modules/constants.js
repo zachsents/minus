@@ -33,3 +33,4 @@ export const INPUT_MODE_DESCRIPTIONS = {
     [INPUT_MODE.CONFIGURATION]: "Currently using the fixed value below.",
 }
 
+export const GRAPH_MIME_TYPE = "application/vnd.minus.graph+json"

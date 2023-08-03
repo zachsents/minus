@@ -12,6 +12,7 @@ import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
 import DataEdge from "./DataEdge"
 import MultiNodeToolbar from "./MultiNodeToolbar"
+import { usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
 
 
 const initialNodes = [
@@ -63,6 +64,8 @@ export default function GraphEditor() {
         ["mod+y", redo],
     ])
 
+    const pasteHandler = usePasteElementsFromClipboardCallback()
+
     return (
         <div className="flex-1">
             <ReactFlow
@@ -90,6 +93,8 @@ export default function GraphEditor() {
                 zoomActivationKeyCode={null}
                 deleteKeyCode={GRAPH_DELETE_KEYS}
                 id="reactflow"
+
+                onPaste={pasteHandler}
             >
                 {showMinimap &&
                     <MiniMap pannable zoomable />}
