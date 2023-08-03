@@ -5,11 +5,12 @@ import { Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState } f
 
 import "reactflow/dist/style.css"
 import ActionNode from "./ActionNode"
+import { NODE_TYPE } from "shared/constants"
 
 
 const initialNodes = [
     {
-        id: '1', type: "node-type:Action", position: { x: 0, y: 0 }, data: {
+        id: '1', type: NODE_TYPE.ACTION, position: { x: 0, y: 0 }, data: {
             definition: "text.Template",
             inputs: [
                 { id: "dwkjkdwkd", definition: "template", mode: "config" },
@@ -22,7 +23,7 @@ const initialNodes = [
         }
     },
     {
-        id: '2', type: "node-type:Action", position: { x: 0, y: 100 }, data: {
+        id: '2', type: NODE_TYPE.ACTION, position: { x: 0, y: 100 }, data: {
             definition: "text.Template"
         }
     },

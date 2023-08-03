@@ -1,11 +1,11 @@
 import { produce } from "immer"
 import _ from "lodash"
 import WebDefinitions from "nodes/web"
-import { useCallback, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import { useNodeId, useReactFlow, useStore, useStoreApi } from "reactflow"
 import { INPUT_MODE } from "./constants"
 import { _get, _set, uniqueId } from "./util"
-import { useEffect } from "react"
+import { NODE_TYPE } from "shared/constants"
 
 
 /**
@@ -204,3 +204,92 @@ export function useStoreProperty(property) {
     return [value, setValue]
 }
 
+
+/**
+ * @param {import("reactflow").ReactFlowInstance} rf
+ * @param {string} definitionId
+ * @param {object} position
+ * @param {number} position.x
+ * @param {number} position.y
+ * @param {object} data
+ */
+export function createActionNode(rf, definitionId, { x = 0, y = 0 } = {}, data = {}) {
+    const newNode = {
+        id: uniqueId(),
+        type: NODE_TYPE.ACTION,
+        position: { x, y },
+        data: {
+            definition: definitionId,
+            ...data,
+        },
+    }
+
+    rf?.setNodes(nodes => [...nodes, newNode])
+
+    return newNode
+}
+
+/**
+ * @param {string} definitionId
+ * @param {object} position
+ * @param {number} position.x
+ * @param {number} position.y
+ * @param {object} data
+ */
+export function useCreateActionNode(definitionId, { x = 0, y = 0 } = {}, data = {}) {
+    const rf = useReactFlow()
+
+    return useCallback(
+        () => createActionNode(rf, definitionId, { x, y }, data),
+        [rf, definitionId, x, y, data]
+    )
+}
+
+
+/**
+ * @param {string} nodeId
+ */
+export function useDeleteNode(nodeId) {
+    const rf = useReactFlow()
+
+    if (nodeId === undefined)
+        nodeId = useNodeId()
+
+    return useCallback(
+        () => rf.setNodes(nodes => nodes.filter(n => n.id !== nodeId)),
+        [nodeId, rf]
+    )
+}
+
+
+/**
+ * @param {string} nodeId
+ * @param {object} offset
+ * @param {number} offset.x
+ * @param {number} offset.y
+ */
+export function useDuplicateNode(nodeId, { x: xOffset = 50, y: yOffset = 50 } = {}) {
+    const rf = useReactFlow()
+
+    if (nodeId === undefined)
+        nodeId = useNodeId()
+
+    return useCallback(() => {
+        const node = rf.getNode(nodeId)
+
+        if (!node)
+            return console.warn(`Node ${nodeId} not found`)
+
+        const newNode = structuredClone(node)
+        newNode.id = uniqueId()
+        newNode.position.x += xOffset
+        newNode.position.y += yOffset
+
+        rf.setNodes(produce(draft => {
+            draft.push(newNode)
+            draft.find(n => n.id === nodeId).selected = false
+        }))
+
+        return newNode
+    }, [rf, nodeId])
+}

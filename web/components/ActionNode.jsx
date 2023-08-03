@@ -6,6 +6,7 @@ import { TbAdjustments } from "react-icons/tb"
 import { Position, Handle as RFHandle } from "reactflow"
 import ConfigureNodeModal from "./config-modal/ConfigureNodeModal"
 import { useMemo } from "react"
+import NodeToolbar from "./NodeToolbar"
 
 
 export default function ActionNode({ id, data, selected }) {
@@ -23,72 +24,73 @@ export default function ActionNode({ id, data, selected }) {
             !input.hidden
     ), [data.inputs])
 
-    return definition ?
-        <div
-            className={classNames({
-                "rounded": true,
-                "outline outline-2 outline-primary-300 outline-offset-2": selected,
-            })}
-        >
-            <div className={classNames({
-                "flex flex-col min-w-[16rem] max-w-[22rem] rounded transition-shadow outline outline-1 outline-gray-300 bg-white": true,
-                "shadow-md": selected,
-                "shadow-sm": !selected,
-            })}>
-                <Group
-                    position="apart"
-                    bg={definition?.color}
-                    className="text-white px-xs py-1 rounded-t"
+    return (
+        <div className="relative">
+            {definition ?
+                <div
+                    className={classNames({
+                        "rounded": true,
+                        "outline outline-2 outline-primary-300 outline-offset-2": selected,
+                    })}
                 >
-                    <Tooltip label={definition?.name} disabled={displayName == definition?.name} withinPortal>
-                        <Group spacing="xs">
-                            {definition.icon &&
-                                <definition.icon />}
-
-                            <Text className="text-sm font-semibold">{displayName}</Text>
+                    <div className={classNames({
+                        "flex flex-col min-w-[16rem] max-w-[22rem] rounded transition-shadow outline outline-1 outline-gray-300 bg-white": true,
+                        "shadow-md": selected,
+                        "shadow-sm": !selected,
+                    })}>
+                        <Group
+                            position="apart"
+                            bg={definition?.color}
+                            className="text-white px-xs py-1 rounded-t"
+                        >
+                            <Tooltip label={definition?.name} disabled={displayName == definition?.name} withinPortal>
+                                <Group spacing="xs">
+                                    {definition.icon &&
+                                        <definition.icon />}
+                                    <Text className="text-sm font-semibold">{displayName}</Text>
+                                </Group>
+                            </Tooltip>
+                            <Group>
+                                <Tooltip label="Configure" withinPortal>
+                                    <Indicator color="yellow" disabled={!hasValidationErrors}>
+                                        <ActionIcon
+                                            size="sm"
+                                            className="nodrag bg-dark bg-opacity-25 hover:bg-dark hover:bg-opacity-50 text-gray-100"
+                                            onClick={openNodeConfiguration}
+                                        >
+                                            <TbAdjustments />
+                                        </ActionIcon>
+                                    </Indicator>
+                                </Tooltip>
+                            </Group>
                         </Group>
-                    </Tooltip>
+                        <Group
+                            align="stretch" position="apart"
+                            className="py-xs -mx-2"
+                        >
+                            <Stack className="gap-2">
+                                <Text color="dimmed" fz="xs" px="lg">
+                                    Inputs
+                                </Text>
+                                {shownInputs?.map(input =>
+                                    <Handle {...input} type={HANDLE_TYPE.INPUT} key={input.id} />
+                                )}
+                            </Stack>
+                            <Stack className="gap-2">
+                                <Text color="dimmed" fz="xs" ta="end" px="lg">
+                                    Outputs
+                                </Text>
+                            </Stack>
+                        </Group>
+                    </div>
+                    <ConfigureNodeModal />
+                </div > :
+                <Fallback />}
 
-                    <Group>
-                        <Tooltip label="Configure" withinPortal>
-                            <Indicator color="yellow" disabled={!hasValidationErrors}>
-                                <ActionIcon
-                                    size="sm"
-                                    className="nodrag bg-dark bg-opacity-25 hover:bg-dark hover:bg-opacity-50 text-gray-100"
-                                    onClick={openNodeConfiguration}
-                                >
-                                    <TbAdjustments />
-                                </ActionIcon>
-                            </Indicator>
-                        </Tooltip>
-                    </Group>
-                </Group>
-
-                <Group
-                    align="stretch" position="apart"
-                    className="py-xs -mx-2"
-                >
-                    <Stack className="gap-2">
-                        <Text color="dimmed" fz="xs" px="lg">
-                            Inputs
-                        </Text>
-
-                        {shownInputs?.map(input =>
-                            <Handle {...input} type={HANDLE_TYPE.INPUT} key={input.id} />
-                        )}
-                    </Stack>
-
-                    <Stack className="gap-2">
-                        <Text color="dimmed" fz="xs" ta="end" px="lg">
-                            Outputs
-                        </Text>
-                    </Stack>
-                </Group>
-            </div>
-
-            <ConfigureNodeModal />
-        </div > :
-        <Fallback />
+            {selected &&
+                <NodeToolbar />}
+        </div>
+    )
 }
 
 

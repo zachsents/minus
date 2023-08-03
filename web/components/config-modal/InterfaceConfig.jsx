@@ -20,7 +20,7 @@ function InterfaceConfig({ children, interf, type, dataKey, setSelectedInterface
     return (
         <div className="h-full flex flex-col items-stretch">
             <Group position="apart" noWrap className="p-xs border-solid border-0 border-b-1 border-gray-300">
-                <Stack className="gap-1">
+                <Stack className="gap-1" align="flex-start">
                     <Group noWrap spacing="xs" className="text-sm">
                         <Badge radius="sm" variant="filled">{type}</Badge>
 
@@ -40,15 +40,13 @@ function InterfaceConfig({ children, interf, type, dataKey, setSelectedInterface
                         {titleRightSection}
                     </Group>
 
-                    <Group noWrap spacing="xs">
-                        {definition?.required && <Badge color="yellow" radius="sm" size="xs">Required</Badge>}
+                    <Text color="dimmed" fz="xs">
+                        {definition?.dynamicDescription ?
+                            <definition.dynamicDescription {...{ [type]: interf }} /> :
+                            definition?.description}
+                    </Text>
 
-                        <Text color="dimmed" fz="xs">
-                            {definition?.dynamicDescription ?
-                                <definition.dynamicDescription {...{ [type]: interf }} /> :
-                                definition?.description}
-                        </Text>
-                    </Group>
+                    {definition?.required && <Badge color="yellow" radius="sm" size="xs">Required</Badge>}
                 </Stack>
 
                 <Group noWrap>
