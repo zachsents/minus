@@ -519,3 +519,24 @@ export function useCopyNodeToClipboard(nodeId) {
     const node = useNode(nodeId)
     return useCopyElementsToClipboard([node], [])
 }
+
+
+/**
+ * @param {import("reactflow").ReactFlowInstance} rf
+ * @param {import("reactflow").Node[]} nodes
+ */
+export function selectConnectedEdges(rf, nodes) {
+    const nodeIds = nodes.map(n => n.id)
+    rf.setEdges(produce(draft => {
+        draft.forEach(e => e.selected = nodeIds.includes(e.source) && nodeIds.includes(e.target))
+    }))
+}
+
+
+/**
+ * @param {import("reactflow").Node[]} nodes
+ */
+export function useSelectConnectedEdges(nodes) {
+    const rf = useReactFlow()
+    return useCallback(() => selectConnectedEdges(rf, nodes), [rf, nodes])
+}

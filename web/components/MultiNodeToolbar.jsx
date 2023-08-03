@@ -1,6 +1,6 @@
 import { Group, Text } from "@mantine/core"
-import { useCopyElementsToClipboard, useDeleteElements, useDuplicateElements, useSelection, useSelectionRect } from "@web/modules/nodes"
-import { TbClipboardCopy, TbClipboardPlus, TbCopy, TbTrash } from "react-icons/tb"
+import { useCopyElementsToClipboard, useDeleteElements, useDuplicateElements, useSelectConnectedEdges, useSelection, useSelectionRect } from "@web/modules/nodes"
+import { TbChartDots3, TbClipboardCopy, TbClipboardPlus, TbCopy, TbTrash } from "react-icons/tb"
 import ToolbarIcon from "./ToolbarIcon"
 import { modals } from "@mantine/modals"
 import { notifications } from "@mantine/notifications"
@@ -11,6 +11,8 @@ export default function MultiNodeToolbar() {
 
     const { selected, selectedNodes, selectedEdges } = useSelection()
     const { screen } = useSelectionRect()
+
+    const selectConnectedEdges = useSelectConnectedEdges(selectedNodes)
 
     const _copyNode = useCopyElementsToClipboard(selectedNodes, selectedEdges)
     const copyNode = () => {
@@ -41,6 +43,7 @@ export default function MultiNodeToolbar() {
     useHotkeys(selected.length > 1 ? [
         ["mod+c", copyNode],
         ["mod+d", duplicate],
+        ["mod+e", selectConnectedEdges],
     ] : [])
 
     return selected.length > 1 &&
@@ -52,6 +55,13 @@ export default function MultiNodeToolbar() {
             height: `${screen.height}px`,
         }}>
             <Group noWrap className="pointer-events-auto gap-0 rounded-sm bg-white shadow-sm base-border mb-md absolute bottom-full left-1/2 -translate-x-1/2">
+                <ToolbarIcon
+                    label="Select Connections"
+                    secondaryLabel="Ctrl+E"
+                    onClick={selectConnectedEdges}
+                    icon={TbChartDots3}
+                />
+
                 <ToolbarIcon
                     label="Copy"
                     secondaryLabel="Ctrl+C"
@@ -68,6 +78,7 @@ export default function MultiNodeToolbar() {
 
                 <ToolbarIcon
                     label="Delete"
+                    secondaryLabel="Backspace"
                     onClick={confirmDelete}
                     icon={TbTrash}
                 />

@@ -62,6 +62,7 @@ export default function NodeToolbar() {
 
             <ToolbarIcon
                 label="Delete"
+                secondaryLabel="Backspace"
                 onClick={confirmDelete}
                 icon={TbTrash}
             />
