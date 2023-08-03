@@ -1,12 +1,13 @@
 import { ActionIcon, Group, Indicator, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import { HANDLE_TYPE, INPUT_MODE, RF_STORE_PROPERTIES } from "@web/modules/constants"
-import { useDefinition, useIsOnlyNodeSelected, useNodeHasValidationErrors, useStoreProperty } from "@web/modules/nodes"
+import { useDefinition, useIsOnlyNodeSelected, useNodeHasValidationErrors, useNodeProperty, useStoreProperty, useUpdateInternals } from "@web/modules/nodes"
 import classNames from "classnames"
 import { TbAdjustments } from "react-icons/tb"
 import { Position, Handle as RFHandle } from "reactflow"
 import ConfigureNodeModal from "./config-modal/ConfigureNodeModal"
 import { useMemo } from "react"
 import NodeToolbar from "./NodeToolbar"
+import { useEffect } from "react"
 
 
 export default function ActionNode({ id, data, selected }) {
@@ -23,6 +24,10 @@ export default function ActionNode({ id, data, selected }) {
         input => input.mode == INPUT_MODE.HANDLE &&
             !input.hidden
     ), [data.inputs])
+
+    const shownOutputs = useMemo(() => data.outputs?.filter(
+        output => !output.hidden
+    ), [data.outputs])
 
     const isOnlyNodeSelected = useIsOnlyNodeSelected()
 
@@ -82,6 +87,9 @@ export default function ActionNode({ id, data, selected }) {
                                 <Text color="dimmed" fz="xs" ta="end" px="lg">
                                     Outputs
                                 </Text>
+                                {shownOutputs?.map(output =>
+                                    <Handle {...output} type={HANDLE_TYPE.OUTPUT} key={output.id} />
+                                )}
                             </Stack>
                         </Group>
                     </div>
@@ -91,12 +99,14 @@ export default function ActionNode({ id, data, selected }) {
 
             {selected && isOnlyNodeSelected &&
                 <NodeToolbar />}
+
+            <UpdateInternals />
         </div>
     )
 }
 
 
-function Handle({ id, name, type, definition: defId, hideLabel = false }) {
+function Handle({ id, name, type, definition: defId }) {
 
     const theme = useMantineTheme()
     const nodeDefinition = useDefinition()
@@ -133,10 +143,9 @@ function Handle({ id, name, type, definition: defId, hideLabel = false }) {
                     {/* {definition.showHandleIcon && definition.icon &&
                         <definition.icon size="0.7rem" color="currentColor" />} */}
 
-                    {!hideLabel &&
-                        <Text className="text-xs text-current">
-                            {definition?.nameEditable ? name : definition?.name}
-                        </Text>}
+                    <Text className="text-xs text-current">
+                        {name || definition?.name}
+                    </Text>
                 </Group>
             </RFHandle>
         </div>
@@ -150,4 +159,23 @@ function Fallback() {
             This node is having problems.
         </Text>
     )
+}
+
+
+function UpdateInternals() {
+
+    const updateInternals = useUpdateInternals()
+
+    const [inputs] = useNodeProperty(undefined, "data.inputs")
+    const [outputs] = useNodeProperty(undefined, "data.outputs")
+
+    const checksum = useMemo(
+        () => `${inputs?.map(input => `${input.hidden}${input.mode}`).join()}` +
+            `${outputs?.map(output => `${output.hidden}`).join()}`,
+        [inputs, outputs]
+    )
+
+    useEffect(() => {
+        updateInternals()
+    }, [checksum])
 }

@@ -1,10 +1,10 @@
 import { Button, Stack, Text } from "@mantine/core"
-import HandleDefinitionLabel from "./HandleDefinitionLabel"
 import { useNodeProperty } from "@web/modules/nodes"
-import { useMemo } from "react"
-import { produce } from "immer"
 import { uniqueId } from "@web/modules/util"
+import { produce } from "immer"
+import { useMemo } from "react"
 import { TbPlus } from "react-icons/tb"
+import HandleDefinitionLabel from "./HandleDefinitionLabel"
 
 
 function InterfaceGroup({ children, definition, dataKey, noneLabel, onCreate, newInterfaceProps = {} }) {

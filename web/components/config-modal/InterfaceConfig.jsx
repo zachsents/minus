@@ -1,11 +1,11 @@
-import { Group, Text, Badge, Button, Menu, ActionIcon, Stack, Alert, Switch, Tooltip, Accordion } from "@mantine/core"
-import { useDefinition, useNodeProperty, useInputValidation } from "@web/modules/nodes"
-import EditableText from "../EditableText"
-import { useMemo } from "react"
+import { Accordion, ActionIcon, Alert, Badge, Button, Group, Menu, Stack, Switch, Text, Tooltip } from "@mantine/core"
+import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR, INPUT_MODE, INPUT_MODE_DESCRIPTIONS } from "@web/modules/constants"
+import { useDefinition, useInputValidation, useNodeProperty } from "@web/modules/nodes"
 import { produce } from "immer"
-import { TbTrash, TbDots, TbEye, TbEyeOff, TbAlertTriangle, TbFunction, TbForms } from "react-icons/tb"
+import { useMemo } from "react"
+import { TbAlertTriangle, TbDots, TbEye, TbEyeOff, TbForms, TbFunction, TbTrash } from "react-icons/tb"
+import EditableText from "../EditableText"
 import ScrollBox from "../ScrollBox"
-import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR, INPUT_MODE_DESCRIPTIONS, INPUT_MODE } from "@web/modules/constants"
 import TransformersConfig from "./TransformersConfig"
 
 

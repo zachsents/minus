@@ -1,5 +1,5 @@
 import { Group, Text } from "@mantine/core"
-import { useDeleteNodes, useDuplicateElements, useSelection, useSelectionRect } from "@web/modules/nodes"
+import { useDeleteElements, useDuplicateElements, useSelection, useSelectionRect } from "@web/modules/nodes"
 import { TbCopy, TbTrash } from "react-icons/tb"
 import ToolbarIcon from "./ToolbarIcon"
 import { modals } from "@mantine/modals"
@@ -11,7 +11,7 @@ export default function MultiNodeToolbar() {
     const { screen } = useSelectionRect()
 
     const duplicate = useDuplicateElements(selectedNodes, selectedEdges)
-    const deleteNodes = useDeleteNodes(selectedNodes)
+    const deleteElements = useDeleteElements(selectedNodes, selectedEdges)
 
     const confirmDelete = () => modals.openConfirmModal({
         title: `Delete ${selectedNodes.length} nodes`,
@@ -23,7 +23,7 @@ export default function MultiNodeToolbar() {
         confirmProps: { color: "red", variant: "filled" },
         cancelProps: { variant: "outline" },
         centered: true,
-        onConfirm: deleteNodes,
+        onConfirm: deleteElements,
     })
 
     return selected.length > 1 &&

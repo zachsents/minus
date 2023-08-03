@@ -2,11 +2,11 @@ import { produce } from "immer"
 import _ from "lodash"
 import WebDefinitions from "nodes/web"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { getRectOfNodes, useNodeId, useOnSelectionChange, useReactFlow, useStore, useStoreApi, useViewport } from "reactflow"
+import { getRectOfNodes, useNodeId, useOnSelectionChange, useReactFlow, useStore, useStoreApi, useViewport, useUpdateNodeInternals } from "reactflow"
 import { NODE_TYPE } from "shared/constants"
+import { shallow } from "zustand/shallow"
 import { INPUT_MODE } from "./constants"
 import { _get, _set, uniqueId } from "./util"
-import { shallow } from "zustand/shallow"
 
 
 /**
@@ -256,25 +256,28 @@ export function useDeleteNode(nodeId) {
     if (nodeId === undefined)
         nodeId = useNodeId()
 
-    return useCallback(
-        () => rf.setNodes(nodes => nodes.filter(n => n.id !== nodeId)),
-        [nodeId, rf]
-    )
+    return useCallback(() => rf.deleteElements({ nodes: [rf.getNode(nodeId)] }), [nodeId, rf])
 }
 
 
 /**
- * @param {import("reactflow").Node[]} nodes
+ * @param {import("reactflow").Node[] | string[]} nodes
+ * @param {import("reactflow").Edge[] | string[]} edges
  */
-export function useDeleteNodes(nodes) {
+export function useDeleteElements(nodes, edges) {
     const rf = useReactFlow()
 
-    const nodeIds = useMemo(() => nodes?.map(n => n.id) ?? [], [nodes])
+    const nodeObjects = nodes?.every(n => typeof n === "string") ?
+        nodes?.map(n => rf.getNode(n)) :
+        nodes
+    const edgeObjects = edges?.every(e => typeof e === "string") ?
+        edges?.map(e => rf.getEdge(e)) :
+        edges
 
-    return useCallback(
-        () => rf.setNodes(nodes => nodes.filter(n => !nodeIds.includes(n.id))),
-        [nodes, rf]
-    )
+    return useCallback(() => rf.deleteElements({
+        nodes: nodeObjects,
+        edges: edgeObjects,
+    }), [nodes, edges, rf])
 }
 
 
@@ -336,8 +339,12 @@ export function useDuplicateElements(nodes, edges, { x: xOffset = 50, y: yOffset
             newEdge.id = uniqueId()
             newEdge.source = nodeIdMap[e.source]
             newEdge.target = nodeIdMap[e.target]
+
+            if (!newEdge.source || !newEdge.target)
+                return
+
             return newEdge
-        }) ?? []
+        }).filter(Boolean) ?? []
 
         const originalNodeIds = nodes?.map(n => n.id) ?? []
         const originalEdgeIds = edges?.map(e => e.id) ?? []
@@ -412,4 +419,14 @@ export function useSelectionRect() {
         viewport: rect,
         screen: screenRect,
     }
+}
+
+
+export function useUpdateInternals(nodeId) {
+    if (nodeId === undefined)
+        nodeId = useNodeId()
+
+    const update = useUpdateNodeInternals()
+
+    return useCallback(() => update(nodeId), [nodeId, update])
 }

@@ -7,6 +7,7 @@ import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
 import MultiNodeToolbar from "./MultiNodeToolbar"
+import DataEdge from "./DataEdge"
 
 
 const initialNodes = [
@@ -49,12 +50,16 @@ export default function GraphEditor() {
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
 
                 defaultEdgeOptions={defaultEdgeOptions}
                 connectOnClick={false}
                 snapGrid={snapGrid}
 
                 elevateNodesOnSelect
+                elevateEdgesOnSelect
+                nodesFocusable={false}
+                edgesFocusable={false}
                 // This switches whether onMouseDown or onClick is used
                 selectNodesOnDrag={false}
                 selectionKeyCode={"Control"}
@@ -77,9 +82,13 @@ const nodeTypes = {
     [NODE_TYPE.ACTION]: ActionNode,
 }
 
+const edgeTypes = {
+    [EDGE_TYPE.DATA]: DataEdge,
+}
+
 const snapGrid = [25, 25]
 
 const defaultEdgeOptions = {
     type: [EDGE_TYPE.DATA],
-    focusable: false,
+    markerEnd: "arrow",
 }
