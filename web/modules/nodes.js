@@ -1,11 +1,12 @@
 import { produce } from "immer"
 import _ from "lodash"
 import WebDefinitions from "nodes/web"
-import { useCallback, useEffect, useMemo } from "react"
-import { useNodeId, useReactFlow, useStore, useStoreApi } from "reactflow"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { getRectOfNodes, useNodeId, useOnSelectionChange, useReactFlow, useStore, useStoreApi, useViewport } from "reactflow"
+import { NODE_TYPE } from "shared/constants"
 import { INPUT_MODE } from "./constants"
 import { _get, _set, uniqueId } from "./util"
-import { NODE_TYPE } from "shared/constants"
+import { shallow } from "zustand/shallow"
 
 
 /**
@@ -263,6 +264,21 @@ export function useDeleteNode(nodeId) {
 
 
 /**
+ * @param {import("reactflow").Node[]} nodes
+ */
+export function useDeleteNodes(nodes) {
+    const rf = useReactFlow()
+
+    const nodeIds = useMemo(() => nodes?.map(n => n.id) ?? [], [nodes])
+
+    return useCallback(
+        () => rf.setNodes(nodes => nodes.filter(n => !nodeIds.includes(n.id))),
+        [nodes, rf]
+    )
+}
+
+
+/**
  * @param {string} nodeId
  * @param {object} offset
  * @param {number} offset.x
@@ -292,4 +308,108 @@ export function useDuplicateNode(nodeId, { x: xOffset = 50, y: yOffset = 50 } = 
 
         return newNode
     }, [rf, nodeId])
+}
+
+/**
+ * @param {string} nodeId
+ * @param {object} offset
+ * @param {number} offset.x
+ * @param {number} offset.y
+ */
+export function useDuplicateElements(nodes, edges, { x: xOffset = 50, y: yOffset = 50 } = {}) {
+    const rf = useReactFlow()
+
+    return useCallback(() => {
+
+        const nodeIdMap = {}
+        const newNodes = nodes?.map(n => {
+            const newNode = structuredClone(n)
+            newNode.id = uniqueId()
+            newNode.position.x += xOffset
+            newNode.position.y += yOffset
+            nodeIdMap[n.id] = newNode.id
+            return newNode
+        }) ?? []
+
+        const newEdges = edges?.map(e => {
+            const newEdge = structuredClone(e)
+            newEdge.id = uniqueId()
+            newEdge.source = nodeIdMap[e.source]
+            newEdge.target = nodeIdMap[e.target]
+            return newEdge
+        }) ?? []
+
+        const originalNodeIds = nodes?.map(n => n.id) ?? []
+        const originalEdgeIds = edges?.map(e => e.id) ?? []
+
+        rf.setNodes(produce(draft => {
+            draft.filter(n => originalNodeIds.includes(n.id)).forEach(n => n.selected = false)
+            newNodes.forEach(n => draft.push(n))
+        }))
+
+        rf.setEdges(produce(draft => {
+            draft.filter(e => originalEdgeIds.includes(e.id)).forEach(e => e.selected = false)
+            newEdges.forEach(e => draft.push(e))
+        }))
+    }, [rf, nodes, edges])
+}
+
+
+/**
+ * @param {string} nodeId
+ */
+export function useIsOnlyNodeSelected(nodeId) {
+
+    if (nodeId === undefined)
+        nodeId = useNodeId()
+
+    return useStore(state => {
+        if (state.edges.some(e => e.selected))
+            return false
+
+        const selected = [...state.nodeInternals.values()].filter(n => n.selected)
+        return selected.length === 1 && selected[0].id === nodeId
+    })
+}
+
+
+export function useSelection() {
+
+    const [selectedNodes, setSelectedNodes] = useState([])
+    const [selectedEdges, setSelectedEdges] = useState([])
+
+    useOnSelectionChange({
+        onChange: ({ nodes, edges }) => {
+            setSelectedNodes(nodes)
+            setSelectedEdges(edges)
+        }
+    })
+
+    const selected = useMemo(() => [...selectedNodes, ...selectedEdges], [selectedNodes, selectedEdges])
+
+    return {
+        selectedNodes,
+        selectedEdges,
+        selected,
+    }
+}
+
+export function useSelectionRect() {
+
+    const selectedNodes = useStore(state => [...state.nodeInternals.values()].filter(n => n.selected), shallow)
+    const rect = useMemo(() => getRectOfNodes(selectedNodes), [selectedNodes])
+
+    const viewport = useViewport()
+
+    const screenRect = useMemo(() => ({
+        x: rect.x * viewport.zoom + viewport.x,
+        y: rect.y * viewport.zoom + viewport.y,
+        width: rect.width * viewport.zoom,
+        height: rect.height * viewport.zoom,
+    }), [rect, viewport])
+
+    return {
+        viewport: rect,
+        screen: screenRect,
+    }
 }

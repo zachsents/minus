@@ -1,7 +1,8 @@
-import { ActionIcon, Group, Text, Tooltip } from "@mantine/core"
+import { Group, Text } from "@mantine/core"
 import { modals } from "@mantine/modals"
 import { useDefinition, useDeleteNode, useDuplicateNode, useNodeProperty } from "@web/modules/nodes"
 import { TbCopy, TbTrash } from "react-icons/tb"
+import ToolbarIcon from "./ToolbarIcon"
 
 
 export default function NodeToolbar() {
@@ -45,13 +46,3 @@ export default function NodeToolbar() {
 }
 
 
-function ToolbarIcon({ icon: Icon, label, ...props }) {
-
-    return (
-        <Tooltip label={label}>
-            <ActionIcon {...props}>
-                <Icon />
-            </ActionIcon>
-        </Tooltip>
-    )
-}

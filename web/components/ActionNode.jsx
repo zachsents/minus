@@ -1,6 +1,6 @@
 import { ActionIcon, Group, Indicator, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import { HANDLE_TYPE, INPUT_MODE, RF_STORE_PROPERTIES } from "@web/modules/constants"
-import { useDefinition, useNodeHasValidationErrors, useStoreProperty } from "@web/modules/nodes"
+import { useDefinition, useIsOnlyNodeSelected, useNodeHasValidationErrors, useStoreProperty } from "@web/modules/nodes"
 import classNames from "classnames"
 import { TbAdjustments } from "react-icons/tb"
 import { Position, Handle as RFHandle } from "reactflow"
@@ -23,6 +23,8 @@ export default function ActionNode({ id, data, selected }) {
         input => input.mode == INPUT_MODE.HANDLE &&
             !input.hidden
     ), [data.inputs])
+
+    const isOnlyNodeSelected = useIsOnlyNodeSelected()
 
     return (
         <div className="relative">
@@ -87,7 +89,7 @@ export default function ActionNode({ id, data, selected }) {
                 </div > :
                 <Fallback />}
 
-            {selected &&
+            {selected && isOnlyNodeSelected &&
                 <NodeToolbar />}
         </div>
     )

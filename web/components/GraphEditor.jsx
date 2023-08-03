@@ -4,8 +4,9 @@ import { useCallback } from "react"
 import { Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState } from "reactflow"
 
 import "reactflow/dist/style.css"
+import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
-import { NODE_TYPE } from "shared/constants"
+import MultiNodeToolbar from "./MultiNodeToolbar"
 
 
 const initialNodes = [
@@ -66,18 +67,19 @@ export default function GraphEditor() {
                     <MiniMap pannable zoomable />}
 
                 <Controls />
+                <MultiNodeToolbar />
             </ReactFlow>
         </div>
     )
 }
 
 const nodeTypes = {
-    "node-type:Action": ActionNode,
+    [NODE_TYPE.ACTION]: ActionNode,
 }
 
 const snapGrid = [25, 25]
 
 const defaultEdgeOptions = {
-    type: "edge-type:Data",
+    type: [EDGE_TYPE.DATA],
     focusable: false,
 }
