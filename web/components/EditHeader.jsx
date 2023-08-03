@@ -164,7 +164,7 @@ function CheckableMenuItem({ children, value, onChange, icon: Icon }) {
         <Menu.Item
             icon={<Icon />}
             rightSection={<Checkbox
-                radius="sm" checked={value}
+                radius="sm" checked={value} readOnly
             />}
             onClick={() => onChange?.(!value)}
         >

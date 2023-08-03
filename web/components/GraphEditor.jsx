@@ -1,7 +1,8 @@
+import { useMantineTheme } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
 import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { useCallback } from "react"
-import { Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState } from "reactflow"
+import { Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState, Background } from "reactflow"
 
 import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
@@ -34,12 +35,15 @@ const initialNodes = [
 
 export default function GraphEditor() {
 
+    const theme = useMantineTheme()
+
     const [nodes, , onNodesChange] = useNodesState(initialNodes)
     const [edges, setEdges, onEdgesChange] = useEdgesState([])
 
     const onConnect = useCallback(params => setEdges(edges => addEdge(params, edges)), [setEdges])
 
     const [showMinimap] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_MINIMAP })
+    const [showGrid] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_GRID })
 
     return (
         <div className="flex-1">
@@ -55,6 +59,7 @@ export default function GraphEditor() {
                 defaultEdgeOptions={defaultEdgeOptions}
                 connectOnClick={false}
                 snapGrid={snapGrid}
+                snapToGrid={showGrid}
 
                 elevateNodesOnSelect
                 elevateEdgesOnSelect
@@ -70,6 +75,9 @@ export default function GraphEditor() {
             >
                 {showMinimap &&
                     <MiniMap pannable zoomable />}
+
+                {showGrid &&
+                    <Background variant="lines" gap={snapGrid[0]} offset={0.4} color={theme.colors.gray[1]} />}
 
                 <Controls />
                 <MultiNodeToolbar />
