@@ -10,7 +10,7 @@ importers:
       prettier: ^2.8.8
       turbo: latest
     devDependencies:
-      '@turbo/gen': 1.10.12_bir6x3g64ycygfv3l4v3letmxi
+      '@turbo/gen': 1.10.12_qobivwqysb4oyvo7tfdjaajnaa
       eslint: 7.32.0
       eslint-config-custom: link:eslint-config-custom
       prettier: 2.8.8
@@ -75,6 +75,7 @@ importers:
       '@mantine/modals': ^6.0.16
       '@mantine/notifications': ^6.0.16
       '@mantine/prism': ^6.0.16
+      '@monaco-editor/react': ^4.5.1
       '@types/node': ^17.0.12
       '@types/react': ^18.0.22
       '@types/react-dom': ^18.0.7
@@ -110,6 +111,7 @@ importers:
       '@mantine/modals': 6.0.17_rbna6yjd7rnbwkhb3mazkwzgv4
       '@mantine/notifications': 6.0.17_rbna6yjd7rnbwkhb3mazkwzgv4
       '@mantine/prism': 6.0.17_rbna6yjd7rnbwkhb3mazkwzgv4
+      '@monaco-editor/react': 4.5.1_zwszyzws36eupxxmzxlyrhs4aq
       classnames: 2.3.2
       dayjs: 1.11.9
       firebase: 9.23.0
@@ -567,26 +569,6 @@ packages:
       '@emotion/utils': 1.2.1
       '@emotion/weak-memoize': 0.3.1
       '@types/react': 18.2.5
-      hoist-non-react-statics: 3.3.2
-      react: 18.2.0
-    dev: false
-
-  /@emotion/react/11.11.1_react@18.2.0:
-    resolution: {integrity: sha512-5mlW1DquU5HaxjLkfkGN1GA/fvVGdyHURRiX/0FHl2cfIfRxSOfmxEH5YS43edp0OldZrZ+dkBKbngxcNCdZvA==}
-    peerDependencies:
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@emotion/babel-plugin': 11.11.0
-      '@emotion/cache': 11.11.0
-      '@emotion/serialize': 1.1.2
-      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1_react@18.2.0
-      '@emotion/utils': 1.2.1
-      '@emotion/weak-memoize': 0.3.1
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
 
@@ -1673,7 +1655,7 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
-      '@emotion/react': 11.11.1_react@18.2.0
+      '@emotion/react': 11.11.1_3pi6y6cylzraaxxtldk4o6b3zi
       clsx: 1.1.1
       csstype: 3.0.9
       react: 18.2.0
@@ -1685,6 +1667,28 @@ packages:
       react: '>=16.8.0'
     dependencies:
       react: 18.2.0
+
+  /@monaco-editor/loader/1.3.3_monaco-editor@0.40.0:
+    resolution: {integrity: sha512-6KKF4CTzcJiS8BJwtxtfyYt9shBiEv32ateQ9T4UVogwn4HM/uPo9iJd2Dmbkpz8CM6Y0PDUpjnZzCwC+eYo2Q==}
+    peerDependencies:
+      monaco-editor: '>= 0.21.0 < 1'
+    dependencies:
+      monaco-editor: 0.40.0
+      state-local: 1.0.7
+    dev: false
+
+  /@monaco-editor/react/4.5.1_zwszyzws36eupxxmzxlyrhs4aq:
+    resolution: {integrity: sha512-NNDFdP+2HojtNhCkRfE6/D6ro6pBNihaOzMbGK84lNWzRu+CfBjwzGt4jmnqimLuqp5yE5viHS2vi+QOAnD5FQ==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@monaco-editor/loader': 1.3.3_monaco-editor@0.40.0
+      monaco-editor: 0.40.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
 
   /@next/env/13.4.1:
     resolution: {integrity: sha512-eD6WCBMFjLFooLM19SIhSkWBHtaFrZFfg2Cxnyl3vS3DAdFRfnx5TY2RxlkuKXdIRCC0ySbtK9JXXt8qLCqzZg==}
@@ -2104,7 +2108,7 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@turbo/gen/1.10.12_bir6x3g64ycygfv3l4v3letmxi:
+  /@turbo/gen/1.10.12_qobivwqysb4oyvo7tfdjaajnaa:
     resolution: {integrity: sha512-noop5+3MBFsgPQ7O2vQpS6YYiah+ZrOioa4cDDpZceUVsKVXvUHFmC2nEVyKSJZhO/8SLvbDE/esB/MGw5b2tw==}
     hasBin: true
     dependencies:
@@ -2116,7 +2120,7 @@ packages:
       node-plop: 0.26.3
       proxy-agent: 6.3.0
       semver: 7.5.4
-      ts-node: 10.9.1_bir6x3g64ycygfv3l4v3letmxi
+      ts-node: 10.9.1_qobivwqysb4oyvo7tfdjaajnaa
       update-check: 1.5.4
       validate-npm-package-name: 5.0.0
     transitivePeerDependencies:
@@ -6366,6 +6370,10 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  /monaco-editor/0.40.0:
+    resolution: {integrity: sha512-1wymccLEuFSMBvCk/jT1YDW/GuxMLYwnFwF9CDyYCxoTw2Pt379J3FUhwy9c43j51JdcxVPjwk0jm0EVDsBS2g==}
+    dev: false
+
   /ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
 
@@ -7732,6 +7740,10 @@ packages:
       escape-string-regexp: 2.0.0
     dev: true
 
+  /state-local/1.0.7:
+    resolution: {integrity: sha512-HTEHMNieakEnoe33shBYcZ7NX83ACUjCu8c40iOGEZsngj9zRnkqS9j1pqQPXwobB0ZcVTk27REb7COQ0UR59w==}
+    dev: false
+
   /statuses/2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
@@ -8086,7 +8098,7 @@ packages:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
 
-  /ts-node/10.9.1_bir6x3g64ycygfv3l4v3letmxi:
+  /ts-node/10.9.1_qobivwqysb4oyvo7tfdjaajnaa:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -8105,7 +8117,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.4.5
+      '@types/node': 17.0.45
       acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3

@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react"
 import { useNodeId, useReactFlow, useStore, useStoreApi } from "reactflow"
 import { INPUT_MODE } from "./constants"
 import { _get, _set, uniqueId } from "./util"
+import { useEffect } from "react"
 
 
 /**
@@ -55,7 +56,7 @@ export function setNodeProperty(nodeId, path, value, rf) {
  * @param {string} path
  * @return {[ any, (value: any) => void ]}
  */
-export function useNodeProperty(nodeId, path) {
+export function useNodeProperty(nodeId, path, defaultValue) {
     if (nodeId === undefined)
         nodeId = useNodeId()
 
@@ -65,7 +66,26 @@ export function useNodeProperty(nodeId, path) {
 
     const setValue = useCallback(value => setNodeProperty(nodeId, path, value, rf), [nodeId, path, rf])
 
+    useEffect(() => {
+        if (defaultValue !== undefined && value === undefined)
+            setValue(defaultValue)
+    }, [setValue])
+
     return [value, setValue]
+}
+
+
+export function useInterfaceProperty(nodeId, dataKey, interfaceId, path, defaultValue) {
+    return useNodeProperty(nodeId, `data.${dataKey}.id=${interfaceId}.${path}`, defaultValue)
+}
+
+
+export function useInputProperty(nodeId, inputId, path, defaultValue) {
+    return useInterfaceProperty(nodeId, "inputs", inputId, path, defaultValue)
+}
+
+export function useOutputProperty(nodeId, outputId, path, defaultValue) {
+    return useInterfaceProperty(nodeId, "outputs", outputId, path, defaultValue)
 }
 
 

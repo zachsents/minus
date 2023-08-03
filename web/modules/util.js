@@ -45,12 +45,20 @@ export function _set(object, path, value) {
     const selectedObject = segments.reduce((result, segment) => {
         if (segment.includes("=")) {
             const [key, value] = segment.split("=")
-            return result.find(item => item[key] == value)
+            const found = result.find(item => item[key] == value)
+
+            if (found)
+                return found
+
+            const newObj = { [key]: value }
+            result.push(newObj)
+
+            return newObj
         } else {
-            return result?.[segment]
+            result[segment] ??= {}
+            return result[segment]
         }
     }, object)
 
-    if (selectedObject)
-        selectedObject[lastSegment] = value
+    selectedObject[lastSegment] = value
 }

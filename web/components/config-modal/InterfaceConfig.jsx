@@ -1,4 +1,4 @@
-import { Group, Text, Badge, Button, Menu, ActionIcon, Stack, Alert, Switch, Tooltip } from "@mantine/core"
+import { Group, Text, Badge, Button, Menu, ActionIcon, Stack, Alert, Switch, Tooltip, Accordion } from "@mantine/core"
 import { useDefinition, useNodeProperty, useInputValidation } from "@web/modules/nodes"
 import EditableText from "../EditableText"
 import { useMemo } from "react"
@@ -6,6 +6,7 @@ import { produce } from "immer"
 import { TbTrash, TbDots, TbEye, TbEyeOff, TbAlertTriangle, TbFunction, TbForms } from "react-icons/tb"
 import ScrollBox from "../ScrollBox"
 import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR, INPUT_MODE_DESCRIPTIONS, INPUT_MODE } from "@web/modules/constants"
+import TransformersConfig from "./TransformersConfig"
 
 
 function InterfaceConfig({ children, interf, type, dataKey, setSelectedInterface, titleRightSection }) {
@@ -93,6 +94,19 @@ function InterfaceConfig({ children, interf, type, dataKey, setSelectedInterface
                 <ScrollBox insideFlex>
                     <Stack className="p-xs">
                         {children}
+
+                        <Accordion>
+                            <Accordion.Item value="advanced">
+                                <Accordion.Control className="text-xs text-gray px-xs">
+                                    Advanced Settings
+                                </Accordion.Control>
+                                <Accordion.Panel>
+                                    <Stack spacing="xs">
+                                        <TransformersConfig interfaceId={interf.id} dataKey={dataKey} />
+                                    </Stack>
+                                </Accordion.Panel>
+                            </Accordion.Item>
+                        </Accordion>
                     </Stack>
                 </ScrollBox>}
         </div>
