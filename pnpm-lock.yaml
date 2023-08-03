@@ -10,7 +10,7 @@ importers:
       prettier: ^2.8.8
       turbo: latest
     devDependencies:
-      '@turbo/gen': 1.10.12_qobivwqysb4oyvo7tfdjaajnaa
+      '@turbo/gen': 1.10.12_bir6x3g64ycygfv3l4v3letmxi
       eslint: 7.32.0
       eslint-config-custom: link:eslint-config-custom
       prettier: 2.8.8
@@ -63,7 +63,10 @@ importers:
       web: link:../web
 
   shared:
-    specifiers: {}
+    specifiers:
+      lodash: ^4.17.21
+    dependencies:
+      lodash: 4.17.21
 
   web:
     specifiers:
@@ -2108,7 +2111,7 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@turbo/gen/1.10.12_qobivwqysb4oyvo7tfdjaajnaa:
+  /@turbo/gen/1.10.12_bir6x3g64ycygfv3l4v3letmxi:
     resolution: {integrity: sha512-noop5+3MBFsgPQ7O2vQpS6YYiah+ZrOioa4cDDpZceUVsKVXvUHFmC2nEVyKSJZhO/8SLvbDE/esB/MGw5b2tw==}
     hasBin: true
     dependencies:
@@ -2120,7 +2123,7 @@ packages:
       node-plop: 0.26.3
       proxy-agent: 6.3.0
       semver: 7.5.4
-      ts-node: 10.9.1_qobivwqysb4oyvo7tfdjaajnaa
+      ts-node: 10.9.1_bir6x3g64ycygfv3l4v3letmxi
       update-check: 1.5.4
       validate-npm-package-name: 5.0.0
     transitivePeerDependencies:
@@ -8098,7 +8101,7 @@ packages:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
 
-  /ts-node/10.9.1_qobivwqysb4oyvo7tfdjaajnaa:
+  /ts-node/10.9.1_bir6x3g64ycygfv3l4v3letmxi:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -8117,7 +8120,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 17.0.45
+      '@types/node': 20.4.5
       acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3

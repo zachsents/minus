@@ -1,13 +1,14 @@
-import { Overlay, Stack, Switch } from "@mantine/core"
+import { Select, Stack, Switch } from "@mantine/core"
 import MonacoEditor from "@monaco-editor/react"
 import { useInterfaceProperty } from "@web/modules/nodes"
-import classNames from "classnames"
+import { CUSTOM_TRANSFORMER_MODE, TRANSFORMER_MODES, } from "shared/constants"
 
 
 export default function TransformersConfig({ interfaceId, dataKey }) {
 
     const [enabled, setEnabled] = useInterfaceProperty(undefined, dataKey, interfaceId, "transformer.enabled", false)
-    const [transformerValue, setTransformerValue] = useInterfaceProperty(undefined, dataKey, interfaceId, "transformer.value", defaultTransformer)
+    const [mode, setMode] = useInterfaceProperty(undefined, dataKey, interfaceId, "transformer.mode")
+    const [code, setCode] = useInterfaceProperty(undefined, dataKey, interfaceId, "transformer.code", defaultTransformer)
 
     return (
         <Stack spacing="xs">
@@ -18,25 +19,27 @@ export default function TransformersConfig({ interfaceId, dataKey }) {
                 onChange={ev => setEnabled(ev.currentTarget.checked)}
             />
 
-            <div className={classNames({
-                "border-solid border-1 border-gray-300 rounded-sm overflow-hidden relative": true,
-                "h-60": enabled,
-                "h-20": !enabled,
-            })}>
-                <MonacoEditor
-                    height="100%"
-                    language="javascript"
-                    theme="light"
-                    value={transformerValue ?? ""}
-                    onChange={newCode => setTransformerValue(newCode)}
-                    options={{
-                        minimap: { enabled: false },
-                    }}
+            {enabled && <>
+                <Select
+                    placeholder="Select a transformer or choose &quot;Custom&quot;"
+                    data={Object.keys(TRANSFORMER_MODES)}
+                    value={mode} onChange={setMode}
                 />
 
-                {!enabled &&
-                    <Overlay opacity={0.25} />}
-            </div>
+                {mode === CUSTOM_TRANSFORMER_MODE &&
+                    <div className="h-60 border-solid border-1 border-gray-300 rounded-sm overflow-hidden relative">
+                        <MonacoEditor
+                            height="100%"
+                            language="javascript"
+                            theme="light"
+                            value={code ?? ""}
+                            onChange={newCode => setCode(newCode)}
+                            options={{
+                                minimap: { enabled: false },
+                            }}
+                        />
+                    </div>}
+            </>}
         </Stack>
     )
 }

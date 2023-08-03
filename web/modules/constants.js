@@ -32,3 +32,4 @@ export const INPUT_MODE_DESCRIPTIONS = {
     [INPUT_MODE.HANDLE]: "Currently being shown as an input on the node. Its value will come from the output of another node.",
     [INPUT_MODE.CONFIGURATION]: "Currently using the fixed value below.",
 }
+
