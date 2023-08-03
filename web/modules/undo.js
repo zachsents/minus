@@ -1,4 +1,5 @@
 import { useDebouncedValue } from "@mantine/hooks"
+import _ from "lodash"
 import { useCallback, useEffect, useReducer } from "react"
 
 
@@ -67,4 +68,22 @@ export function useUndoRedo(value, setValue, {
     const redo = useCallback(() => dispatch({ type: "redo" }), [])
 
     return [history.present, undo, redo]
+}
+
+
+export const graphEquality = (a, b) => {
+    const pickNode = node => _.pick(node, ["position", "data.name", "data.inputs", "data.outputs"])
+    const pickEdge = edge => _.pick(edge, ["source", "sourceHandle", "target", "targetHandle"])
+
+    const pickedA = {
+        nodes: a.nodes.map(pickNode),
+        edges: a.edges.map(pickEdge),
+    }
+
+    const pickedB = {
+        nodes: b.nodes.map(pickNode),
+        edges: b.edges.map(pickEdge),
+    }
+
+    return JSON.stringify(pickedA) === JSON.stringify(pickedB)
 }
