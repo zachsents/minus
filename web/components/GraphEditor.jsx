@@ -1,14 +1,17 @@
-import { useMantineTheme } from "@mantine/core"
-import { useLocalStorage } from "@mantine/hooks"
+import { Tooltip, useMantineTheme } from "@mantine/core"
+import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { useCallback } from "react"
-import { Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState, Background } from "reactflow"
+import { Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState, Background, ControlButton } from "reactflow"
 
 import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
 import MultiNodeToolbar from "./MultiNodeToolbar"
 import DataEdge from "./DataEdge"
+import { TbArrowBack, TbArrowForward } from "react-icons/tb"
+import { useMemo } from "react"
+import { useUndoRedo } from "@web/modules/undo"
 
 
 const initialNodes = [
@@ -37,13 +40,28 @@ export default function GraphEditor() {
 
     const theme = useMantineTheme()
 
-    const [nodes, , onNodesChange] = useNodesState(initialNodes)
+    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
     const [edges, setEdges, onEdgesChange] = useEdgesState([])
 
     const onConnect = useCallback(params => setEdges(edges => addEdge(params, edges)), [setEdges])
 
     const [showMinimap] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_MINIMAP })
     const [showGrid] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_GRID })
+
+    const graphState = useMemo(() => ({ nodes, edges }), [nodes, edges])
+    const setGraphState = useCallback(({ nodes, edges }) => {
+        setNodes(nodes)
+        setEdges(edges)
+    }, [setNodes, setEdges])
+    const [, undo, redo] = useUndoRedo(graphState, setGraphState, {
+        debounce: 200,
+        equality: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+    })
+
+    useHotkeys([
+        ["mod+z", undo],
+        ["mod+y", redo],
+    ])
 
     return (
         <div className="flex-1">
@@ -79,7 +97,23 @@ export default function GraphEditor() {
                 {showGrid &&
                     <Background variant="lines" gap={snapGrid[0]} offset={0.4} color={theme.colors.gray[1]} />}
 
-                <Controls />
+                <Controls>
+                    <Tooltip label="Undo (Ctrl + Z)" position="right">
+                        <div>
+                            <ControlButton onClick={undo} title="Undo">
+                                <TbArrowBack />
+                            </ControlButton>
+                        </div>
+                    </Tooltip>
+                    <Tooltip label="Redo (Ctrl + Y)" position="right">
+                        <div>
+                            <ControlButton onClick={redo}>
+                                <TbArrowForward />
+                            </ControlButton>
+                        </div>
+                    </Tooltip>
+                </Controls>
+
                 <MultiNodeToolbar />
             </ReactFlow>
         </div>
