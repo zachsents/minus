@@ -86,7 +86,7 @@ export default function GraphEditor() {
                 {showGrid &&
                     <Background variant="lines" gap={snapGrid[0]} offset={0.4} color={theme.colors.gray[1]} />}
 
-                <Controls>
+                <Controls showInteractive={false}>
                     <Tooltip label="Undo (Ctrl + Z)" position="right">
                         <div>
                             <ControlButton onClick={undo} title="Undo">
