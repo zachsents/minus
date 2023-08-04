@@ -1,13 +1,16 @@
 import { useClipboard } from "@mantine/hooks"
+import { notifications } from "@mantine/notifications"
 import { produce } from "immer"
 import _ from "lodash"
 import WebDefinitions from "nodes/web"
 import { useCallback, useEffect, useMemo } from "react"
-import { getRectOfNodes, useNodeId, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals, useViewport } from "reactflow"
-import { NODE_TYPE } from "shared/constants"
+import { TbAlertTriangle, TbSwitch3 } from "react-icons/tb"
+import { addEdge, getRectOfNodes, useNodeId, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals, useViewport } from "reactflow"
+import { DATA_TYPE_LABELS, NODE_TYPE, typesMatch } from "shared/constants"
 import { shallow } from "zustand/shallow"
 import { GRAPH_MIME_TYPE, INPUT_MODE } from "./constants"
 import { _get, _set, uniqueId } from "./util"
+import { Button, Stack, Text, Tooltip } from "@mantine/core"
 
 
 /**
@@ -574,4 +577,56 @@ export function selectIncomers(rf, nodes) {
 export function useSelectIncomers(nodes) {
     const rf = useReactFlow()
     return useCallback(() => selectIncomers(rf, nodes), [rf, nodes])
+}
+
+
+export function useOnConnectCallback(setEdges) {
+
+    const rf = useReactFlow()
+
+    return useCallback(params => {
+        const sourceNode = rf.getNode(params.source)
+        const sourceNodeDef = getDefinition(params.source, rf)
+        const sourceInterface = sourceNode?.data?.outputs?.find(o => o.id === params.sourceHandle)
+        const sourceInterfaceDef = sourceNodeDef?.outputs?.[sourceInterface.definition]
+        const sourceType = sourceInterfaceDef?.type
+
+        const targetNode = rf.getNode(params.target)
+        const targetNodeDef = getDefinition(params.target, rf)
+        const targetInterface = targetNode?.data?.inputs?.find(i => i.id === params.targetHandle)
+        const targetInterfaceDef = targetNodeDef?.inputs?.[targetInterface.definition]
+        const targetType = targetInterfaceDef?.type
+
+        const connect = (options = {}) => setEdges(edges => addEdge({
+            ...params,
+            ...options,
+        }, edges))
+
+        if (typesMatch(sourceType, targetType))
+            return connect()
+
+        const notifId = `type-mismatch-${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`
+
+        notifications.show({
+            id: notifId,
+            title: "Types don't match.",
+            message: <Stack spacing="xs" align="flex-start">
+                <Text>A {DATA_TYPE_LABELS[sourceType]} output can&apos;t be connected to a {DATA_TYPE_LABELS[targetType]} input.</Text>
+
+                <Tooltip label="This could prevent your workflow from functioning normally.">
+                    <Button
+                        onClick={() => {
+                            connect({ data: { forced: true } })
+                            notifications.hide(notifId)
+                        }}
+                        variant="subtle" compact color="red" leftIcon={<TbAlertTriangle />}
+                    >
+                        Connect anyway
+                    </Button>
+                </Tooltip>
+            </Stack>,
+            icon: <TbSwitch3 />,
+            color: "red",
+        })
+    }, [setEdges])
 }

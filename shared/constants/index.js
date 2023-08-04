@@ -8,3 +8,4 @@ export const EDGE_TYPE = {
 }
 
 export * from "./transformer.js"
+export * from "./types.js"

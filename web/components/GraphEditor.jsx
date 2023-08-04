@@ -2,8 +2,9 @@ import { Tooltip, useMantineTheme } from "@mantine/core"
 import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { useCallback } from "react"
-import { Background, ControlButton, Controls, MiniMap, ReactFlow, addEdge, useEdgesState, useNodesState } from "reactflow"
+import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
 
+import { useOnConnectCallback, usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
 import { graphEquality, useUndoRedo } from "@web/modules/undo"
 import { useMemo } from "react"
 import { TbArrowBack, TbArrowForward } from "react-icons/tb"
@@ -12,7 +13,6 @@ import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
 import DataEdge from "./DataEdge"
 import NodeToolbar from "./NodeToolbar"
-import { usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
 
 
 const initialNodes = [
@@ -20,18 +20,13 @@ const initialNodes = [
         id: '1', type: NODE_TYPE.ACTION, position: { x: 0, y: 0 }, data: {
             definition: "text.Template",
             inputs: [
-                { id: "dwkjkdwkd", definition: "template", mode: "config" },
-                { id: "sub1", definition: "substitution", name: "Hello", mode: "config" },
+                { id: "dwkjkdwkd", definition: "template", mode: "handle" },
+                { id: "sub1", definition: "substitution", name: "Hello", mode: "handle" },
                 { id: "sub2", definition: "substitution", name: "Poopy", mode: "config" },
             ],
             outputs: [
                 { id: "out1", definition: "result" },
             ],
-        }
-    },
-    {
-        id: '2', type: NODE_TYPE.ACTION, position: { x: 0, y: 100 }, data: {
-            definition: "text.Template"
         }
     },
 ]
@@ -44,7 +39,7 @@ export default function GraphEditor() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
     const [edges, setEdges, onEdgesChange] = useEdgesState([])
 
-    const onConnect = useCallback(params => setEdges(edges => addEdge(params, edges)), [setEdges])
+    const onConnect = useOnConnectCallback(setEdges)
 
     const [showMinimap] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_MINIMAP })
     const [showGrid] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_GRID })
@@ -137,5 +132,5 @@ const snapGrid = [25, 25]
 
 const defaultEdgeOptions = {
     type: EDGE_TYPE.DATA,
-    markerEnd: "arrow",
+    // markerEnd: "arrow",
 }

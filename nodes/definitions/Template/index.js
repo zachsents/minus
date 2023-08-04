@@ -1,3 +1,5 @@
+import { DATA_TYPE } from "shared/constants/index.js"
+
 
 /** @type {import("../../defaults/base-defaults.js").BaseNodeDefinition} */
 export default {
@@ -7,18 +9,18 @@ export default {
 
     inputs: {
         template: {
-            type: "string",
+            type: DATA_TYPE.NUMBER,
             required: true,
         },
         substitution: {
-            type: "string",
+            type: DATA_TYPE.ANY,
             group: true,
         },
     },
 
     outputs: {
         result: {
-            type: "string",
+            type: DATA_TYPE.STRING,
         }
     },
 }

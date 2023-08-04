@@ -17,6 +17,7 @@ export default function DataEdge({
     style = {},
     markerEnd,
     selected,
+    data,
 }) {
 
     const [edgePath, labelX, labelY] = getBezierPath({
@@ -39,11 +40,20 @@ export default function DataEdge({
             <path
                 d={edgePath}
                 markerEnd={markerEnd}
-                className={classNames({
-                    "fill-none stroke-gray-300 stroke-[5px]": true,
-                    "stroke-primary-300": hovered && !selected,
-                    "stroke-primary-400": selected,
-                })}
+                className={classNames(
+                    {
+                        "fill-none stroke-gray-300 stroke-[5px]": true,
+                        "stroke-primary-300": hovered && !selected,
+                        "stroke-primary-400": selected,
+                    },
+                    data?.forced ?
+                        selected ?
+                            "stroke-red-500" :
+                            hovered ?
+                                "stroke-red-400" :
+                                "stroke-red-300" :
+                        undefined
+                )}
                 style={style}
             />
             <path
