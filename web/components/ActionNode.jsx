@@ -1,13 +1,11 @@
 import { ActionIcon, Group, Indicator, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import { HANDLE_TYPE, INPUT_MODE, RF_STORE_PROPERTIES } from "@web/modules/constants"
-import { useDefinition, useIsOnlyNodeSelected, useNodeHasValidationErrors, useNodeProperty, useStoreProperty, useUpdateInternals } from "@web/modules/nodes"
+import { useDefinition, useNodeHasValidationErrors, useNodeProperty, useStoreProperty, useUpdateInternals } from "@web/modules/nodes"
 import classNames from "classnames"
+import { useEffect, useMemo } from "react"
 import { TbAdjustments } from "react-icons/tb"
 import { Position, Handle as RFHandle } from "reactflow"
 import ConfigureNodeModal from "./config-modal/ConfigureNodeModal"
-import { useMemo } from "react"
-import NodeToolbar from "./NodeToolbar"
-import { useEffect } from "react"
 
 
 export default function ActionNode({ id, data, selected }) {
@@ -29,8 +27,6 @@ export default function ActionNode({ id, data, selected }) {
         output => !output.hidden
     ), [data.outputs])
 
-    const isOnlyNodeSelected = useIsOnlyNodeSelected()
-
     return (
         <div className="relative">
             {definition ?
@@ -38,6 +34,7 @@ export default function ActionNode({ id, data, selected }) {
                     className={classNames({
                         "rounded": true,
                         "outline outline-2 outline-primary-300 outline-offset-2": selected,
+                        "hover:outline hover:outline-2 hover:outline-primary-200 hover:outline-offset-2": !selected,
                     })}
                 >
                     <div className={classNames({
@@ -96,9 +93,6 @@ export default function ActionNode({ id, data, selected }) {
                     <ConfigureNodeModal />
                 </div > :
                 <Fallback />}
-
-            {selected && isOnlyNodeSelected &&
-                <NodeToolbar />}
 
             <UpdateInternals />
         </div>

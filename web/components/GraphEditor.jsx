@@ -11,7 +11,7 @@ import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
 import DataEdge from "./DataEdge"
-import MultiNodeToolbar from "./MultiNodeToolbar"
+import NodeToolbar from "./NodeToolbar"
 import { usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
 
 
@@ -119,7 +119,7 @@ export default function GraphEditor() {
                     </Tooltip>
                 </Controls>
 
-                <MultiNodeToolbar />
+                <NodeToolbar />
             </ReactFlow>
         </div>
     )

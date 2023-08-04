@@ -2,8 +2,8 @@ import { useClipboard } from "@mantine/hooks"
 import { produce } from "immer"
 import _ from "lodash"
 import WebDefinitions from "nodes/web"
-import { useCallback, useEffect, useMemo, useState } from "react"
-import { getRectOfNodes, useNodeId, useOnSelectionChange, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals, useViewport } from "reactflow"
+import { useCallback, useEffect, useMemo } from "react"
+import { getRectOfNodes, useNodeId, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals, useViewport } from "reactflow"
 import { NODE_TYPE } from "shared/constants"
 import { shallow } from "zustand/shallow"
 import { GRAPH_MIME_TYPE, INPUT_MODE } from "./constants"
@@ -376,18 +376,6 @@ function duplicateElements(rf, nodes, edges, {
 
 
 /**
- * @param {string} nodeId
- * @param {DuplicateElementsOptions} options
- */
-export function useDuplicateNode(nodeId, options) {
-    const rf = useReactFlow()
-    const node = useNode(nodeId)
-
-    return useCallback(() => duplicateElements(rf, [node], [], options), [rf, node])
-}
-
-
-/**
  * @param {import("reactflow").Node[]} nodes
  * @param {import("reactflow").Edge[]} edges
  * @param {DuplicateElementsOptions} options
@@ -419,15 +407,8 @@ export function useIsOnlyNodeSelected(nodeId) {
 
 export function useSelection() {
 
-    const [selectedNodes, setSelectedNodes] = useState([])
-    const [selectedEdges, setSelectedEdges] = useState([])
-
-    useOnSelectionChange({
-        onChange: ({ nodes, edges }) => {
-            setSelectedNodes(nodes)
-            setSelectedEdges(edges)
-        }
-    })
+    const selectedNodes = useStore(state => [...state.nodeInternals.values()].filter(n => n.selected), shallow)
+    const selectedEdges = useStore(state => state.edges.filter(e => e.selected), shallow)
 
     const selected = useMemo(() => [...selectedNodes, ...selectedEdges], [selectedNodes, selectedEdges])
 
@@ -515,12 +496,6 @@ export function usePasteElementsFromClipboardCallback() {
 }
 
 
-export function useCopyNodeToClipboard(nodeId) {
-    const node = useNode(nodeId)
-    return useCopyElementsToClipboard([node], [])
-}
-
-
 /**
  * @param {import("reactflow").ReactFlowInstance} rf
  * @param {import("reactflow").Node[]} nodes
@@ -539,4 +514,64 @@ export function selectConnectedEdges(rf, nodes) {
 export function useSelectConnectedEdges(nodes) {
     const rf = useReactFlow()
     return useCallback(() => selectConnectedEdges(rf, nodes), [rf, nodes])
+}
+
+
+/**
+ * @param {import("reactflow").ReactFlowInstance} rf
+ * @param {import("reactflow").Node[]} nodes
+ */
+export function selectOutgoers(rf, nodes) {
+
+    const nodeIds = nodes.map(n => n.id)
+    const outgoingEdges = rf.getEdges().filter(e => nodeIds.includes(e.source))
+    const outgoingEdgeIds = outgoingEdges.map(e => e.id)
+    const targetIds = outgoingEdges.map(e => e.target)
+
+    rf.setNodes(produce(draft => {
+        draft.filter(n => targetIds.includes(n.id)).forEach(n => n.selected = true)
+    }))
+
+    rf.setEdges(produce(draft => {
+        draft.filter(e => outgoingEdgeIds.includes(e.id)).forEach(e => e.selected = true)
+    }))
+}
+
+
+/**
+ * @param {import("reactflow").Node[]} nodes
+ */
+export function useSelectOutgoers(nodes) {
+    const rf = useReactFlow()
+    return useCallback(() => selectOutgoers(rf, nodes), [rf, nodes])
+}
+
+
+/**
+ * @param {import("reactflow").ReactFlowInstance} rf
+ * @param {import("reactflow").Node[]} nodes
+ */
+export function selectIncomers(rf, nodes) {
+
+    const nodeIds = nodes.map(n => n.id)
+    const incomingEdges = rf.getEdges().filter(e => nodeIds.includes(e.target))
+    const incomingEdgeIds = incomingEdges.map(e => e.id)
+    const sourceIds = incomingEdges.map(e => e.source)
+
+    rf.setNodes(produce(draft => {
+        draft.filter(n => sourceIds.includes(n.id)).forEach(n => n.selected = true)
+    }))
+
+    rf.setEdges(produce(draft => {
+        draft.filter(e => incomingEdgeIds.includes(e.id)).forEach(e => e.selected = true)
+    }))
+}
+
+
+/**
+ * @param {import("reactflow").Node[]} nodes
+ */
+export function useSelectIncomers(nodes) {
+    const rf = useReactFlow()
+    return useCallback(() => selectIncomers(rf, nodes), [rf, nodes])
 }
