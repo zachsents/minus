@@ -9,7 +9,7 @@ export default {
 
     inputs: {
         template: {
-            type: DATA_TYPE.NUMBER,
+            type: DATA_TYPE.STRING,
             required: true,
         },
         substitution: {
