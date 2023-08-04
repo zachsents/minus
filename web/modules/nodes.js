@@ -606,6 +606,9 @@ export function useOnConnectCallback(setEdges) {
     const rf = useReactFlow()
 
     return useCallback(params => {
+        if (params.source == params.target)
+            return
+
         const sourceNode = rf.getNode(params.source)
         const sourceNodeDef = getDefinition(params.source, rf)
         const sourceInterface = sourceNode?.data?.outputs?.find(o => o.id === params.sourceHandle)
