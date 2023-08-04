@@ -40,3 +40,5 @@ export const INPUT_MODE_DESCRIPTIONS = {
 }
 
 export const GRAPH_MIME_TYPE = "application/vnd.minus.graph+json"
+
+export const CLICK_OUTSIDE_PD_TS = ["pointerdown", "touchstart"]

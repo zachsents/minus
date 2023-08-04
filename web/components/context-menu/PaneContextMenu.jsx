@@ -1,6 +1,6 @@
 import { FocusTrap, NavLink, Popover, Stack, TextInput } from "@mantine/core"
 import { useWindowEvent } from "@mantine/hooks"
-import { RF_STORE_PROPERTIES } from "@web/modules/constants"
+import { CLICK_OUTSIDE_PD_TS, RF_STORE_PROPERTIES } from "@web/modules/constants"
 import { useProjectRFToScreen } from "@web/modules/graph"
 import { createActionNode, useStoreProperty } from "@web/modules/nodes"
 import classNames from "classnames"
@@ -61,7 +61,7 @@ export default function PaneContextMenu() {
     return (
         <Popover
             opened={opened} onClose={close}
-            clickOutsideEvents={["pointerdown", "touchstart"]}
+            clickOutsideEvents={CLICK_OUTSIDE_PD_TS}
             classNames={{
                 dropdown: "p-0 border-none bg-transparent"
             }}

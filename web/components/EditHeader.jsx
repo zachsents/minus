@@ -1,6 +1,6 @@
 import { Button, Checkbox, Divider, Grid, Group, Menu, Switch, Text } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
-import { LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import classNames from "classnames"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -27,7 +27,7 @@ export default function EditHeader() {
         >
             <Grid.Col span={4} className="flex justify-start" >
                 <Group>
-                    <Menu shadow="md">
+                    <Menu shadow="md" clickOutsideEvents={CLICK_OUTSIDE_PD_TS}>
                         <Menu.Target>
                             <Button
                                 size="sm" px="xs" variant="subtle"
