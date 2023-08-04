@@ -22,18 +22,20 @@ function InterfaceConfig({ children, interf, type, dataKey, setSelectedInterface
             <Group position="apart" noWrap className="p-xs border-solid border-0 border-b-1 border-gray-300">
                 <Stack className="gap-1" align="flex-start">
                     <Group noWrap spacing="xs" className="text-sm">
-                        <Badge radius="sm" variant="filled">{type}</Badge>
+                        <Badge radius="sm" variant="filled" className="line-clamp-none">
+                            {type}
+                        </Badge>
 
                         {definition?.nameEditable ?
                             <EditableText
                                 value={name ?? definition?.name} onChange={setName}
                             >
-                                <Group noWrap className="gap-1">
-                                    <Text span fw="bold" lineClamp={1}>{name}</Text>
+                                <Group noWrap className="gap-1 flex-1">
+                                    <Text span fw="bold" className="line-clamp-1">{name}</Text>
                                     <Text span color="dimmed"> ({definition?.name})</Text>
                                 </Group>
                             </EditableText> :
-                            <Text fw="bold">
+                            <Text fw="bold" className="line-clamp-1">
                                 {definition?.name}
                             </Text>}
 

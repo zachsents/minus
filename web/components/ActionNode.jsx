@@ -38,7 +38,7 @@ export default function ActionNode({ id, data, selected }) {
                     })}
                 >
                     <div className={classNames({
-                        "flex flex-col min-w-[16rem] max-w-[22rem] rounded transition-shadow outline outline-1 outline-gray-300 bg-white": true,
+                        "flex flex-col min-w-[16rem] max-w-[32rem] rounded transition-shadow outline outline-1 outline-gray-300 bg-white": true,
                         "shadow-md": selected,
                         "shadow-sm": !selected,
                     })}>
@@ -69,7 +69,7 @@ export default function ActionNode({ id, data, selected }) {
                             </Group>
                         </Group>
                         <Group
-                            align="stretch" position="apart"
+                            align="stretch" position="apart" noWrap
                             className="py-xs -mx-2"
                         >
                             <Stack className="gap-2">
@@ -137,7 +137,7 @@ function Handle({ id, name, type, definition: defId }) {
                     {/* {definition.showHandleIcon && definition.icon &&
                         <definition.icon size="0.7rem" color="currentColor" />} */}
 
-                    <Text className="text-xs text-current">
+                    <Text className="text-xs text-current line-clamp-1">
                         {name || definition?.name}
                     </Text>
                 </Group>

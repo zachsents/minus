@@ -34,7 +34,7 @@ export default function HandleDefinitionLabel({ required, description, hidden, e
                     <Icon className={classNames("text-sm", iconClassName)} />}
 
                 <Text className={classNames({
-                    "text-sm": true,
+                    "text-sm flex-1 line-clamp-2": true,
                     "underline decoration-dashed underline-offset-2 decoration-gray hover:decoration-dark": !hideTooltip,
                     "text-dark-200": hidden,
                 }, labelClassName)}>
