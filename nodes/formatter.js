@@ -1,21 +1,16 @@
 
-export class DefinitionFormatter {
+export class DefinitionFormatter extends Map {
 
     constructor(definitions, key = "id") {
-        this._definitions = definitions
-        this._key = key
-    }
+        if (Array.isArray(definitions))
+            super(definitions.map(def => [def[key], def]))
+        else if (typeof definitions === "object")
+            super(Object.entries(definitions))
+        else
+            throw new Error("Invalid definitions format.")
 
-    get asArray() {
-        return Array.isArray(this._definitions) ?
-            this._definitions :
-            Object.values(this._definitions)
-    }
-
-    get asObject() {
-        return Array.isArray(this._definitions) ?
-            Object.fromEntries(this._definitions.map(def => [def[this._key], def])) :
-            this._definitions
+        this.asArray = Array.from(this.values())
+        this.asObject = Object.fromEntries(this)
     }
 
     byProperty(key, value) {

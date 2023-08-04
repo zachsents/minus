@@ -93,6 +93,7 @@ importers:
       framer-motion: ^10.12.18
       immer: ^10.0.2
       lodash: ^4.17.21
+      lunr: ^2.3.9
       nanoid: ^4.0.2
       nanoid-dictionary: ^4.3.0
       next: ^13.4.1
@@ -123,6 +124,7 @@ importers:
       framer-motion: 10.13.1_biqbaboplfbrettd7655fr4n2y
       immer: 10.0.2
       lodash: 4.17.21
+      lunr: 2.3.9
       nanoid: 4.0.2
       nanoid-dictionary: 4.3.0
       next: 13.4.1_biqbaboplfbrettd7655fr4n2y
@@ -574,26 +576,6 @@ packages:
       '@emotion/utils': 1.2.1
       '@emotion/weak-memoize': 0.3.1
       '@types/react': 18.2.5
-      hoist-non-react-statics: 3.3.2
-      react: 18.2.0
-    dev: false
-
-  /@emotion/react/11.11.1_react@18.2.0:
-    resolution: {integrity: sha512-5mlW1DquU5HaxjLkfkGN1GA/fvVGdyHURRiX/0FHl2cfIfRxSOfmxEH5YS43edp0OldZrZ+dkBKbngxcNCdZvA==}
-    peerDependencies:
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@emotion/babel-plugin': 11.11.0
-      '@emotion/cache': 11.11.0
-      '@emotion/serialize': 1.1.2
-      '@emotion/use-insertion-effect-with-fallbacks': 1.0.1_react@18.2.0
-      '@emotion/utils': 1.2.1
-      '@emotion/weak-memoize': 0.3.1
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
 
@@ -1680,7 +1662,7 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
-      '@emotion/react': 11.11.1_react@18.2.0
+      '@emotion/react': 11.11.1_3pi6y6cylzraaxxtldk4o6b3zi
       clsx: 1.1.1
       csstype: 3.0.9
       react: 18.2.0
@@ -6251,6 +6233,10 @@ packages:
     dependencies:
       lodash.clonedeep: 4.5.0
       lru-cache: 4.0.2
+
+  /lunr/2.3.9:
+    resolution: {integrity: sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==}
+    dev: false
 
   /make-dir/3.1.0:
     resolution: {integrity: sha512-g3FeP20LNwhALb/6Cz6Dd4F2ngze0jz7tbzrD2wAV+o9FeNHe4rL+yK2md0J/fiSf1sa1ADhXqi5+oVwOM/eGw==}

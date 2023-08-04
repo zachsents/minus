@@ -8,6 +8,7 @@ import TextConfig from "../config-components/TextConfig"
  * 
  * @property {string} color
  * @property {Function} icon
+ * @property {string[]} tags
  * @property {Object.<string, WebInputDefinition>} inputs
  * @property {Object.<string, WebOutputDefinition>} outputs
  */
@@ -16,6 +17,7 @@ import TextConfig from "../config-components/TextConfig"
 export const WebNodeDefinitionDefaults = {
     color: "gray",
     icon: TbSquare,
+    tags: [],
     inputs: {},
     outputs: {},
 }

@@ -1,18 +1,17 @@
 import { Tooltip, useMantineTheme } from "@mantine/core"
-import { useHotkeys, useLocalStorage } from "@mantine/hooks"
-import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
-import { useCallback } from "react"
+import { useLocalStorage } from "@mantine/hooks"
+import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS, RF_ELEMENT_ID } from "@web/modules/constants"
 import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
 
+import { useGraphUndoRedo, usePaneContextMenu } from "@web/modules/graph"
 import { useOnConnectCallback, usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
-import { graphEquality, useUndoRedo } from "@web/modules/undo"
-import { useMemo } from "react"
 import { TbArrowBack, TbArrowForward } from "react-icons/tb"
 import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
 import DataEdge from "./DataEdge"
 import NodeToolbar from "./NodeToolbar"
+import PaneContextMenu from "./context-menu/PaneContextMenu"
 
 
 const initialNodes = [
@@ -44,22 +43,11 @@ export default function GraphEditor() {
     const [showMinimap] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_MINIMAP })
     const [showGrid] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_GRID })
 
-    const graphState = useMemo(() => ({ nodes, edges }), [nodes, edges])
-    const setGraphState = useCallback(({ nodes, edges }) => {
-        setNodes(nodes)
-        setEdges(edges)
-    }, [setNodes, setEdges])
-    const [, undo, redo] = useUndoRedo(graphState, setGraphState, {
-        debounce: 200,
-        equality: graphEquality,
-    })
-
-    useHotkeys([
-        ["mod+z", undo],
-        ["mod+y", redo],
-    ])
+    const [undo, redo] = useGraphUndoRedo(nodes, edges, setNodes, setEdges)
 
     const pasteHandler = usePasteElementsFromClipboardCallback()
+
+    const [paneContextMenuHandler] = usePaneContextMenu()
 
     return (
         <div className="flex-1">
@@ -87,9 +75,10 @@ export default function GraphEditor() {
                 multiSelectionKeyCode={"Shift"}
                 zoomActivationKeyCode={null}
                 deleteKeyCode={GRAPH_DELETE_KEYS}
-                id="reactflow"
+                id={RF_ELEMENT_ID}
 
                 onPaste={pasteHandler}
+                onPaneContextMenu={paneContextMenuHandler}
             >
                 {showMinimap &&
                     <MiniMap pannable zoomable />}
@@ -115,6 +104,7 @@ export default function GraphEditor() {
                 </Controls>
 
                 <NodeToolbar />
+                <PaneContextMenu />
             </ReactFlow>
         </div>
     )

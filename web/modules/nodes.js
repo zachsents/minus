@@ -1,3 +1,4 @@
+import { Button, Stack, Text, Tooltip } from "@mantine/core"
 import { useClipboard } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
 import { produce } from "immer"
@@ -5,12 +6,12 @@ import _ from "lodash"
 import WebDefinitions from "nodes/web"
 import { useCallback, useEffect, useMemo } from "react"
 import { TbAlertTriangle, TbSwitch3 } from "react-icons/tb"
-import { addEdge, getRectOfNodes, useNodeId, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals, useViewport } from "reactflow"
+import { addEdge, getRectOfNodes, useNodeId, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals } from "reactflow"
 import { DATA_TYPE_LABELS, NODE_TYPE, typesMatch } from "shared/constants"
 import { shallow } from "zustand/shallow"
 import { GRAPH_MIME_TYPE, INPUT_MODE } from "./constants"
+import { projectViewportCenterToRF, useProjectRFToScreen } from "./graph"
 import { _get, _set, uniqueId } from "./util"
-import { Button, Stack, Text, Tooltip } from "@mantine/core"
 
 
 /**
@@ -21,7 +22,7 @@ export function getDefinition(nodeOrNodeId, rf) {
     if (typeof nodeOrNodeId === "string")
         nodeOrNodeId = rf.getNode(nodeOrNodeId)
 
-    return WebDefinitions.asObject[nodeOrNodeId?.data?.definition]
+    return WebDefinitions.get(nodeOrNodeId?.data?.definition)
 }
 
 
@@ -61,6 +62,16 @@ export function useNode(nodeId) {
         nodeId = useNodeId()
 
     return useStore(state => state.nodeInternals.get(nodeId))
+}
+
+
+/** Potentially dangerous */
+export function useNodes() {
+    return useStore(state => [...state.nodeInternals.values()], shallow)
+}
+
+export function useEdges() {
+    return useStore(state => state.edges, shallow)
 }
 
 
@@ -218,16 +229,6 @@ export function useStoreProperty(property) {
 }
 
 
-export function projectViewportCenter(rf) {
-    const rfPane = global.document.getElementById("reactflow")
-
-    return rf.project({
-        x: rfPane.offsetWidth / 2,
-        y: rfPane.offsetHeight / 2,
-    })
-}
-
-
 /**
  * @param {import("reactflow").ReactFlowInstance} rf
  * @param {string} definitionId
@@ -239,19 +240,46 @@ export function projectViewportCenter(rf) {
 export function createActionNode(rf, definitionId, { x, y } = {}, data = {}) {
 
     if (x == null || y == null) {
-        const center = projectViewportCenter(rf)
+        const center = projectViewportCenterToRF(rf)
         x ??= center.x
         y ??= center.y
     }
+
+    const definition = WebDefinitions.get(definitionId)
+
+    const createInput = (defId, def, extra = {}) => ({
+        id: uniqueId(),
+        definition: defId,
+        mode: def.defaultMode,
+        ...extra,
+    })
+
+    const createOutput = (defId) => ({
+        id: uniqueId(),
+        definition: defId,
+    })
 
     const newNode = {
         id: uniqueId(),
         type: NODE_TYPE.ACTION,
         position: { x, y },
-        data: {
+        data: _.merge({
             definition: definitionId,
-            ...data,
-        },
+            inputs: Object.entries(definition.inputs).flatMap(([id, input]) => {
+                if (input.group)
+                    return Array(input.groupMin).fill().map(() => createInput(id, input, {
+                        name: `New ${input.name}`
+                    }))
+
+                return createInput(id, input)
+            }),
+            outputs: Object.entries(definition.outputs).flatMap(([id, output]) => {
+                if (output.group)
+                    return Array(output.groupMin).fill().map(() => createOutput(id))
+
+                return createOutput(id)
+            }),
+        }, data),
     }
 
     rf?.setNodes(nodes => [...nodes, newNode])
@@ -427,14 +455,7 @@ export function useSelectionRect() {
     const selectedNodes = useStore(state => [...state.nodeInternals.values()].filter(n => n.selected), shallow)
     const rect = useMemo(() => getRectOfNodes(selectedNodes), [selectedNodes])
 
-    const viewport = useViewport()
-
-    const screenRect = useMemo(() => ({
-        x: rect.x * viewport.zoom + viewport.x,
-        y: rect.y * viewport.zoom + viewport.y,
-        width: rect.width * viewport.zoom,
-        height: rect.height * viewport.zoom,
-    }), [rect, viewport])
+    const screenRect = useProjectRFToScreen(rect)
 
     return {
         viewport: rect,
@@ -486,7 +507,7 @@ export function usePasteElementsFromClipboardCallback() {
 
         const { nodes, edges } = JSON.parse(textContent.replace(GRAPH_MIME_TYPE, ""))
 
-        const center = projectViewportCenter(rf)
+        const center = projectViewportCenterToRF(rf)
         const rect = getRectOfNodes(nodes)
 
         duplicateElements(rf, nodes, edges, {

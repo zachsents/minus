@@ -11,7 +11,7 @@ export const DATA_TYPE = {
 
 export const DATA_TYPE_LABELS = {
     [DATA_TYPE.ANY]: "Any",
-    [DATA_TYPE.STRING]: "String",
+    [DATA_TYPE.STRING]: "Text",
     [DATA_TYPE.NUMBER]: "Number",
     [DATA_TYPE.BOOLEAN]: "Boolean",
     [DATA_TYPE.OBJECT]: "Object",

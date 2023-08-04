@@ -8,6 +8,7 @@ import TextConfig from "../../config-components/TextConfig"
 /** @type {import("../../defaults/web-defaults.js").WebNodeDefinition} */
 export default {
     icon: TbTemplate,
+    tags: ["Text"],
 
     inputs: {
         template: {
@@ -61,6 +62,7 @@ export default {
             icon: TbReplace,
 
             defaultMode: INPUT_MODE.HANDLE,
+            groupMin: 2,
 
             renderConfiguration: props => {
 
