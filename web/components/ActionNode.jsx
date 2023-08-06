@@ -1,9 +1,9 @@
-import { ActionIcon, Group, Indicator, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
-import { HANDLE_TYPE, INPUT_MODE, RF_STORE_PROPERTIES } from "@web/modules/constants"
+import { ActionIcon, Group, Indicator, Menu, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
+import { CLICK_OUTSIDE_PD_TS, HANDLE_TYPE, INPUT_MODE, RF_STORE_PROPERTIES } from "@web/modules/constants"
 import { useDefinition, useNodeHasValidationErrors, useNodeProperty, useStoreProperty, useUpdateInternals } from "@web/modules/nodes"
 import classNames from "classnames"
 import { useEffect, useMemo } from "react"
-import { TbAdjustments } from "react-icons/tb"
+import { TbAdjustments, TbChevronDown, TbPlayerPlay, TbRefresh } from "react-icons/tb"
 import { Position, Handle as RFHandle } from "reactflow"
 import ConfigureNodeModal from "./config-modal/ConfigureNodeModal"
 
@@ -54,7 +54,37 @@ export default function ActionNode({ id, data, selected }) {
                                     <Text className="text-sm font-semibold">{displayName}</Text>
                                 </Group>
                             </Tooltip>
-                            <Group>
+
+                            <Group noWrap className="gap-1">
+                                <Group noWrap className="gap-[0.0625rem] nodrag">
+                                    <Tooltip label="Run with fresh data" withinPortal>
+                                        <ActionIcon
+                                            size="sm"
+                                            className="rounded-r-none bg-dark bg-opacity-25 hover:bg-dark hover:bg-opacity-50 text-gray-100"
+                                        >
+                                            <TbPlayerPlay />
+                                        </ActionIcon>
+                                    </Tooltip>
+                                    <Menu withinPortal shadow="sm" position="bottom-end" clickOutsideEvents={CLICK_OUTSIDE_PD_TS}>
+                                        <Menu.Target>
+                                            <ActionIcon
+                                                size="sm"
+                                                className="rounded-l-none w-3 min-w-0 bg-dark bg-opacity-25 hover:bg-dark hover:bg-opacity-50 text-gray-100"
+                                            >
+                                                <TbChevronDown />
+                                            </ActionIcon>
+                                        </Menu.Target>
+                                        <Menu.Dropdown>
+                                            <Menu.Item icon={<TbPlayerPlay />}>
+                                                Run with fresh data
+                                            </Menu.Item>
+                                            <Menu.Item icon={<TbRefresh />}>
+                                                Run with most recent data
+                                            </Menu.Item>
+                                        </Menu.Dropdown>
+                                    </Menu>
+                                </Group>
+
                                 <Tooltip label="Configure" withinPortal>
                                     <Indicator color="yellow" disabled={!hasValidationErrors}>
                                         <ActionIcon

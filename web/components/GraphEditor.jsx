@@ -14,28 +14,11 @@ import NodeToolbar from "./NodeToolbar"
 import PaneContextMenu from "./context-menu/PaneContextMenu"
 
 
-const initialNodes = [
-    {
-        id: '1', type: NODE_TYPE.ACTION, position: { x: 0, y: 0 }, data: {
-            definition: "text.Template",
-            inputs: [
-                { id: "dwkjkdwkd", definition: "template", mode: "handle" },
-                { id: "sub1", definition: "substitution", name: "Hello", mode: "handle" },
-                { id: "sub2", definition: "substitution", name: "Poopy", mode: "config" },
-            ],
-            outputs: [
-                { id: "out1", definition: "result" },
-            ],
-        }
-    },
-]
-
-
 export default function GraphEditor() {
 
     const theme = useMantineTheme()
 
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
+    const [nodes, setNodes, onNodesChange] = useNodesState([])
     const [edges, setEdges, onEdgesChange] = useEdgesState([])
 
     const onConnect = useOnConnectCallback(setEdges)
