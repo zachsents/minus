@@ -1,15 +1,16 @@
-import { FocusTrap, NavLink, Popover, Stack, TextInput } from "@mantine/core"
-import { useWindowEvent } from "@mantine/hooks"
-import { CLICK_OUTSIDE_PD_TS, RF_STORE_PROPERTIES } from "@web/modules/constants"
+import { ActionIcon, FocusTrap, Group, NavLink, Popover, Stack, TextInput, Tooltip } from "@mantine/core"
+import { useLocalStorage, useWindowEvent } from "@mantine/hooks"
+import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS, RF_STORE_PROPERTIES } from "@web/modules/constants"
 import { useProjectRFToScreen } from "@web/modules/graph"
 import { createActionNode, useStoreProperty } from "@web/modules/nodes"
 import classNames from "classnames"
 import { useRef, useState } from "react"
-import { TbArrowBack, TbArrowForward } from "react-icons/tb"
+import { TbArrowBack, TbArrowForward, TbPinnedOff } from "react-icons/tb"
 import KeyboardShortcut from "../KeyboardShortcut"
 import NodeSearch from "../NodeSearch"
 import { useEffect } from "react"
 import { useReactFlow } from "reactflow"
+import WebDefinitions from "nodes/web"
 
 
 export default function PaneContextMenu() {
@@ -58,6 +59,10 @@ export default function PaneContextMenu() {
         close()
     }
 
+    const [pinned] = useLocalStorage({
+        key: LOCAL_STORAGE_KEYS.PINNED_NODES,
+    })
+
     return (
         <Popover
             opened={opened} onClose={close}
@@ -85,7 +90,13 @@ export default function PaneContextMenu() {
             </Popover.Target>
             <Popover.Dropdown>
                 <FocusTrap active={opened}>
-                    <Stack className="gap-xs w-50">
+                    <Stack className="gap-xs w-50 relative">
+                        <Group position="center" className="absolute bottom-full left-1/2 mb-8 -translate-x-1/2 w-60 gap-2">
+                            {pinned?.map((id, i) =>
+                                <PinnedNode id={id} onAdd={addNode} key={i} />
+                            )}
+                        </Group>
+
                         <TextInput
                             value={query} onChange={ev => setQuery(ev.currentTarget.value)}
                             placeholder="Start typing to search nodes..."
@@ -117,5 +128,41 @@ export default function PaneContextMenu() {
                 </FocusTrap>
             </Popover.Dropdown>
         </Popover>
+    )
+}
+
+
+function PinnedNode({ id, onAdd }) {
+
+    const definition = WebDefinitions.get(id)
+    const [unpinning, setUnpinning] = useState(false)
+    const toggleUnpinning = () => setUnpinning(!unpinning)
+
+    const [, setPinnedNodes] = useLocalStorage({
+        key: LOCAL_STORAGE_KEYS.PINNED_NODES,
+    })
+    const unpin = () => setPinnedNodes(pinned => pinned.filter(p => p != id))
+
+    return (
+        <Tooltip label={`${unpinning ? "Unpin" : "Add"} "${definition.name}"`}>
+            <ActionIcon
+                size="xl"
+                className="bg-white base-border"
+                onClick={() => {
+                    if (unpinning)
+                        unpin()
+                    else
+                        onAdd?.(definition)
+                }}
+                onContextMenu={ev => {
+                    ev.preventDefault()
+                    toggleUnpinning()
+                }}
+            >
+                {unpinning ?
+                    <TbPinnedOff /> :
+                    <definition.icon />}
+            </ActionIcon>
+        </Tooltip>
     )
 }

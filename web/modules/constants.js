@@ -5,6 +5,7 @@ export const LOCAL_STORAGE_KEYS = {
     EDITOR_AUTO_LAYOUT: "editorAutoLayout",
     EDITOR_SHOW_GRID: "editorShowGrid",
     EDITOR_SHOW_MINIMAP: "editorShowMinimap",
+    PINNED_NODES: "pinnedNodes",
 }
 
 export const HANDLE_TYPE = {
