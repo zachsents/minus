@@ -12,6 +12,7 @@ import ActionNode from "./ActionNode"
 import DataEdge from "./DataEdge"
 import NodeToolbar from "./NodeToolbar"
 import PaneContextMenu from "./context-menu/PaneContextMenu"
+import GhostBuster from "./GhostBuster"
 
 
 export default function GraphEditor() {
@@ -89,6 +90,7 @@ export default function GraphEditor() {
                 <NodeToolbar />
                 <PaneContextMenu />
             </ReactFlow>
+            <GhostBuster />
         </div>
     )
 }
