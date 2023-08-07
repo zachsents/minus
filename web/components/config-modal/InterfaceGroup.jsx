@@ -5,6 +5,7 @@ import { produce } from "immer"
 import { useMemo } from "react"
 import { TbPlus } from "react-icons/tb"
 import HandleDefinitionLabel from "./HandleDefinitionLabel"
+import { INTERFACE_ID_PREFIX } from "@web/modules/constants"
 
 
 function InterfaceGroup({ children, definition, dataKey, noneLabel, onCreate, newInterfaceProps = {} }) {
@@ -18,7 +19,7 @@ function InterfaceGroup({ children, definition, dataKey, noneLabel, onCreate, ne
 
     const createInterface = () => setInterfaces(produce(interfaces, draft => {
         const newInterface = {
-            id: uniqueId(),
+            id: uniqueId(INTERFACE_ID_PREFIX),
             definition: definition?.id,
             name: `New ${definition?.name}`,
             ...newInterfaceProps,

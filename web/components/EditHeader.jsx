@@ -1,10 +1,11 @@
-import { Button, Checkbox, Divider, Grid, Group, Menu, Switch, Text } from "@mantine/core"
+import { Button, Divider, Grid, Group, Menu, Switch, Text } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
 import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import classNames from "classnames"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { TbArrowLeft, TbChevronRight, TbDotsVertical, TbGridPattern, TbHeart, TbLayout, TbMap, TbPointer, TbSettings } from "react-icons/tb"
+import CheckableMenuItem from "./CheckableMenuItem"
 import EditableText from "./EditableText"
 import LinkKeepParams from "./LinkKeepParams"
 
@@ -157,18 +158,3 @@ function TabLinks({ tabs }) {
     )
 }
 
-
-function CheckableMenuItem({ children, value, onChange, icon: Icon }) {
-
-    return (
-        <Menu.Item
-            icon={<Icon />}
-            rightSection={<Checkbox
-                radius="sm" checked={value} readOnly
-            />}
-            onClick={() => onChange?.(!value)}
-        >
-            {children}
-        </Menu.Item>
-    )
-}

@@ -1,5 +1,6 @@
 import { ActionIcon, Group, TextInput } from "@mantine/core"
 import { getHotkeyHandler, useClickOutside } from "@mantine/hooks"
+import { CLICK_OUTSIDE_PD_TS } from "@web/modules/constants"
 import { stopPropagation } from "@web/modules/props"
 import classNames from "classnames"
 import { useEffect } from "react"
@@ -59,7 +60,7 @@ export default function EditableText({
         ["Escape", cancelEditing],
     ])
 
-    const clickOutsideRef = useClickOutside(cancelOnClickOutside ? cancelEditing : finishEditing)
+    const clickOutsideRef = useClickOutside(cancelOnClickOutside ? cancelEditing : finishEditing, CLICK_OUTSIDE_PD_TS)
 
     useEffect(() => {
         if (editing)

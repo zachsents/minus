@@ -7,9 +7,9 @@ import WebDefinitions from "nodes/web"
 import { useCallback, useEffect, useMemo } from "react"
 import { TbAlertTriangle, TbSwitch3 } from "react-icons/tb"
 import { addEdge, getRectOfNodes, useNodeId, useReactFlow, useStore, useStoreApi, useUpdateNodeInternals } from "reactflow"
-import { DATA_TYPE_LABELS, NODE_TYPE, typesMatch } from "shared/constants"
+import { DATA_TYPE_LABELS, MODIFIER_ID_PREFIX, NODE_TYPE, typesMatch } from "shared/constants"
 import { shallow } from "zustand/shallow"
-import { GRAPH_MIME_TYPE, INPUT_MODE } from "./constants"
+import { EDGE_ID_PREFIX, GRAPH_MIME_TYPE, INPUT_MODE, INTERFACE_ID_PREFIX, NODE_ID_PREFIX } from "./constants"
 import { projectViewportCenterToRF, useProjectRFToScreen } from "./graph"
 import { _get, _set, uniqueId } from "./util"
 
@@ -195,7 +195,7 @@ export function useDerivedInputs(nodeId, inputId) {
                     return _.merge(matchingInput, derivedInput.data ?? {})
 
                 const newInput = {
-                    id: uniqueId(),
+                    id: uniqueId(INTERFACE_ID_PREFIX),
                     derived: true,
                     mode: inputDefinition?.defaultMode,
                     ...derivedInput.merge,
@@ -248,19 +248,19 @@ export function createActionNode(rf, definitionId, { x, y } = {}, data = {}) {
     const definition = WebDefinitions.get(definitionId)
 
     const createInput = (defId, def, extra = {}) => ({
-        id: uniqueId(),
+        id: uniqueId(INTERFACE_ID_PREFIX),
         definition: defId,
         mode: def.defaultMode,
         ...extra,
     })
 
     const createOutput = (defId) => ({
-        id: uniqueId(),
+        id: uniqueId(INTERFACE_ID_PREFIX),
         definition: defId,
     })
 
     const newNode = {
-        id: uniqueId(),
+        id: uniqueId(NODE_ID_PREFIX),
         type: NODE_TYPE.ACTION,
         position: { x, y },
         data: _.merge({
@@ -368,7 +368,7 @@ function duplicateElements(rf, nodes, edges, {
     const nodeIdMap = {}
     const newNodes = nodes?.map(n => {
         const newNode = structuredClone(n)
-        newNode.id = uniqueId()
+        newNode.id = uniqueId(NODE_ID_PREFIX)
         newNode.position.x += position ? positionOffsetX : (xOffset ?? offset)
         newNode.position.y += position ? positionOffsetY : (yOffset ?? offset)
         nodeIdMap[n.id] = newNode.id
@@ -377,7 +377,7 @@ function duplicateElements(rf, nodes, edges, {
 
     const newEdges = edges?.map(e => {
         const newEdge = structuredClone(e)
-        newEdge.id = uniqueId()
+        newEdge.id = uniqueId(EDGE_ID_PREFIX)
         newEdge.source = nodeIdMap[e.source]
         newEdge.target = nodeIdMap[e.target]
 
@@ -609,17 +609,25 @@ export function useOnConnectCallback(setEdges) {
         if (params.source == params.target)
             return
 
-        const sourceNode = rf.getNode(params.source)
-        const sourceNodeDef = getDefinition(params.source, rf)
-        const sourceInterface = sourceNode?.data?.outputs?.find(o => o.id === params.sourceHandle)
-        const sourceInterfaceDef = sourceNodeDef?.outputs?.[sourceInterface.definition]
-        const sourceType = sourceInterfaceDef?.type
+        let sourceType = "any", targetType = "any"
 
-        const targetNode = rf.getNode(params.target)
-        const targetNodeDef = getDefinition(params.target, rf)
-        const targetInterface = targetNode?.data?.inputs?.find(i => i.id === params.targetHandle)
-        const targetInterfaceDef = targetNodeDef?.inputs?.[targetInterface.definition]
-        const targetType = targetInterfaceDef?.type
+        if (params.sourceHandle.startsWith(INTERFACE_ID_PREFIX)) {
+            const sourceNode = rf.getNode(params.source)
+            const sourceNodeDef = getDefinition(params.source, rf)
+            const sourceInterface = sourceNode?.data?.outputs?.find(o => o.id === params.sourceHandle)
+            const sourceInterfaceDef = sourceNodeDef?.outputs?.[sourceInterface.definition]
+            sourceType = sourceInterfaceDef?.type
+        }
+
+        if (params.targetHandle.startsWith(INTERFACE_ID_PREFIX)) {
+            const targetNode = rf.getNode(params.target)
+            const targetNodeDef = getDefinition(params.target, rf)
+            const targetInterface = targetNode?.data?.inputs?.find(i => i.id === params.targetHandle)
+            const targetInterfaceDef = targetNodeDef?.inputs?.[targetInterface.definition]
+            targetType = targetInterfaceDef?.type
+        }
+
+        console.debug("Tried to connect", sourceType, "with", targetType)
 
         const connect = (options = {}) => setEdges(edges => addEdge({
             ...params,
@@ -653,4 +661,19 @@ export function useOnConnectCallback(setEdges) {
             color: "red",
         })
     }, [setEdges])
+}
+
+
+export function useModifier(nodeId) {
+    const [modifier, setModifier] = useNodeProperty(nodeId, "data.modifier")
+
+    const setNewModifier = useCallback((modifierType, data = {}) => setModifier({
+        id: uniqueId(MODIFIER_ID_PREFIX),
+        type: modifierType,
+        ...data,
+    }), [setModifier])
+
+    const clearModifier = useCallback(() => setModifier(null), [setModifier])
+
+    return [modifier, setNewModifier, clearModifier]
 }
