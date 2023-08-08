@@ -48,7 +48,7 @@ export const CLICK_OUTSIDE_PD_TS = ["pointerdown", "touchstart"]
 
 export const CONTROL_MODIFIER_LABELS = {
     [CONTROL_MODIFIER.AWAIT]: "Wait For Value",
-    [CONTROL_MODIFIER.CONDITIONAL]: "Conditional",
+    [CONTROL_MODIFIER.CONDITIONAL]: "Run Conditionally",
 }
 
 export const CONTROL_MODIFIER_ICONS = {
@@ -68,3 +68,5 @@ export const MODIFIER_INPUT_DEFINITIONS = {
 export const INTERFACE_ID_PREFIX = "interface-"
 export const NODE_ID_PREFIX = "node-"
 export const EDGE_ID_PREFIX = "edge-"
+
+export const PORT_PADDING = 100

@@ -10,16 +10,20 @@ import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
 import DataEdge from "./DataEdge"
+import GhostBuster from "./GhostBuster"
 import NodeToolbar from "./NodeToolbar"
 import PaneContextMenu from "./context-menu/PaneContextMenu"
-import GhostBuster from "./GhostBuster"
 
+/** @type {import("reactflow").Node[]} */
+const initialNodes = [
+
+]
 
 export default function GraphEditor() {
 
     const theme = useMantineTheme()
 
-    const [nodes, setNodes, onNodesChange] = useNodesState([])
+    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
     const [edges, setEdges, onEdgesChange] = useEdgesState([])
 
     const onConnect = useOnConnectCallback(setEdges)

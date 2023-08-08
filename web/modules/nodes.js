@@ -65,11 +65,6 @@ export function useNode(nodeId) {
 }
 
 
-/** Potentially dangerous */
-export function useNodes() {
-    return useStore(state => [...state.nodeInternals.values()], shallow)
-}
-
 export function useEdges() {
     return useStore(state => state.edges, shallow)
 }
@@ -707,3 +702,4 @@ export function useDisabled(nodeId) {
 
     return [disabled, isUpstreamDisabled, setDisabled, message]
 }
+
