@@ -1,3 +1,4 @@
+import { useDebouncedValue } from "@mantine/hooks"
 import { useEffect } from "react"
 import { useReactFlow, useStore } from "reactflow"
 import { shallow } from "zustand/shallow"
@@ -22,6 +23,8 @@ export default function GhostBuster() {
             shallow(Object.values(a).flat(), Object.values(b).flat())
     })
 
+    const [debouncedHandleMap] = useDebouncedValue(handleMap, 100)
+
     useEffect(() => {
         const remove = rf.getEdges().filter(edge => {
             const sourceExists = handleMap[edge.source]?.includes(edge.sourceHandle)
@@ -32,5 +35,5 @@ export default function GhostBuster() {
             console.debug("[GhostBuster] Removing edges:", remove.map(e => e.id).join(", "))
             rf.deleteElements({ edges: remove })
         }
-    }, [rf, handleMap])
+    }, [rf, debouncedHandleMap])
 }
