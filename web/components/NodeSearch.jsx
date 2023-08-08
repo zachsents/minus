@@ -1,5 +1,5 @@
 import { Group, Menu, NavLink, Stack, Text } from "@mantine/core"
-import { useLocalStorage, useWindowEvent } from "@mantine/hooks"
+import { useDebouncedValue, useLocalStorage, useWindowEvent } from "@mantine/hooks"
 import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { searchNodes } from "@web/modules/search"
 import { useMemo, useState } from "react"
@@ -8,7 +8,8 @@ import { TbPin, TbPinnedOff } from "react-icons/tb"
 
 export default function NodeSearch({ query, tags, onAdd, showDescription = false, draggable = false }) {
 
-    const results = useMemo(() => searchNodes(query, tags), [query])
+    const [debouncedQuery] = useDebouncedValue(query, 100)
+    const results = useMemo(() => searchNodes(query, tags), [debouncedQuery, tags])
 
     return (
         <>

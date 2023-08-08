@@ -38,7 +38,10 @@ export default function GraphEditor() {
     const [paneContextMenuHandler] = usePaneContextMenu()
 
     useHotkeys([
-        ["ctrl+a", () => setNodes(nodes => nodes.map(node => ({ ...node, selected: true })))],
+        ["ctrl+a", () => {
+            setNodes(nodes => nodes.map(node => ({ ...node, selected: true })))
+            setEdges(edges => edges.map(edge => ({ ...edge, selected: true })))
+        }],
     ])
 
     return (

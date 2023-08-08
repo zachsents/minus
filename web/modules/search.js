@@ -57,7 +57,7 @@ export function searchTags(query) {
 function fixQuery(query) {
     return query.split(/\s+/g).map(token => {
         if (/^\w+$/.test(token))
-            return `+${token}~4`
+            return `+${token}~${Math.max(1, Math.min(4, token.length - 1))}`
         return token
     }).join(" ")
 }

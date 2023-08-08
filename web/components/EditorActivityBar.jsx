@@ -1,18 +1,22 @@
 import { ActionIcon, Group, Space, Tabs, Text, Tooltip } from "@mantine/core"
-import { useLocalStorage } from "@mantine/hooks"
-import { LOCAL_STORAGE_KEYS } from "@web/modules/constants"
-import { TbChartDots3, TbPlugConnected, TbRobot, TbStack2, TbX } from "react-icons/tb"
-import ScrollBox from "./ScrollBox"
-import KeyboardShortcut from "./KeyboardShortcut"
+import { useHotkeys, useLocalStorage } from "@mantine/hooks"
+import { ACTIVITY, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { TbChartDots3, TbRobot, TbStack2, TbX } from "react-icons/tb"
 import ActionsActivity from "./ActionsActivity"
+import KeyboardShortcut from "./KeyboardShortcut"
+import ScrollBox from "./ScrollBox"
 
 
 export default function EditorActivityBar() {
 
     const [activityTab, setActivityTab] = useLocalStorage({
         key: LOCAL_STORAGE_KEYS.EDITOR_ACTIVITY_TAB,
-        defaultValue: "resources",
+        defaultValue: ACTIVITY.ACTIONS,
     })
+
+    useHotkeys([
+        ["/", () => setActivityTab(ACTIVITY.ACTIONS)]
+    ])
 
     return (
         <Tabs
@@ -26,38 +30,30 @@ export default function EditorActivityBar() {
             }}
         >
             <Tabs.List>
-                <ActivityTabIcon title="Resources" value="resources" icon={TbStack2} />
-                <ActivityTabIcon title="Actions" value="actions" icon={TbChartDots3} keyboardShortcut={["/"]} />
+                <ActivityTabIcon title="Actions" value={ACTIVITY.ACTIONS} icon={TbChartDots3} keyboardShortcut={["/"]} />
+                <ActivityTabIcon title="Integration Accounts" value={ACTIVITY.ACCOUNTS} icon={TbStack2} />
                 <Space h="xs" />
-                <ActivityTabIcon title="Workflow Assistant" value="assistant" icon={TbRobot} />
                 <Space h="xs" />
-                <ActivityTabIcon title="Integration Accounts" value="accounts" icon={TbPlugConnected} />
+                <ActivityTabIcon title="Workflow Assistant" value={ACTIVITY.ASSISTANT} icon={TbRobot} />
             </Tabs.List>
 
             <ActivityPanel
-                title="Resources"
-                value="resources"
-            >
-                {"Resources ".repeat(100)}
-            </ActivityPanel>
-
-            <ActivityPanel
                 title="Actions"
-                value="actions"
+                value={ACTIVITY.ACTIONS}
             >
                 <ActionsActivity />
             </ActivityPanel>
 
             <ActivityPanel
                 title="Integration Accounts"
-                value="accounts"
+                value={ACTIVITY.ACCOUNTS}
             >
                 Integration Accounts
             </ActivityPanel>
 
             <ActivityPanel
                 title="Workflow Assistant 🪄"
-                value="assistant"
+                value={ACTIVITY.ASSISTANT}
             >
                 Workflow Assistant
             </ActivityPanel>

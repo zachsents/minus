@@ -70,3 +70,10 @@ export const NODE_ID_PREFIX = "node-"
 export const EDGE_ID_PREFIX = "edge-"
 
 export const PORT_PADDING = 100
+
+export const ACTIVITY = {
+    ACTIONS: "actions",
+    ACCOUNTS: "accounts",
+    ASSISTANT: "assistant",
+    VERSIONS: "versions",
+}
