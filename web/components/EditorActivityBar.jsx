@@ -3,6 +3,8 @@ import { useLocalStorage } from "@mantine/hooks"
 import { LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { TbChartDots3, TbPlugConnected, TbRobot, TbStack2, TbX } from "react-icons/tb"
 import ScrollBox from "./ScrollBox"
+import KeyboardShortcut from "./KeyboardShortcut"
+import ActionsActivity from "./ActionsActivity"
 
 
 export default function EditorActivityBar() {
@@ -25,7 +27,7 @@ export default function EditorActivityBar() {
         >
             <Tabs.List>
                 <ActivityTabIcon title="Resources" value="resources" icon={TbStack2} />
-                <ActivityTabIcon title="Actions" value="actions" icon={TbChartDots3} />
+                <ActivityTabIcon title="Actions" value="actions" icon={TbChartDots3} keyboardShortcut={["/"]} />
                 <Space h="xs" />
                 <ActivityTabIcon title="Workflow Assistant" value="assistant" icon={TbRobot} />
                 <Space h="xs" />
@@ -43,7 +45,7 @@ export default function EditorActivityBar() {
                 title="Actions"
                 value="actions"
             >
-                Actions
+                <ActionsActivity />
             </ActivityPanel>
 
             <ActivityPanel
@@ -64,10 +66,14 @@ export default function EditorActivityBar() {
 }
 
 
-function ActivityTabIcon({ title, value, icon: Icon }) {
+function ActivityTabIcon({ title, value, keyboardShortcut, icon: Icon }) {
 
     return (
-        <Tooltip label={title} position="right">
+        <Tooltip label={<Group>
+            <Text>{title}</Text>
+            {keyboardShortcut &&
+                <KeyboardShortcut keys={keyboardShortcut} lowkey withPluses />}
+        </Group>} position="right">
             <Tabs.Tab value={value}>
                 <Icon />
             </Tabs.Tab>

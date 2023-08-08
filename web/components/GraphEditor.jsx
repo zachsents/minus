@@ -1,5 +1,5 @@
 import { Tooltip, useMantineTheme } from "@mantine/core"
-import { useLocalStorage } from "@mantine/hooks"
+import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS, RF_ELEMENT_ID } from "@web/modules/constants"
 import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
 
@@ -36,6 +36,10 @@ export default function GraphEditor() {
     const pasteHandler = usePasteElementsFromClipboardCallback()
 
     const [paneContextMenuHandler] = usePaneContextMenu()
+
+    useHotkeys([
+        ["ctrl+a", () => setNodes(nodes => nodes.map(node => ({ ...node, selected: true })))],
+    ])
 
     return (
         <div className="flex-1">

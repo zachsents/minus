@@ -21,18 +21,43 @@ const nodeSearchIndex = lunr(function () {
     })
 })
 
-export function searchNodes(query) {
+export function searchNodes(query, tags = []) {
     try {
-        const fixedQuery = query.split(/\s+/g).map(token => {
-            if (/^\w+$/.test(token))
-                return `+${token}~4`
-            return token
-        }).join(" ")
-
-        return nodeSearchIndex.search(fixedQuery)
+        return nodeSearchIndex.search(fixQuery(query))
             .map(result => WebDefinitions.get(result.ref))
+            .filter(nodeDef => tags.every(tag => nodeDef.tags.includes(tag)))
     }
     catch (err) {
         return []
     }
-} 
+}
+
+
+const tagSearchIndex = lunr(function () {
+    this.ref("tag")
+    this.field("tag")
+
+    const tags = [...new Set(WebDefinitions.asArray.flatMap(def => def.tags))]
+    tags.forEach(tag => {
+        this.add({ tag })
+    })
+})
+
+export function searchTags(query) {
+    try {
+        return tagSearchIndex.search(fixQuery(query))
+            .map(result => result.ref)
+    }
+    catch (err) {
+        return []
+    }
+}
+
+
+function fixQuery(query) {
+    return query.split(/\s+/g).map(token => {
+        if (/^\w+$/.test(token))
+            return `+${token}~4`
+        return token
+    }).join(" ")
+}

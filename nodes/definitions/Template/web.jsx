@@ -8,7 +8,7 @@ import TextConfig from "../../config-components/TextConfig"
 /** @type {import("../../defaults/web-defaults.js").WebNodeDefinition} */
 export default {
     icon: TbReplace,
-    tags: ["Text"],
+    tags: ["Text", "AI", "Google"],
 
     inputs: {
         template: {
