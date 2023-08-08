@@ -150,7 +150,7 @@ function ResultRow({ definition, onAdd, showDescription = false, draggable = fal
 
         {dragPosition &&
             <div
-                className="rounded base-border fixed -translate-x-1/2 -translate-y-1/2"
+                className="rounded base-border fixed -translate-x-1/2 -translate-y-1/2 z-[10]"
                 style={{
                     left: dragPosition.x,
                     top: dragPosition.y,
