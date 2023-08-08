@@ -7,14 +7,14 @@ import { Checkbox, Menu } from "@mantine/core"
  * onChange: (value: boolean) => void,
  * icon: React.ComponentType,
  * props: {
- * checklist: import("@mantine/core").CheckboxProps,
+ * checkbox: import("@mantine/core").CheckboxProps,
  * menuItem: import("@mantine/core").MenuItemProps,
  * }
  * }} props
  */
 export default function CheckableMenuItem({
     children, value, onChange, icon: Icon,
-    props: { checklist: checklistProps = {}, menuItem: menuItemProps = {} } = {},
+    props: { checkbox: checkboxProps = {}, menuItem: menuItemProps = {} } = {},
 }) {
 
     return (
@@ -23,7 +23,7 @@ export default function CheckableMenuItem({
             icon={<Icon />}
             rightSection={<Checkbox
                 radius="sm" checked={value} readOnly
-                {...checklistProps}
+                {...checkboxProps}
             />}
             onClick={() => onChange?.(!value)}
             {...menuItemProps}

@@ -677,3 +677,33 @@ export function useModifier(nodeId) {
 
     return [modifier, setNewModifier, clearModifier]
 }
+
+
+export function useDisabled(nodeId) {
+    if (nodeId === undefined)
+        nodeId = useNodeId()
+
+    const [disabled, setDisabled] = useNodeProperty(nodeId, "data.disabled", false)
+
+    const findUpstreamDisabled = (state, nodeId) => {
+        const incomingNodeIds = state.edges
+            .filter(e => e.target === nodeId)
+            .map(e => e.source)
+
+        const upstreamDisabled = incomingNodeIds.some(id => state.nodeInternals.get(id)?.data?.disabled)
+        if (upstreamDisabled)
+            return true
+
+        return incomingNodeIds.some(id => findUpstreamDisabled(state, id))
+    }
+
+    const isUpstreamDisabled = useStore(state => findUpstreamDisabled(state, nodeId))
+
+    const message = disabled ?
+        "This node is disabled." :
+        isUpstreamDisabled ?
+            "This node is disabled because one of its upstream nodes is disabled." :
+            null
+
+    return [disabled, isUpstreamDisabled, setDisabled, message]
+}
