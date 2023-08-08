@@ -1,16 +1,13 @@
 import { Button, Group, Stack, Text, TextInput } from "@mantine/core"
-import { useRef } from "react"
-import { useState } from "react"
-import NodeSearch from "./NodeSearch"
-import { createActionNode } from "@web/modules/nodes"
-import { useReactFlow } from "reactflow"
-import { useMemo } from "react"
-import { searchTags } from "@web/modules/search"
-import { TbPlus, TbX } from "react-icons/tb"
-import { useListState, useLocalStorage } from "@mantine/hooks"
-import { projectAbsoluteScreenPointToRF } from "@web/modules/graph"
-import { useEffect } from "react"
+import { useFocusWithin, useListState, useLocalStorage } from "@mantine/hooks"
 import { ACTIVITY, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { projectAbsoluteScreenPointToRF } from "@web/modules/graph"
+import { createActionNode } from "@web/modules/nodes"
+import { searchTags } from "@web/modules/search"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { TbPlus, TbX } from "react-icons/tb"
+import { useReactFlow } from "reactflow"
+import NodeSearch from "./NodeSearch"
 
 
 export default function ActionsActivity() {
@@ -38,16 +35,19 @@ export default function ActionsActivity() {
             searchRef.current?.focus()
     }, [activityTab])
 
+    const { ref: containerRef, focused } = useFocusWithin()
+
     return (
-        <Stack className="my-1 gap-1">
+        <Stack className="my-1 gap-1" ref={containerRef}>
             <TextInput
                 value={query} onChange={ev => setQuery(ev.currentTarget.value)}
                 placeholder="Search actions..."
                 size="xs" variant="filled" className="p-1"
+                onFocus={() => searchRef.current?.select()}
                 ref={searchRef}
             />
             {selectedTags.length > 0 &&
-                <Group className="gap-1">
+                <Group className="gap-1 px-1">
                     {selectedTags.map((tag, i) =>
                         <Button
                             size="xs" compact variant="outline"
@@ -61,7 +61,7 @@ export default function ActionsActivity() {
                 </Group>}
 
             {tags.length > 0 &&
-                <Stack className="gap-2 my-xs">
+                <Stack className="gap-2 my-xs px-1">
                     <Text size="xxs" color="dimmed" ta="center">Categories</Text>
                     <Group className="gap-1">
                         {tags.map(tag =>
@@ -84,6 +84,7 @@ export default function ActionsActivity() {
                         query={query} tags={selectedTags}
                         onAdd={addNode}
                         showDescription draggable
+                        focused={focused}
                     />
                 </Stack>
             </Stack>

@@ -47,8 +47,8 @@ export default function PaneContextMenu() {
         if (ev.key == "Escape")
             return close()
 
-        if (ev.key == "ArrowDown")
-            return resultContainerRef.current?.firstChild?.focus()
+        // if (ev.key == "ArrowDown")
+        //     return resultContainerRef.current?.firstChild?.focus()
 
         if (!ev.ctrlKey && global.document.activeElement != searchRef.current)
             searchRef.current?.focus()
@@ -107,7 +107,7 @@ export default function PaneContextMenu() {
                         <div className="bg-white base-border shadow-md rounded-sm overflow-hidden">
                             {query ?
                                 <Stack className="gap-0" ref={resultContainerRef}>
-                                    <NodeSearch query={query} onAdd={addNode} />
+                                    <NodeSearch query={query} onAdd={addNode} maxResults={8} />
                                 </Stack> :
                                 <Stack className="gap-0">
                                     <NavLink

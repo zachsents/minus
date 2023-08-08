@@ -2,24 +2,52 @@ import { Group, Menu, NavLink, Stack, Text } from "@mantine/core"
 import { useDebouncedValue, useLocalStorage, useWindowEvent } from "@mantine/hooks"
 import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { searchNodes } from "@web/modules/search"
-import { useMemo, useState } from "react"
+import classNames from "classnames"
+import { useEffect, useMemo, useState } from "react"
 import { TbPin, TbPinnedOff } from "react-icons/tb"
 
 
-export default function NodeSearch({ query, tags, onAdd, showDescription = false, draggable = false }) {
+export default function NodeSearch({ query, tags, onAdd, maxResults = Infinity, showDescription = false, draggable = false, focused = false }) {
 
     const [debouncedQuery] = useDebouncedValue(query, 100)
     const results = useMemo(() => searchNodes(query, tags), [debouncedQuery, tags])
 
+    const [selected, setSelected] = useState(0)
+
+    useEffect(() => {
+        setSelected(0)
+    }, [query])
+
+    useWindowEvent("keydown", ev => {
+        if (!focused)
+            return
+
+        switch (ev.key) {
+            case "ArrowDown":
+                setSelected(Math.min(selected + 1, results.length - 1, maxResults - 1))
+                ev.preventDefault()
+                break
+            case "ArrowUp":
+                setSelected(Math.max(selected - 1, 0))
+                ev.preventDefault()
+                break
+            case "Enter":
+                onAdd?.(results[selected])
+                ev.preventDefault()
+        }
+    })
+
     return (
         <>
-            {results.slice(0, 8).map(result =>
+            {results.slice(0, maxResults).map((result, i) =>
                 <ResultRow
                     definition={result}
                     onAdd={onAdd}
                     showDescription={showDescription}
                     draggable={draggable}
-                    key={result.id}
+                    selected={i === selected}
+                    // key={result.id}
+                    key={i}
                 />
             )}
         </>
@@ -27,7 +55,7 @@ export default function NodeSearch({ query, tags, onAdd, showDescription = false
 }
 
 
-function ResultRow({ definition, onAdd, showDescription = false, draggable = false }) {
+function ResultRow({ definition, onAdd, showDescription = false, draggable = false, selected = false }) {
 
     const [menuOpened, setMenuOpened] = useState(false)
 
@@ -86,8 +114,10 @@ function ResultRow({ definition, onAdd, showDescription = false, draggable = fal
         >
             <Menu.Target>
                 <NavLink
-                    tabIndex="0"
-                    className="focus:bg-primary-100 active:scale-95 transition-transform"
+                    className={classNames({
+                        "active:scale-95 transition-transform": true,
+                        "bg-primary-100 hover:bg-primary-200": selected,
+                    })}
                     icon={<definition.icon />}
                     label={<Stack className="gap-0">
                         <Text>{definition.name}</Text>
@@ -96,26 +126,6 @@ function ResultRow({ definition, onAdd, showDescription = false, draggable = fal
                                 {definition.description}
                             </Text>}
                     </Stack>}
-                    onKeyDown={ev => {
-                        if (ev.key == "ArrowDown") {
-                            ev.preventDefault()
-                            ev.stopPropagation()
-                            ev.target.nextSibling?.nextSibling?.focus()
-                        }
-                        if (ev.key == "ArrowUp") {
-                            ev.preventDefault()
-                            const prev = ev.target.previousSibling?.previousSibling
-                            if (prev) {
-                                prev?.focus()
-                                ev.stopPropagation()
-                            }
-                        }
-                        if (ev.key == "Enter") {
-                            ev.preventDefault()
-                            ev.stopPropagation()
-                            onAdd?.(definition)
-                        }
-                    }}
                     onContextMenu={ev => {
                         ev.preventDefault()
                         ev.stopPropagation()

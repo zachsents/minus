@@ -19,6 +19,7 @@ export const MODALS = {
 }
 
 export const RF_ELEMENT_ID = "reactflow"
+export const ACTIVITY_BAR_ELEMENT_ID = "activity-bar"
 
 export const RF_STORE_PROPERTIES = {
     NODE_BEING_CONFIGURED: "nodeBeingConfigured",
