@@ -1,5 +1,5 @@
-import { Button, Divider, Group, Stack, Text } from "@mantine/core"
-import { uniqueId } from "@web/modules/util"
+import { Button, Divider, Group, Stack, Text, Tooltip } from "@mantine/core"
+import { uniqueId, useIsClient } from "@web/modules/util"
 import classNames from "classnames"
 import { useState } from "react"
 import { TbClock, TbStar } from "react-icons/tb"
@@ -48,6 +48,8 @@ export default function VersionsActivity() {
 
 function VersionRow({ version, icon = <TbClock />, expanded, onExpand }) {
 
+    const isClient = useIsClient()
+
     return (
         <Stack
             className={classNames({
@@ -60,22 +62,25 @@ function VersionRow({ version, icon = <TbClock />, expanded, onExpand }) {
                 {icon}
                 <div>
                     <Text className="text-sm">{version.name}</Text>
-                    <Text className="text-xs" color="dimmed">
-                        {version.createdAt instanceof Date ?
-                            version.createdAt.toLocaleString(undefined, {
-                                dateStyle: "medium",
-                                timeStyle: "short",
-                            }) :
-                            version.createdAt}
-                    </Text>
+                    {isClient &&
+                        <Text className="text-xs" color="dimmed">
+                            {version.createdAt instanceof Date ?
+                                version.createdAt.toLocaleString("en", {
+                                    dateStyle: "medium",
+                                    timeStyle: "short",
+                                }) :
+                                version.createdAt}
+                        </Text>}
                 </div>
             </Group>
 
             {expanded &&
                 <Group>
-                    <Button size="xs" compact>
-                        Restore as Current
-                    </Button>
+                    <Tooltip label="The current version will be saved as a version first." withinPortal>
+                        <Button size="xs" compact>
+                            Restore as Current
+                        </Button>
+                    </Tooltip>
                 </Group>}
         </Stack>
     )

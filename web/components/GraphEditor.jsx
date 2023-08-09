@@ -118,5 +118,4 @@ const snapGrid = [25, 25]
 
 const defaultEdgeOptions = {
     type: EDGE_TYPE.DATA,
-    // markerEnd: "arrow",
 }

@@ -21,14 +21,6 @@ export const MODALS = {
 export const RF_ELEMENT_ID = "reactflow"
 export const ACTIVITY_BAR_ELEMENT_ID = "activity-bar"
 
-export const RF_STORE_PROPERTIES = {
-    NODE_BEING_CONFIGURED: "nodeBeingConfigured",
-    PANE_CONTEXT_MENU_OPENED: "paneContextMenuOpened",
-    PANE_CONTEXT_MENU_POSITION: "paneContextMenuPosition",
-    UNDO: "undo",
-    REDO: "redo",
-}
-
 export const INPUT_MODE = {
     CONFIGURATION: "config",
     HANDLE: "handle",

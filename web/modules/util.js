@@ -1,5 +1,7 @@
 import { customAlphabet } from "nanoid"
 import { alphanumeric } from "nanoid-dictionary"
+import { useEffect } from "react"
+import { useState } from "react"
 
 
 const _uniqueId = customAlphabet(alphanumeric, 10)
@@ -61,4 +63,15 @@ export function _set(object, path, value) {
     }, object)
 
     selectedObject[lastSegment] = value
+}
+
+
+export function useIsClient() {
+    const [isClient, setIsClient] = useState(false)
+
+    useEffect(() => {
+        setIsClient(true)
+    }, [])
+
+    return isClient
 }

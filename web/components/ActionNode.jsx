@@ -1,6 +1,7 @@
 import { ActionIcon, Group, Indicator, Menu, Stack, Text, Tooltip } from "@mantine/core"
-import { CLICK_OUTSIDE_PD_TS, CONTROL_MODIFIER_ICONS, CONTROL_MODIFIER_LABELS, HANDLE_TYPE, INPUT_MODE, RF_STORE_PROPERTIES } from "@web/modules/constants"
-import { useDefinition, useDisabled, useModifier, useNodeHasValidationErrors, useNodeProperty, useStoreProperty, useUpdateInternals } from "@web/modules/nodes"
+import { CLICK_OUTSIDE_PD_TS, CONTROL_MODIFIER_ICONS, CONTROL_MODIFIER_LABELS, HANDLE_TYPE, INPUT_MODE } from "@web/modules/constants"
+import { useEditorStoreProperty } from "@web/modules/editor-store"
+import { useDefinition, useDisabled, useModifier, useNodeHasValidationErrors, useNodeProperty, useUpdateInternals } from "@web/modules/nodes"
 import classNames from "classnames"
 import { forwardRef, useEffect, useMemo } from "react"
 import { TbAdjustments, TbCheck, TbDots, TbPlayerPlay, TbX } from "react-icons/tb"
@@ -16,7 +17,7 @@ export default function ActionNode({ id, data, selected }) {
     const definition = useDefinition()
     const displayName = data.name || definition?.name
 
-    const [, setConfiguringNodeId] = useStoreProperty(RF_STORE_PROPERTIES.NODE_BEING_CONFIGURED)
+    const [, setConfiguringNodeId] = useEditorStoreProperty("nodeBeingConfigured")
     const openNodeConfiguration = () => setConfiguringNodeId(id)
 
     const hasValidationErrors = useNodeHasValidationErrors(id)

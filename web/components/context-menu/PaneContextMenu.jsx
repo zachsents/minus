@@ -1,24 +1,24 @@
 import { ActionIcon, FocusTrap, Group, NavLink, Popover, Stack, TextInput, Tooltip } from "@mantine/core"
 import { useLocalStorage, useWindowEvent } from "@mantine/hooks"
-import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS, RF_STORE_PROPERTIES } from "@web/modules/constants"
+import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { useEditorStoreProperty } from "@web/modules/editor-store"
 import { useProjectRFToScreen } from "@web/modules/graph"
-import { createActionNode, useStoreProperty } from "@web/modules/nodes"
+import { createActionNode } from "@web/modules/nodes"
 import classNames from "classnames"
-import { useRef, useState } from "react"
+import WebDefinitions from "nodes/web"
+import { useEffect, useRef, useState } from "react"
 import { TbArrowBack, TbArrowForward, TbPinnedOff } from "react-icons/tb"
+import { useReactFlow } from "reactflow"
 import KeyboardShortcut from "../KeyboardShortcut"
 import NodeSearch from "../NodeSearch"
-import { useEffect } from "react"
-import { useReactFlow } from "reactflow"
-import WebDefinitions from "nodes/web"
 
 
 export default function PaneContextMenu() {
 
     const rf = useReactFlow()
 
-    const [opened, setOpened] = useStoreProperty(RF_STORE_PROPERTIES.PANE_CONTEXT_MENU_OPENED)
-    const [paneContextMenuPosition] = useStoreProperty(RF_STORE_PROPERTIES.PANE_CONTEXT_MENU_POSITION)
+    const [opened, setOpened] = useEditorStoreProperty("paneContextMenuOpened")
+    const [paneContextMenuPosition] = useEditorStoreProperty("paneContextMenuPosition")
 
     const close = () => setOpened(false)
     const andClose = (fn) => () => {
@@ -28,8 +28,8 @@ export default function PaneContextMenu() {
 
     const screen = useProjectRFToScreen(paneContextMenuPosition)
 
-    const [undo] = useStoreProperty(RF_STORE_PROPERTIES.UNDO)
-    const [redo] = useStoreProperty(RF_STORE_PROPERTIES.REDO)
+    const [undo] = useEditorStoreProperty("undo")
+    const [redo] = useEditorStoreProperty("redo")
 
     const searchRef = useRef()
     const [query, setQuery] = useState("")

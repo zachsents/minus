@@ -1,6 +1,7 @@
 import { ActionIcon, Grid, Group, Modal, Stack, Tabs, Text } from "@mantine/core"
-import { GRAPH_DELETE_KEYS, RF_STORE_PROPERTIES } from "@web/modules/constants"
-import { useDefinition, useNodeProperty, useStoreProperty } from "@web/modules/nodes"
+import { GRAPH_DELETE_KEYS } from "@web/modules/constants"
+import { useEditorStoreProperty } from "@web/modules/editor-store"
+import { useDefinition, useNodeProperty } from "@web/modules/nodes"
 import { useState } from "react"
 import { TbAdjustments, TbX } from "react-icons/tb"
 import { useNodeId } from "reactflow"
@@ -15,7 +16,7 @@ export default function ConfigureNodeModal() {
 
     const id = useNodeId()
 
-    const [configuringNodeId, setConfiguringNodeId] = useStoreProperty(RF_STORE_PROPERTIES.NODE_BEING_CONFIGURED)
+    const [configuringNodeId, setConfiguringNodeId] = useEditorStoreProperty("nodeBeingConfigured")
     const opened = configuringNodeId === id
     const close = () => setConfiguringNodeId(null)
 

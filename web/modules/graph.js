@@ -1,8 +1,8 @@
 import { useHotkeys } from "@mantine/hooks"
 import { useCallback, useEffect, useMemo } from "react"
 import { useReactFlow, useViewport } from "reactflow"
-import { RF_ELEMENT_ID, RF_STORE_PROPERTIES } from "./constants"
-import { useStoreProperty } from "./nodes"
+import { RF_ELEMENT_ID } from "./constants"
+import { useEditorStoreProperty } from "./editor-store"
 import { graphEquality, useUndoRedo } from "./undo"
 
 
@@ -19,8 +19,8 @@ export function useGraphUndoRedo(nodes, edges, setNodes, setEdges) {
         debounce: 200,
         equality: graphEquality,
     })
-    const [, setUndo] = useStoreProperty(RF_STORE_PROPERTIES.UNDO)
-    const [, setRedo] = useStoreProperty(RF_STORE_PROPERTIES.REDO)
+    const [, setUndo] = useEditorStoreProperty("undo")
+    const [, setRedo] = useEditorStoreProperty("undo")
 
     useEffect(() => {
         setUndo(undo)
@@ -39,8 +39,8 @@ export function useGraphUndoRedo(nodes, edges, setNodes, setEdges) {
 export function usePaneContextMenu() {
     const rf = useReactFlow()
 
-    const [, setPaneContextMenuOpened] = useStoreProperty(RF_STORE_PROPERTIES.PANE_CONTEXT_MENU_OPENED)
-    const [, setPaneContextMenuPosition] = useStoreProperty(RF_STORE_PROPERTIES.PANE_CONTEXT_MENU_POSITION)
+    const [, setPaneContextMenuOpened] = useEditorStoreProperty("paneContextMenuOpened")
+    const [, setPaneContextMenuPosition] = useEditorStoreProperty("paneContextMenuPosition")
 
     const paneContextMenuHandler = useCallback(ev => {
         ev.preventDefault()
