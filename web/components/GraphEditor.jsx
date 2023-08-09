@@ -3,7 +3,7 @@ import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS, RF_ELEMENT_ID } from "@web/modules/constants"
 import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
 
-import { useGraphUndoRedo, usePaneContextMenu } from "@web/modules/graph"
+import { useGraphSaving, useGraphUndoRedo, usePaneContextMenu } from "@web/modules/graph"
 import { useOnConnectCallback, usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
 import { TbArrowBack, TbArrowForward } from "react-icons/tb"
 import "reactflow/dist/style.css"
@@ -15,16 +15,17 @@ import NodeToolbar from "./NodeToolbar"
 import PaneContextMenu from "./context-menu/PaneContextMenu"
 
 /** @type {import("reactflow").Node[]} */
-const initialNodes = [
+const initialNodes = []
+/** @type {import("reactflow").Edge[]} */
+const initialEdges = []
 
-]
 
 export default function GraphEditor() {
 
     const theme = useMantineTheme()
 
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
-    const [edges, setEdges, onEdgesChange] = useEdgesState([])
+    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
     const onConnect = useOnConnectCallback(setEdges)
 
@@ -43,6 +44,8 @@ export default function GraphEditor() {
             setEdges(edges => edges.map(edge => ({ ...edge, selected: true })))
         }],
     ])
+
+    useGraphSaving(nodes, edges, setNodes, setEdges)
 
     return (
         <div className="flex-1">

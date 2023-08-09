@@ -1,6 +1,7 @@
 import { Button, Divider, Grid, Group, Menu, Switch, Text } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
 import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { useWorkflow } from "@web/modules/workflows"
 import classNames from "classnames"
 import { useRouter } from "next/router"
 import { useState } from "react"
@@ -19,7 +20,10 @@ export default function EditHeader() {
     const [showGrid, setShowGrid] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_GRID, defaultValue: false })
     const [showMinimap, setShowMinimap] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_MINIMAP, defaultValue: false })
 
-    const [title, setTitle] = useState("Handle CVP form submissions")
+    const [workflow, updateWorkflow] = useWorkflow()
+
+    const title = workflow?.name ?? "Loading..."
+    const setTitle = name => updateWorkflow({ name })
 
     return (
         <Grid

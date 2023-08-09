@@ -1,9 +1,11 @@
-import { useHotkeys } from "@mantine/hooks"
-import { useCallback, useEffect, useMemo } from "react"
+import { useDebouncedValue, useHotkeys } from "@mantine/hooks"
+import _ from "lodash"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useReactFlow, useViewport } from "reactflow"
 import { RF_ELEMENT_ID } from "./constants"
 import { useEditorStoreProperty } from "./editor-store"
 import { graphEquality, useUndoRedo } from "./undo"
+import { useWorkflowGraph } from "./workflows"
 
 
 export function useGraphUndoRedo(nodes, edges, setNodes, setEdges) {
@@ -53,6 +55,58 @@ export function usePaneContextMenu() {
     }, [setPaneContextMenuPosition, rf])
 
     return [paneContextMenuHandler]
+}
+
+
+export function useGraphSaving(nodes, edges, setNodes, setEdges) {
+    const [canSave, setCanSave] = useState(false)
+
+    const [graphString, updateGraphString] = useWorkflowGraph()
+
+    useEffect(() => {
+        if (graphString) {
+            setCanSave(true)
+
+            const remoteGraph = deserializeGraph(graphString)
+
+            const newNodes = mergeElements(nodes, remoteGraph.nodes)
+            const newEdges = mergeElements(edges, remoteGraph.edges)
+
+            setNodes(newNodes)
+            setEdges(newEdges)
+            console.debug("Merged from remote")
+        }
+    }, [graphString])
+
+    const serializedGraph = useMemo(() => serializeGraph(nodes, edges), [nodes, edges])
+    const [debouncedGraphString] = useDebouncedValue(serializedGraph, 500)
+    useEffect(() => {
+        if (canSave) {
+            updateGraphString(serializedGraph)
+            console.debug("Updating remote graph")
+        }
+    }, [debouncedGraphString])
+}
+
+
+export function serializeGraph(nodes, edges) {
+    return JSON.stringify({
+        nodes: nodes.map(n => _.omit(n, ["selected"])),
+        edges: edges.map(e => _.omit(e, ["selected"])),
+    })
+}
+
+export function deserializeGraph(graphString) {
+    return JSON.parse(graphString)
+}
+
+/**
+ * @param {Array<{ id: string }>} destination
+ * @param {Array<{ id: string }} source
+ */
+function mergeElements(destination, source) {
+    const ids = [...new Set(source.map(el => el.id))]
+    return ids.map(id => _.merge({}, destination.find(el => el.id === id), source.find(el => el.id === id)))
 }
 
 
