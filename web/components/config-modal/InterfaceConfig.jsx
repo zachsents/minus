@@ -1,6 +1,7 @@
 import { Accordion, ActionIcon, Alert, Badge, Button, Group, Menu, Stack, Switch, Text, Tooltip } from "@mantine/core"
 import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR, INPUT_MODE, INPUT_MODE_DESCRIPTIONS } from "@web/modules/constants"
-import { useDefinition, useInputValidation, useNodeProperty } from "@web/modules/nodes"
+import { useInputProperty, useInputValidation, useInterfaceProperty } from "@web/modules/graph/interfaces"
+import { useDefinition, useNodeProperty } from "@web/modules/graph/nodes"
 import { produce } from "immer"
 import { useMemo } from "react"
 import { TbAlertTriangle, TbDots, TbEye, TbEyeOff, TbForms, TbFunction, TbTrash } from "react-icons/tb"
@@ -14,8 +15,8 @@ function InterfaceConfig({ children, interf, type, dataKey, setSelectedInterface
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.[dataKey][interf.definition]
 
-    const [name, setName] = useNodeProperty(undefined, `data.${dataKey}.id=${interf.id}.name`)
-    const [hidden, setHidden] = useNodeProperty(undefined, `data.${dataKey}.id=${interf.id}.hidden`)
+    const [name, setName] = useInterfaceProperty(undefined, dataKey, interf.id, "name")
+    const [hidden, setHidden] = useInterfaceProperty(undefined, dataKey, interf.id, "hidden")
 
     return (
         <div className="h-full flex flex-col items-stretch">
@@ -119,7 +120,7 @@ export function InputConfig({ input, setSelectedInterface }) {
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.inputs[input.definition]
 
-    const [mode, setMode] = useNodeProperty(undefined, `data.inputs.id=${input.id}.mode`)
+    const [mode, setMode] = useInputProperty(undefined, input.id, "mode")
 
     const error = useInputValidation(undefined, input.id)
 

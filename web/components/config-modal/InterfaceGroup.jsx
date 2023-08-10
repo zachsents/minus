@@ -1,5 +1,5 @@
 import { Button, Stack, Text } from "@mantine/core"
-import { useNodeProperty } from "@web/modules/nodes"
+import { useNodeProperty } from "@web/modules/graph/nodes"
 import { uniqueId } from "@web/modules/util"
 import { produce } from "immer"
 import { useMemo } from "react"

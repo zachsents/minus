@@ -1,11 +1,10 @@
 import { Tooltip, useMantineTheme } from "@mantine/core"
 import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS, RF_ELEMENT_ID } from "@web/modules/constants"
-import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
-
-import { useGraphSaving, useGraphUndoRedo, usePaneContextMenu } from "@web/modules/graph"
-import { useOnConnectCallback, usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
+import { useGraphSaving, useGraphUndoRedo, useOnConnectCallback, usePaneContextMenu } from "@web/modules/graph"
+import { usePasteElementsFromClipboardCallback } from "@web/modules/graph/duplicate"
 import { TbArrowBack, TbArrowForward } from "react-icons/tb"
+import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
 import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
 import ActionNode from "./ActionNode"
@@ -13,6 +12,7 @@ import DataEdge from "./DataEdge"
 import GhostBuster from "./GhostBuster"
 import NodeToolbar from "./NodeToolbar"
 import PaneContextMenu from "./context-menu/PaneContextMenu"
+
 
 /** @type {import("reactflow").Node[]} */
 const initialNodes = []

@@ -1,7 +1,8 @@
 import { ActionIcon, Group, Indicator, Menu, Stack, Text, Tooltip } from "@mantine/core"
 import { CLICK_OUTSIDE_PD_TS, CONTROL_MODIFIER_ICONS, CONTROL_MODIFIER_LABELS, HANDLE_TYPE, INPUT_MODE } from "@web/modules/constants"
 import { useEditorStoreProperty } from "@web/modules/editor-store"
-import { useDefinition, useDisabled, useModifier, useNodeHasValidationErrors, useNodeProperty, useUpdateInternals } from "@web/modules/nodes"
+import { useNodeInputs, useNodeOutputs } from "@web/modules/graph/interfaces"
+import { useDefinition, useDisabled, useModifier, useNodeHasValidationErrors, useUpdateInternals } from "@web/modules/graph/nodes"
 import classNames from "classnames"
 import { forwardRef, useEffect, useMemo } from "react"
 import { TbAdjustments, TbCheck, TbDots, TbPlayerPlay, TbX } from "react-icons/tb"
@@ -170,8 +171,8 @@ function UpdateInternals() {
 
     const updateInternals = useUpdateInternals()
 
-    const [inputs] = useNodeProperty(undefined, "data.inputs")
-    const [outputs] = useNodeProperty(undefined, "data.outputs")
+    const inputs = useNodeInputs()
+    const outputs = useNodeOutputs()
 
     const checksum = useMemo(
         () => `${inputs?.map(input => `${input.hidden}${input.mode}`).join()}` +

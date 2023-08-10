@@ -1,9 +1,10 @@
 import { Group } from "@mantine/core"
-import classNames from "classnames"
-import HandleDefinitionLabel from "./HandleDefinitionLabel"
-import { TbEyeOff, TbFunction, TbSettings, TbSettingsOff } from "react-icons/tb"
 import { INPUT_MODE } from "@web/modules/constants"
-import { useDefinition, useInputValidation, useNodeProperty } from "@web/modules/nodes"
+import { useInputPropertyValue, useInputValidation, useInterfacePropertyValue } from "@web/modules/graph/interfaces"
+import { useDefinition } from "@web/modules/graph/nodes"
+import classNames from "classnames"
+import { TbEyeOff, TbFunction, TbSettings, TbSettingsOff } from "react-icons/tb"
+import HandleDefinitionLabel from "./HandleDefinitionLabel"
 
 
 function InterfaceRow({ interf, dataKey, selected, onSelect, onDeselect, inGroup = false, error, rightSectionIcons }) {
@@ -11,8 +12,8 @@ function InterfaceRow({ interf, dataKey, selected, onSelect, onDeselect, inGroup
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.[dataKey][interf.definition]
 
-    const [name] = useNodeProperty(undefined, `data.${dataKey}.id=${interf.id}.name`)
-    const [hidden] = useNodeProperty(undefined, `data.${dataKey}.id=${interf.id}.hidden`)
+    const name = useInterfacePropertyValue(undefined, dataKey, interf.id, "name")
+    const hidden = useInterfacePropertyValue(undefined, dataKey, interf.id, "hidden")
 
     return (
         <Group
@@ -56,7 +57,7 @@ function InterfaceRow({ interf, dataKey, selected, onSelect, onDeselect, inGroup
 
 export function InputRow({ interf, inGroup = false, selected, onSelect, onDeselect }) {
 
-    const [mode] = useNodeProperty(undefined, `data.inputs.id=${interf.id}.mode`)
+    const mode = useInputPropertyValue(undefined, interf.id, "mode")
     const error = useInputValidation(undefined, interf.id)
 
     return (

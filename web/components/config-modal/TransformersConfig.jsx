@@ -1,6 +1,6 @@
 import { Select, Stack, Switch } from "@mantine/core"
 import MonacoEditor from "@monaco-editor/react"
-import { useInterfaceProperty } from "@web/modules/nodes"
+import { useInterfaceProperty } from "@web/modules/graph/interfaces"
 import { CUSTOM_TRANSFORMER_MODE, TRANSFORMER_MODES, } from "shared/constants"
 
 
