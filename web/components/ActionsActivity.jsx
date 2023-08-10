@@ -2,7 +2,7 @@ import { Button, Group, Stack, Text, TextInput } from "@mantine/core"
 import { useFocusWithin, useListState, useLocalStorage } from "@mantine/hooks"
 import { ACTIVITY, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { projectAbsoluteScreenPointToRF } from "@web/modules/graph"
-import { createActionNode } from "@web/modules/nodes"
+import { useAddActionNode } from "@web/modules/graph/nodes"
 import { searchTags } from "@web/modules/search"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { TbPlus, TbX } from "react-icons/tb"
@@ -18,8 +18,9 @@ export default function ActionsActivity() {
     const searchRef = useRef()
     const resultContainerRef = useRef()
 
+    const _addNode = useAddActionNode()
     const addNode = (definition, position) => {
-        createActionNode(rf, definition.id, position && projectAbsoluteScreenPointToRF(rf, position))
+        _addNode(definition.id, position && projectAbsoluteScreenPointToRF(rf, position))
     }
 
     const [selectedTags, selectedTagsHandlers] = useListState([])

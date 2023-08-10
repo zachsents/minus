@@ -3,19 +3,16 @@ import { useLocalStorage, useWindowEvent } from "@mantine/hooks"
 import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { useEditorStoreProperty } from "@web/modules/editor-store"
 import { useProjectRFToScreen } from "@web/modules/graph"
-import { createActionNode } from "@web/modules/nodes"
+import { useAddActionNode } from "@web/modules/graph/nodes"
 import classNames from "classnames"
 import WebDefinitions from "nodes/web"
 import { useEffect, useRef, useState } from "react"
 import { TbArrowBack, TbArrowForward, TbPinnedOff } from "react-icons/tb"
-import { useReactFlow } from "reactflow"
 import KeyboardShortcut from "../KeyboardShortcut"
 import NodeSearch from "../NodeSearch"
 
 
 export default function PaneContextMenu() {
-
-    const rf = useReactFlow()
 
     const [opened, setOpened] = useEditorStoreProperty("paneContextMenuOpened")
     const [paneContextMenuPosition] = useEditorStoreProperty("paneContextMenuPosition")
@@ -54,8 +51,9 @@ export default function PaneContextMenu() {
             searchRef.current?.focus()
     })
 
+    const _addNode = useAddActionNode()
     const addNode = definition => {
-        createActionNode(rf, definition.id, paneContextMenuPosition)
+        _addNode(definition.id, paneContextMenuPosition)
         close()
     }
 

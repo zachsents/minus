@@ -22,12 +22,21 @@ export function _get(object, path) {
     return segments.reduce((result, segment) => {
         if (segment.includes("=")) {
             const [key, value] = segment.split("=")
-            return result.find(item => item[key] == value)
-        } else {
-            return result?.[segment]
+            return result?.find(item => item[key] == value)
         }
+
+        if (Array.isArray(result)) {
+            const parsed = parseInt(segment)
+            if (!isNaN(parsed))
+                return result[parsed]
+
+            return result.map(item => item[segment])
+        }
+
+        return result?.[segment]
     }, object)
 }
+
 
 /**
  * An extension on Lodash's _.set function, but allows for special syntax.
@@ -55,10 +64,10 @@ export function _set(object, path, value) {
             result.push(newObj)
 
             return newObj
-        } else {
-            result[segment] ??= {}
-            return result[segment]
         }
+
+        result[segment] ??= {}
+        return result[segment]
     }, object)
 
     selectedObject[lastSegment] = value
@@ -74,4 +83,3 @@ export function useIsClient() {
 
     return isClient
 }
-

@@ -1,7 +1,9 @@
 import { ActionIcon, Grid, Group, Modal, Stack, Tabs, Text } from "@mantine/core"
 import { GRAPH_DELETE_KEYS } from "@web/modules/constants"
 import { useEditorStoreProperty } from "@web/modules/editor-store"
-import { useDefinition, useNodeProperty } from "@web/modules/nodes"
+import { useNodeInputs } from "@web/modules/graph/inputs"
+import { useNodeOutputs, useNodeProperty } from "@web/modules/graph/nodes"
+import { useDefinition } from "@web/modules/graph/nodes"
 import { useState } from "react"
 import { TbAdjustments, TbX } from "react-icons/tb"
 import { useNodeId } from "reactflow"
@@ -131,8 +133,8 @@ export default function ConfigureNodeModal() {
 
 function ConfigSection({ selectedInterface, setSelectedInterface }) {
 
-    const [inputs] = useNodeProperty(undefined, "data.inputs")
-    const [outputs] = useNodeProperty(undefined, "data.outputs")
+    const inputs = useNodeInputs()
+    const outputs = useNodeOutputs()
 
     if (inputs?.find(input => input.id == selectedInterface?.id))
         return <InputConfig input={selectedInterface} setSelectedInterface={setSelectedInterface} />

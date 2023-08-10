@@ -1,7 +1,8 @@
 import { Button, Group } from "@mantine/core"
-import { TbReplace, TbTemplate, TbWand, TbTextPlus } from "react-icons/tb"
+import { TbReplace, TbTemplate, TbTextPlus, TbWand } from "react-icons/tb"
 import { INPUT_MODE } from "web/modules/constants"
-import { useDerivedInputs, useNodeProperty } from "web/modules/nodes"
+import { useNodePropertyValue } from "web/modules/graph/nodes"
+import { useDerivedInputs } from "web/modules/graph/inputs"
 import TextConfig from "../../config-components/TextConfig"
 
 
@@ -66,7 +67,7 @@ export default {
 
             renderConfiguration: props => {
 
-                const [subName] = useNodeProperty(undefined, `data.inputs.id=${props.inputId}.name`)
+                const subName = useNodePropertyValue(undefined, `data.inputs.${props.inputId}.name`)
 
                 return (
                     <TextConfig

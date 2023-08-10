@@ -1,5 +1,5 @@
 import { TextInput, Textarea } from "@mantine/core"
-import { useInputValue } from "web/modules/nodes"
+import { useDebouncedInputValue } from "web/modules/graph/inputs"
 
 
 /**
@@ -10,7 +10,9 @@ import { useInputValue } from "web/modules/nodes"
  */
 export default function TextConfig({ inputId, multiline, onChange, ...otherProps }) {
 
-    const [value, setValue] = useInputValue(undefined, inputId)
+    const [value, setValue] = useDebouncedInputValue(undefined, inputId, {
+        defaultValue: "",
+    })
 
     const passedProps = {
         value: value ?? "",

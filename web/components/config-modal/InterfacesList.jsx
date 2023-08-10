@@ -1,7 +1,7 @@
-import { useDefinition, useNodeProperty } from "@web/modules/nodes"
+import { Stack } from "@mantine/core"
+import { useDefinition, useNodePropertyValue } from "@web/modules/graph/nodes"
 import { useMemo } from "react"
 import ScrollBox from "../ScrollBox"
-import { Stack } from "@mantine/core"
 
 
 export default function InterfacesList({ dataKey, rowComponent: RowComponent, groupComponent: GroupComponent, selectedInterface, setSelectedInterface }) {
@@ -13,11 +13,11 @@ export default function InterfacesList({ dataKey, rowComponent: RowComponent, gr
         [definition?.[dataKey]]
     )
 
-    const [interfaces] = useNodeProperty(undefined, `data.${dataKey}`)
+    const interfaces = useNodePropertyValue(undefined, `data.${dataKey}`)
 
     const groups = useMemo(() => interfaceDefs.map(def => ({
         definition: def,
-        interfaces: interfaces?.filter(
+        interfaces: Object.values(interfaces)?.filter(
             interf => interf.definition == def.id
         ),
     })), [interfaceDefs, interfaces])

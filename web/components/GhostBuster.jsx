@@ -1,4 +1,5 @@
 import { useDebouncedValue } from "@mantine/hooks"
+import { useDeleteElements } from "@web/modules/graph"
 import { useEffect } from "react"
 import { useReactFlow, useStore } from "reactflow"
 import { shallow } from "zustand/shallow"
@@ -7,6 +8,7 @@ import { shallow } from "zustand/shallow"
 export default function GhostBuster() {
 
     const rf = useReactFlow()
+    const deleteElements = useDeleteElements()
 
     const handleMap = useStore(state => Object.fromEntries(
         [...state.nodeInternals.values()].map(node => {
@@ -33,7 +35,7 @@ export default function GhostBuster() {
         })
         if (remove.length > 0) {
             console.debug("[GhostBuster] Removing edges:", remove.map(e => e.id).join(", "))
-            rf.deleteElements({ edges: remove })
+            deleteElements([], remove)
         }
     }, [rf, debouncedHandleMap])
 }

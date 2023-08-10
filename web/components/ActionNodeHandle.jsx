@@ -1,6 +1,6 @@
 import { Handle as RFHandle, Position } from "reactflow"
 import { Group, Text, useMantineTheme } from "@mantine/core"
-import { useDefinition } from "@web/modules/nodes"
+import { useDefinition } from "@web/modules/graph/nodes"
 import { HANDLE_TYPE } from "@web/modules/constants"
 import classNames from "classnames"
 

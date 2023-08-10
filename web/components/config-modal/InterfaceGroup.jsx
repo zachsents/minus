@@ -1,32 +1,29 @@
 import { Button, Stack, Text } from "@mantine/core"
-import { useNodeProperty } from "@web/modules/nodes"
-import { uniqueId } from "@web/modules/util"
-import { produce } from "immer"
+import { INTERFACE_ID_PREFIX } from "@web/modules/constants"
+import { useCreateEntryInNode, useNodeInterfaces } from "@web/modules/graph/nodes"
 import { useMemo } from "react"
 import { TbPlus } from "react-icons/tb"
 import HandleDefinitionLabel from "./HandleDefinitionLabel"
-import { INTERFACE_ID_PREFIX } from "@web/modules/constants"
 
 
 function InterfaceGroup({ children, definition, dataKey, noneLabel, onCreate, newInterfaceProps = {} }) {
 
-    const [interfaces, setInterfaces] = useNodeProperty(undefined, `data.${dataKey}`)
+    const interfaces = useNodeInterfaces(undefined, dataKey)
 
     const canBeAdded = useMemo(
-        () => interfaces?.filter(i => i.definition == definition.id).length < definition?.groupMax,
+        () => interfaces.filter(i => i.definition == definition.id).length < definition?.groupMax,
         [interfaces]
     )
 
-    const createInterface = () => setInterfaces(produce(interfaces, draft => {
-        const newInterface = {
-            id: uniqueId(INTERFACE_ID_PREFIX),
+    const _createInterface = useCreateEntryInNode(undefined, `data.${dataKey}`, INTERFACE_ID_PREFIX)
+    const createInterface = () => {
+        const newInterface = _createInterface({
             definition: definition?.id,
             name: `New ${definition?.name}`,
             ...newInterfaceProps,
-        }
-        draft.push(newInterface)
+        })
         onCreate?.(newInterface)
-    }))
+    }
 
     return (
         <Stack spacing={0} className="border-solid border-0 border-b-1 border-gray-300">

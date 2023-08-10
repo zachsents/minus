@@ -2,11 +2,13 @@ import { Divider, Group, Text } from "@mantine/core"
 import { useHotkeys } from "@mantine/hooks"
 import { modals } from "@mantine/modals"
 import { notifications } from "@mantine/notifications"
-import { useCopyElementsToClipboard, useDeleteElements, useDuplicateElements, useSelectConnectedEdges, useSelectIncomers, useSelectOutgoers, useSelection, useSelectionRect } from "@web/modules/nodes"
+import { useSelection, useSelectionRect, useSelectConnectedEdges, useSelectIncomers, useSelectOutgoers } from "@web/modules/graph/selection"
 import classNames from "classnames"
 import { TbArrowLeftSquare, TbArrowRightSquare, TbChartDots3, TbClipboardCopy, TbClipboardPlus, TbCopy, TbTrash } from "react-icons/tb"
 import KeyboardShortcut from "./KeyboardShortcut"
 import ToolbarIcon from "./ToolbarIcon"
+import { useDeleteElements } from "@web/modules/graph"
+import { useCopyElementsToClipboard, useDuplicateElements } from "@web/modules/graph/duplicate"
 
 
 export default function MultiNodeToolbar() {
@@ -142,7 +144,8 @@ function DuplicateControl() {
 
     const { selectedNodes, selectedEdges } = useSelection()
 
-    const duplicate = useDuplicateElements(selectedNodes, selectedEdges)
+    const _duplicate = useDuplicateElements()
+    const duplicate = () => _duplicate(selectedNodes, selectedEdges)
 
     useHotkeys([
         ["mod+d", duplicate],

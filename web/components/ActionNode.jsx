@@ -1,7 +1,8 @@
 import { ActionIcon, Group, Indicator, Menu, Stack, Text, Tooltip } from "@mantine/core"
 import { CLICK_OUTSIDE_PD_TS, CONTROL_MODIFIER_ICONS, CONTROL_MODIFIER_LABELS, HANDLE_TYPE, INPUT_MODE } from "@web/modules/constants"
 import { useEditorStoreProperty } from "@web/modules/editor-store"
-import { useDefinition, useDisabled, useModifier, useNodeHasValidationErrors, useNodeProperty, useUpdateInternals } from "@web/modules/nodes"
+import { useDefinition, useNodeHasValidationErrors, useNodeOutputs, useUpdateInternals } from "@web/modules/graph/nodes"
+import { useDisabled, useModifier } from "@web/modules/graph/nodes"
 import classNames from "classnames"
 import { forwardRef, useEffect, useMemo } from "react"
 import { TbAdjustments, TbCheck, TbDots, TbPlayerPlay, TbX } from "react-icons/tb"
@@ -10,6 +11,7 @@ import ActionNodeHandle from "./ActionNodeHandle"
 import CheckableMenuItem from "./CheckableMenuItem"
 import NodeModifierWrapper from "./NodeModifierWrapper"
 import ConfigureNodeModal from "./config-modal/ConfigureNodeModal"
+import { useNodeInputs } from "@web/modules/graph/inputs"
 
 
 export default function ActionNode({ id, data, selected }) {
@@ -22,14 +24,16 @@ export default function ActionNode({ id, data, selected }) {
 
     const hasValidationErrors = useNodeHasValidationErrors(id)
 
-    const shownInputs = useMemo(() => data.inputs?.filter(
+    const inputs = useNodeInputs(id)
+    const shownInputs = useMemo(() => inputs.filter(
         input => input.mode == INPUT_MODE.HANDLE &&
             !input.hidden
-    ), [data.inputs])
+    ), [inputs])
 
-    const shownOutputs = useMemo(() => data.outputs?.filter(
+    const outputs = useNodeOutputs(id)
+    const shownOutputs = useMemo(() => outputs.filter(
         output => !output.hidden
-    ), [data.outputs])
+    ), [outputs])
 
     const [modifier, setModifier, clearModifier] = useModifier(id)
 
@@ -170,8 +174,8 @@ function UpdateInternals() {
 
     const updateInternals = useUpdateInternals()
 
-    const [inputs] = useNodeProperty(undefined, "data.inputs")
-    const [outputs] = useNodeProperty(undefined, "data.outputs")
+    const inputs = useNodeInputs()
+    const outputs = useNodeOutputs()
 
     const checksum = useMemo(
         () => `${inputs?.map(input => `${input.hidden}${input.mode}`).join()}` +

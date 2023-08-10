@@ -3,8 +3,7 @@ import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { GRAPH_DELETE_KEYS, LOCAL_STORAGE_KEYS, RF_ELEMENT_ID } from "@web/modules/constants"
 import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
 
-import { useGraphSaving, useGraphUndoRedo, usePaneContextMenu } from "@web/modules/graph"
-import { useOnConnectCallback, usePasteElementsFromClipboardCallback } from "@web/modules/nodes"
+import { useDeleteElements, useGraphSaving, useGraphUndoRedo, useOnConnectCallback, useOnNodesDragCallback, usePaneContextMenu } from "@web/modules/graph"
 import { TbArrowBack, TbArrowForward } from "react-icons/tb"
 import "reactflow/dist/style.css"
 import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
@@ -13,6 +12,7 @@ import DataEdge from "./DataEdge"
 import GhostBuster from "./GhostBuster"
 import NodeToolbar from "./NodeToolbar"
 import PaneContextMenu from "./context-menu/PaneContextMenu"
+import { usePasteElementsFromClipboardCallback } from "@web/modules/graph/duplicate"
 
 /** @type {import("reactflow").Node[]} */
 const initialNodes = []
@@ -27,7 +27,12 @@ export default function GraphEditor() {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes)
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
-    const onConnect = useOnConnectCallback(setEdges)
+    const onConnect = useOnConnectCallback()
+
+    const deleteElements = useDeleteElements()
+    const onNodesDelete = nodes => deleteElements(nodes, [])
+    const onEdgesDelete = edges => deleteElements([], edges)
+    const onNodesDragStop = useOnNodesDragCallback()
 
     const [showMinimap] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_MINIMAP })
     const [showGrid] = useLocalStorage({ key: LOCAL_STORAGE_KEYS.EDITOR_SHOW_GRID })
@@ -47,6 +52,8 @@ export default function GraphEditor() {
 
     useGraphSaving(nodes, edges, setNodes, setEdges)
 
+
+
     return (
         <div className="flex-1">
             <ReactFlow
@@ -57,6 +64,10 @@ export default function GraphEditor() {
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
                 edgeTypes={edgeTypes}
+
+                onNodesDelete={onNodesDelete}
+                onEdgesDelete={onEdgesDelete}
+                onNodeDragStop={onNodesDragStop}
 
                 defaultEdgeOptions={defaultEdgeOptions}
                 connectOnClick={false}

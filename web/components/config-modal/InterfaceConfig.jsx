@@ -1,7 +1,8 @@
 import { Accordion, ActionIcon, Alert, Badge, Button, Group, Menu, Stack, Switch, Text, Tooltip } from "@mantine/core"
 import { DEFAULT_INPUT_CONFIG_VALIDATION_ERROR, INPUT_MODE, INPUT_MODE_DESCRIPTIONS } from "@web/modules/constants"
-import { useDefinition, useInputValidation, useNodeProperty } from "@web/modules/nodes"
-import { produce } from "immer"
+import { useDefinition, useNodeProperty, useNodePropertyValue, useUpdateNodeProperty } from "@web/modules/graph/nodes"
+import { useInputValidation } from "@web/modules/graph/inputs"
+import { deleteField } from "firebase/firestore"
 import { useMemo } from "react"
 import { TbAlertTriangle, TbDots, TbEye, TbEyeOff, TbForms, TbFunction, TbTrash } from "react-icons/tb"
 import EditableText from "../EditableText"
@@ -14,8 +15,8 @@ function InterfaceConfig({ children, interf, type, dataKey, setSelectedInterface
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.[dataKey][interf.definition]
 
-    const [name, setName] = useNodeProperty(undefined, `data.${dataKey}.id=${interf.id}.name`)
-    const [hidden, setHidden] = useNodeProperty(undefined, `data.${dataKey}.id=${interf.id}.hidden`)
+    const [name, setName] = useNodeProperty(undefined, `data.${dataKey}.${interf.id}.name`)
+    const [hidden, setHidden] = useNodeProperty(undefined, `data.${dataKey}.${interf.id}.hidden`)
 
     return (
         <div className="h-full flex flex-col items-stretch">
@@ -119,7 +120,7 @@ export function InputConfig({ input, setSelectedInterface }) {
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.inputs[input.definition]
 
-    const [mode, setMode] = useNodeProperty(undefined, `data.inputs.id=${input.id}.mode`)
+    const [mode, setMode] = useNodeProperty(undefined, `data.inputs.${input.id}.mode`)
 
     const error = useInputValidation(undefined, input.id)
 
@@ -174,9 +175,6 @@ export function InputConfig({ input, setSelectedInterface }) {
 
 export function OutputConfig({ output, setSelectedInterface }) {
 
-    // const nodeDefinition = useDefinition()
-    // const definition = nodeDefinition?.outputs[output.definition]
-
     return (
         <InterfaceConfig
             interf={output} dataKey="outputs" type="output"
@@ -192,19 +190,22 @@ function ConfigGroupControls({ interf, dataKey, onDelete }) {
 
     const nodeDefinition = useDefinition()
     const definition = nodeDefinition?.[dataKey][interf.definition]
-    const [interfaces, setInterfaces] = useNodeProperty(undefined, `data.${dataKey}`)
 
-    const canBeDeleted = useMemo(
-        () => definition?.group &&
-            interfaces?.filter(i => i.definition == interf.definition).length > definition?.groupMin,
-        [definition?.group, interfaces, interf]
-    )
+    const interfaces = useNodePropertyValue(undefined, `data.${dataKey}`)
 
-    const deleteInterface = () => setInterfaces(produce(interfaces, draft => {
-        const index = draft.findIndex(i => i.id == interf.id)
-        draft.splice(index, 1)
+    const canBeDeleted = useMemo(() => {
+        const isGroup = definition?.group
+        const hasMoreThanMin = Object.values(interfaces ?? {})
+            .filter(i => i.definition == interf.definition).length > definition?.groupMin
+
+        return isGroup && hasMoreThanMin
+    }, [definition?.group, interfaces, interf])
+
+    const setInterface = useUpdateNodeProperty(undefined, `data.${dataKey}.${interf.id}`)
+    const deleteInterface = () => {
+        setInterface(deleteField())
         onDelete?.()
-    }))
+    }
 
     return (
         <Group spacing="xs">

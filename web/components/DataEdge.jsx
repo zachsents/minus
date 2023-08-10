@@ -1,6 +1,6 @@
 import { ActionIcon, Center } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
-import { useDeleteElements } from "@web/modules/nodes"
+import { useDeleteElements } from "@web/modules/graph"
 import classNames from "classnames"
 import { forwardRef } from "react"
 import { TbX } from "react-icons/tb"
