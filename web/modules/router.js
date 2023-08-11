@@ -44,3 +44,16 @@ export function useMustNotBeLoggedIn(redirect = "/dashboard") {
         }
     }, [hasEmitted, user, redirect])
 }
+
+
+export function useMustBeLoggedIn(redirect = "/login") {
+
+    const router = useRouter()
+    const { hasEmitted, data: user } = useUser()
+
+    useEffect(() => {
+        if (hasEmitted && !user && redirect) {
+            router.push(redirect)
+        }
+    }, [hasEmitted, user, redirect])
+}

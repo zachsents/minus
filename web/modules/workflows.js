@@ -1,6 +1,8 @@
+import { useWindowEvent } from "@mantine/hooks"
 import { useFirestoreDocData } from "@web/modules/firebase/reactfire-wrappers"
-import { doc } from "firebase/firestore"
-import { useCallback, useMemo } from "react"
+import { deleteField, doc } from "firebase/firestore"
+import { useCallback, useEffect, useMemo } from "react"
+import { useUser } from "reactfire"
 import { WORKFLOWS_COLLECTION } from "shared/constants/firebase"
 import { fire } from "./firebase"
 import { useUpdateDoc } from "./firebase/use-update-doc"
@@ -45,4 +47,33 @@ export function useUpdateWorkflowGraph(workflowId) {
     }))
 
     return [updateGraph, updateQuery]
+}
+
+
+export function useActiveUserOnWorkflow(workflowId) {
+
+    const [, updateWorkflow] = useWorkflow(workflowId)
+    const { data: user } = useUser()
+
+    const userKey = user && `activeUsers.${user.uid}`
+
+    useEffect(() => {
+        if (user) {
+            updateWorkflow({
+                [userKey]: {
+                    email: user.email,
+                    displayName: user.displayName,
+                    photo: user.photoURL,
+                },
+            })
+        }
+    }, [user])
+
+    useWindowEvent("beforeunload", () => {
+        if (user) {
+            updateWorkflow({
+                [userKey]: deleteField(),
+            })
+        }
+    })
 }
