@@ -1,6 +1,6 @@
-import { useWindowEvent } from "@mantine/hooks"
+import { useInterval, useWindowEvent } from "@mantine/hooks"
 import { useFirestoreDocData } from "@web/modules/firebase/reactfire-wrappers"
-import { deleteField, doc } from "firebase/firestore"
+import { deleteField, doc, serverTimestamp } from "firebase/firestore"
 import { useCallback, useEffect, useMemo } from "react"
 import { useUser } from "reactfire"
 import { WORKFLOWS_COLLECTION } from "shared/constants/firebase"
@@ -8,6 +8,7 @@ import { fire } from "./firebase"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { convertGraphForRemote, convertGraphFromRemote } from "./graph"
 import { useQueryParam } from "./router"
+import { LAST_ACTIVE_EXPIRATION } from "./constants"
 
 
 const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
@@ -57,15 +58,25 @@ export function useActiveUserOnWorkflow(workflowId) {
 
     const userKey = user && `activeUsers.${user.uid}`
 
-    useEffect(() => {
+    const setActive = () => {
         if (user) {
             updateWorkflow({
                 [userKey]: {
                     email: user.email,
                     displayName: user.displayName,
                     photo: user.photoURL,
+                    lastActiveAt: serverTimestamp(),
                 },
             })
+        }
+    }
+
+    const interval = useInterval(setActive, LAST_ACTIVE_EXPIRATION)
+
+    useEffect(() => {
+        if (user) {
+            setActive()
+            interval.start()
         }
     }, [user])
 

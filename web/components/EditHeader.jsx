@@ -1,6 +1,6 @@
 import { Avatar, Button, Divider, Grid, Group, Menu, Switch, Text, Tooltip } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
-import { CLICK_OUTSIDE_PD_TS, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { CLICK_OUTSIDE_PD_TS, LAST_ACTIVE_EXPIRATION, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { useWorkflow } from "@web/modules/workflows"
 import classNames from "classnames"
 import { useRouter } from "next/router"
@@ -10,6 +10,7 @@ import CheckableMenuItem from "./CheckableMenuItem"
 import EditableText from "./EditableText"
 import LinkKeepParams from "./LinkKeepParams"
 import { useUser } from "reactfire"
+import { useMemo } from "react"
 
 
 export default function EditHeader() {
@@ -27,6 +28,12 @@ export default function EditHeader() {
 
     const title = workflow?.name ?? "Loading..."
     const setTitle = name => updateWorkflow({ name })
+
+    const activeUsers = useMemo(
+        () => Object.entries(workflow?.activeUsers ?? {})
+            .filter(([, userData]) => Date.now() - userData.lastActiveAt?.toDate() < LAST_ACTIVE_EXPIRATION + 1000),
+        [workflow]
+    )
 
     return (
         <Grid
@@ -129,7 +136,7 @@ export default function EditHeader() {
                     <Divider orientation="vertical" />
 
                     <Avatar.Group spacing="sm" >
-                        {Object.entries(workflow?.activeUsers ?? {}).map(([userId, userData]) =>
+                        {activeUsers.map(([userId, userData]) =>
                             <Tooltip
                                 label={(userData.displayName || userData.email || `User ${userId}`) + (userId == user?.uid ? " (You)" : "")}
                                 withArrow withinPortal position="bottom" color="primary"
