@@ -57,6 +57,7 @@ resource "google_project_service" "default" {
     "firebase.googleapis.com",
     # Enabling the ServiceUsage API allows the new project to be quota checked from now on.
     "serviceusage.googleapis.com",
+    "identitytoolkit.googleapis.com",
   ])
   service = each.key
 
@@ -166,4 +167,37 @@ resource "google_firebaserules_release" "default-bucket" {
   name         = "firebase.storage/${google_app_engine_application.default.default_bucket}"
   ruleset_name = "projects/${google_project.default.project_id}/rulesets/${google_firebaserules_ruleset.storage.name}"
   project      = google_project.default.project_id
+}
+
+
+# Creates an Identity Platform config.
+# Also enables Firebase Authentication with Identity Platform in the project if not.
+resource "google_identity_platform_config" "auth" {
+  provider = google-beta
+  project  = google_project.default.project_id
+
+  # Wait for identitytoolkit.googleapis.com to be enabled before initializing Authentication.
+  depends_on = [
+    google_project_service.default,
+  ]
+}
+
+
+# Adds more configurations, like for the email/password sign-in provider.
+resource "google_identity_platform_project_default_config" "auth" {
+  provider = google-beta
+  project  = google_project.default.project_id
+  sign_in {
+    allow_duplicate_emails = false
+
+    email {
+      enabled           = true
+      password_required = false
+    }
+  }
+
+  # Wait for Authentication to be initialized before enabling email/password.
+  depends_on = [
+    google_identity_platform_config.auth
+  ]
 }
