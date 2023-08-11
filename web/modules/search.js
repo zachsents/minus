@@ -1,5 +1,10 @@
+import { useDebouncedValue } from "@mantine/hooks"
+import fuzzy from "fuzzy"
+import _ from "lodash"
 import lunr from "lunr"
 import WebDefinitions from "nodes/web"
+import { useMemo, useState } from "react"
+
 
 const interfaceDescriptionExtractor = (typeKey, nodeDef) => Object.values(nodeDef[typeKey]).map(interf => interf.description ?? "").join(" ")
 
@@ -60,4 +65,44 @@ function fixQuery(query) {
             return `+${token}~${Math.max(1, Math.min(4, token.length - 1))}`
         return token
     }).join(" ")
+}
+
+
+const HIGHLIGHT_DELIMITER = "***"
+
+/**
+ * @param {any[]} list
+ * @param {object} [options]
+ * @param {Function} [options.selector]
+ * @param {number} [options.debounce]
+ * @param {boolean} [options.highlight]
+ * @return {[any[], string, Function, string[][]]} 
+ */
+export function useSearch(list, {
+    selector,
+    debounce,
+    highlight = false,
+} = {}) {
+
+    const [query, setQuery] = useState("")
+    let queryToUse = query
+
+    if (debounce != null) {
+        const [debouncedQuery] = useDebouncedValue(query, debounce)
+        queryToUse = debouncedQuery
+    }
+
+    const [filtered, strings] = useMemo(
+        () => _.unzip(
+            fuzzy.filter(queryToUse, list, {
+                extract: selector,
+                pre: HIGHLIGHT_DELIMITER,
+                post: HIGHLIGHT_DELIMITER,
+            })
+                .map(result => [result.original, result.string.split(HIGHLIGHT_DELIMITER)])
+        ),
+        [list, queryToUse]
+    )
+
+    return [filtered ?? [], query, setQuery, highlight && (strings ?? [])]
 }

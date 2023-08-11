@@ -1,6 +1,9 @@
 import { GoogleAuthProvider, isSignInWithEmailLink, sendSignInLinkToEmail, signInWithEmailLink, signInWithPopup, signOut as _signOut } from "firebase/auth"
 import { fire } from "."
 import { LOCAL_STORAGE_KEYS } from "../constants"
+import { useRouter } from "next/router"
+import { useMutation } from "react-query"
+import { notifications } from "@mantine/notifications"
 
 
 export function signInWithGoogle() {
@@ -41,4 +44,22 @@ export async function finishEmailSignIn() {
 
 export async function signOut() {
     await _signOut(fire.auth)
+}
+
+
+export function useSignOut(redirect = "/") {
+    const router = useRouter()
+
+    const { mutate, ...query } = useMutation(signOut, {
+        onSuccess: () => {
+            notifications.show({
+                title: "You've been signed out!",
+            })
+
+            if (redirect)
+                router.push(redirect)
+        },
+    })
+
+    return [mutate, query]
 }

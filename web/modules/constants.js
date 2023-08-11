@@ -11,6 +11,7 @@ export const LOCAL_STORAGE_KEYS = {
     PINNED_NODES: "pinnedNodes",
     HAS_LOGGED_IN: "hasLoggedIn",
     SIGN_IN_EMAIL: "signInEmail",
+    SHOW_INTRO_ALERT: "showIntroAlert",
 }
 
 export const HANDLE_TYPE = {
