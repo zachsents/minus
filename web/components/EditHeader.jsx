@@ -1,16 +1,15 @@
-import { Avatar, Button, Divider, Grid, Group, Menu, Switch, Text, Tooltip } from "@mantine/core"
+import { Avatar, Button, Divider, Group, Menu, Switch, Text, Tooltip } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
 import { CLICK_OUTSIDE_PD_TS, LAST_ACTIVE_EXPIRATION, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
 import { useWorkflow } from "@web/modules/workflows"
 import classNames from "classnames"
 import { useRouter } from "next/router"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { TbArrowLeft, TbChevronRight, TbDotsVertical, TbGridPattern, TbHeart, TbLayout, TbMap, TbPointer, TbSettings } from "react-icons/tb"
+import { useUser } from "reactfire"
 import CheckableMenuItem from "./CheckableMenuItem"
 import EditableText from "./EditableText"
 import LinkKeepParams from "./LinkKeepParams"
-import { useUser } from "reactfire"
-import { useMemo } from "react"
 
 
 export default function EditHeader() {
@@ -36,11 +35,11 @@ export default function EditHeader() {
     )
 
     return (
-        <Grid
+        <Group
             className="px-sm py-xs bg-dark [&>*]:text-dark-50 hover:[&_button]:bg-dark-300 hover:[&_button]:text-white"
-            align="center" gutter={0}
+            position="apart" noWrap
         >
-            <Grid.Col span={4} className="flex justify-start" >
+            <div className="flex-1 flex justify-start">
                 <Group>
                     <Menu shadow="md" clickOutsideEvents={CLICK_OUTSIDE_PD_TS}>
                         <Menu.Target>
@@ -105,9 +104,9 @@ export default function EditHeader() {
                         ]}
                     />
                 </Group>
-            </Grid.Col>
+            </div>
 
-            <Grid.Col span={4} className="flex justify-center">
+            <div className="flex justify-center">
                 <EditableText
                     value={title}
                     onChange={setTitle}
@@ -116,9 +115,9 @@ export default function EditHeader() {
                 >
                     <Text>{title}</Text>
                 </EditableText>
-            </Grid.Col>
+            </div>
 
-            <Grid.Col span={4} className="flex justify-end">
+            <div className="flex-1 flex justify-end">
                 <Group spacing="xl">
                     <Switch
                         label="Enabled"
@@ -163,8 +162,8 @@ export default function EditHeader() {
                         Leave Feedback
                     </Button>
                 </Group>
-            </Grid.Col>
-        </Grid>
+            </div>
+        </Group>
     )
 }
 
