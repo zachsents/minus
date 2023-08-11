@@ -8,7 +8,7 @@ import { convertGraphForRemote, convertGraphFromRemote } from "./graph"
 import { useQueryParam } from "./router"
 
 
-const workflowRef = workflowId => doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
+const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
 
 export function useWorkflow(workflowId) {
     workflowId ??= useQueryParam("workflowId")[0]

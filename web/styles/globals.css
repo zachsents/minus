@@ -19,3 +19,7 @@ body {
 path {
     stroke-width: 1.25px;
 }
+
+a {
+    text-decoration: none;
+}

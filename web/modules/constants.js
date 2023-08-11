@@ -9,6 +9,8 @@ export const LOCAL_STORAGE_KEYS = {
     EDITOR_SHOW_GRID: "editorShowGrid",
     EDITOR_SHOW_MINIMAP: "editorShowMinimap",
     PINNED_NODES: "pinnedNodes",
+    HAS_LOGGED_IN: "hasLoggedIn",
+    SIGN_IN_EMAIL: "signInEmail",
 }
 
 export const HANDLE_TYPE = {

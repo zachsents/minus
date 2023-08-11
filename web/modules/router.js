@@ -1,5 +1,7 @@
 import { useRouter } from "next/router"
+import { useEffect } from "react"
 import { useCallback } from "react"
+import { useUser } from "reactfire"
 
 
 /**
@@ -28,4 +30,17 @@ export function useQueryParam(param) {
     })
 
     return [value, setValue]
+}
+
+
+export function useMustNotBeLoggedIn(redirect = "/dashboard") {
+
+    const router = useRouter()
+    const { hasEmitted, data: user } = useUser()
+
+    useEffect(() => {
+        if (hasEmitted && user && redirect) {
+            router.push(redirect)
+        }
+    }, [hasEmitted, user, redirect])
 }

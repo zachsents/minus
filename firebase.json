@@ -22,7 +22,16 @@
             "**/.*",
             "**/node_modules/**"
         ],
-        "rewrites": [],
+        "rewrites": [
+            {
+                "regex": "^/workflows/([^/]+?)/edit(?:/)?$",
+                "destination": "/workflows/[workflowId]/edit.html"
+            },
+            {
+                "regex": "^/workflows/([^/]+?)/runs(?:/)?$",
+                "destination": "/workflows/[workflowId]/runs.html"
+            }
+        ],
         "cleanUrls": true
     },
     "storage": {
