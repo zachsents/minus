@@ -1,17 +1,17 @@
+import { Button, Stack, Text, Tooltip } from "@mantine/core"
 import { useDebouncedValue, useHotkeys } from "@mantine/hooks"
+import { notifications } from "@mantine/notifications"
 import _ from "lodash"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { useReactFlow, useStore, useStoreApi, addEdge } from "reactflow"
+import { TbAlertTriangle, TbSwitch3 } from "react-icons/tb"
+import { addEdge, useReactFlow, useStore, useStoreApi } from "reactflow"
+import { DATA_TYPE_LABELS, typesMatch } from "shared/constants"
+import { INTERFACE_ID_PREFIX } from "../constants"
 import { useEditorStoreProperty } from "../editor-store"
 import { graphEquality, useUndoRedo } from "../undo"
-import { useWorkflowGraph } from "../workflows"
-import { projectAbsoluteScreenPointToRF } from "./projection"
-import { INTERFACE_ID_PREFIX } from "../constants"
+import { useUpdateWorkflowGraph, useWorkflowGraph } from "../workflows"
 import { getDefinition } from "./nodes"
-import { DATA_TYPE_LABELS, typesMatch } from "shared/constants"
-import { notifications } from "@mantine/notifications"
-import { Button, Stack, Text, Tooltip } from "@mantine/core"
-import { TbAlertTriangle, TbSwitch3 } from "react-icons/tb"
+import { projectAbsoluteScreenPointToRF } from "./projection"
 
 
 export function useGraphUndoRedo(nodes, edges, setNodes, setEdges) {
@@ -65,33 +65,32 @@ export function usePaneContextMenu() {
 
 
 export function useGraphSaving(nodes, edges, setNodes, setEdges) {
+
+    const [remoteGraph, isGraphLoaded] = useWorkflowGraph()
+    const [updateGraph] = useUpdateWorkflowGraph()
     const [canSave, setCanSave] = useState(false)
 
-    const [graphString, updateGraphString] = useWorkflowGraph()
-
     useEffect(() => {
-        if (graphString) {
+        if (isGraphLoaded) {
             setCanSave(true)
 
-            const remoteGraph = deserializeGraph(graphString)
-
-            const newNodes = mergeElements(nodes, remoteGraph.nodes)
-            const newEdges = mergeElements(edges, remoteGraph.edges)
+            const { nodes: newNodes, edges: newEdges } = merge({ nodes, edges }, remoteGraph, ["selected"])
 
             setNodes(newNodes)
             setEdges(newEdges)
-            console.debug("Merged from remote")
+            console.debug("Merged from remote", remoteGraph)
         }
-    }, [graphString])
+    }, [remoteGraph])
 
-    const serializedGraph = useMemo(() => serializeGraph(nodes, edges), [nodes, edges])
-    const [debouncedGraphString] = useDebouncedValue(serializedGraph, 500)
+    const convertedGraph = useMemo(() => convertGraphForRemote({ nodes, edges }), [nodes, edges])
+    const [debouncedConvertedGraph] = useDebouncedValue(convertedGraph, 500)
+
     useEffect(() => {
         if (canSave) {
-            updateGraphString(serializedGraph)
+            updateGraph({ nodes, edges })
             console.debug("Updating remote graph")
         }
-    }, [debouncedGraphString])
+    }, [debouncedConvertedGraph])
 }
 
 
@@ -192,24 +191,52 @@ export function useRFStoreProperty(property) {
 }
 
 
-export function serializeGraph(nodes, edges) {
-    return JSON.stringify({
-        nodes: nodes.map(n => _.omit(n, ["selected"])),
-        edges: edges.map(e => _.omit(e, ["selected"])),
-    })
-}
-
-
-export function deserializeGraph(graphString) {
-    return JSON.parse(graphString)
+/**
+ * @param {string} graphStr
+ */
+export function convertGraphFromRemote(graphStr) {
+    try {
+        const graph = JSON.parse(graphStr)
+        return graph
+    }
+    catch (err) {
+        return {
+            nodes: [],
+            edges: [],
+        }
+    }
 }
 
 
 /**
- * @param {Array<{ id: string }>} destination
- * @param {Array<{ id: string }} source
+ * @param {{ nodes: import("reactflow").Node[], edges: import("reactflow").Edge[] }} graph
  */
-function mergeElements(destination, source) {
-    const ids = [...new Set(source.map(el => el.id))]
-    return ids.map(id => _.merge({}, destination.find(el => el.id === id), source.find(el => el.id === id)))
+export function convertGraphForRemote(graph) {
+    return JSON.stringify({
+        nodes: graph.nodes.map(n => _.omit(n, ["selected"])),
+        edges: graph.edges.map(e => _.omit(e, ["selected"])),
+    })
+}
+
+
+function merge(destination, source, keepDestinationProps = []) {
+
+    if (Array.isArray(source)) {
+        const usingIds = source.every(el => "id" in el)
+
+        if (usingIds)
+            return source.map(sourceItem => merge(destination?.find(destItem => destItem.id === sourceItem.id), sourceItem, keepDestinationProps))
+
+        return source.map((sourceItem, i) => merge(destination?.[i], sourceItem, keepDestinationProps))
+    }
+
+    if (typeof source === "object" && source !== null) {
+        const result = Object.fromEntries(
+            Object.entries(source).map(([key, value]) => [key, merge(destination?.[key], value, keepDestinationProps)])
+        )
+        keepDestinationProps.forEach(prop => result[prop] = destination?.[prop])
+        return result
+    }
+
+    return source
 }
