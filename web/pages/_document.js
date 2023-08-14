@@ -12,7 +12,6 @@ export default function Document() {
                 <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
 
                 {/* Title & Description */}
-                <title key="title">xxx</title>
                 <meta
                     name="description"
                     content="xxx"

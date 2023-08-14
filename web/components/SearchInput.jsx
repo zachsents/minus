@@ -6,7 +6,7 @@ import { TbSearch, TbX } from "react-icons/tb"
 
 const SearchInput = forwardRef(({
     noun, quantity,
-    hotkeys = ["mod+k", "/"],
+    hotkeys = ["/"],
     onClear,
 
     onKeyDown,

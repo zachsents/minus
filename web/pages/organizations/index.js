@@ -46,8 +46,13 @@ export default function OrganizationsPage() {
 
             {showIntroAlert &&
                 <Container size="xs" p="xl">
-                    <Alert title="Welcome to Minus!" withCloseButton variant="outline" onClose={() => setShowIntroAlert(false)}>
-                        To get started, create a new app or select an existing one. You can also check out our guides and resources to learn more about what you can do with Minus.
+                    <Alert
+                        title="Welcome to Minus!"
+                        withCloseButton variant="outline"
+                        onClose={() => setShowIntroAlert(false)}
+                    >
+                        To get started, create a new app or select an existing one.
+                        {/* You can also check out our guides and resources to learn more about what you can do with Minus. */}
                     </Alert>
                 </Container>}
 

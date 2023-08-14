@@ -27,7 +27,6 @@ export default function GlassButton({ children, matchColor = false, ...props }) 
             }}
             initial="idle"
             whileHover="hovered"
-
             {...props}
         >
             {children}

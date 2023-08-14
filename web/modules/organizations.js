@@ -1,7 +1,7 @@
 import { collection, doc, query, where } from "firebase/firestore"
 import { useMemo } from "react"
 import { useUser } from "reactfire"
-import { ORGANIZATIONS_COLLECTION } from "shared/constants/firebase"
+import { ORGANIZATIONS_COLLECTION, USER_DATA_COLLECTION } from "shared/constants/firebase"
 import { useFirestoreCollectionData, useFirestoreDocData } from "./firebase/reactfire-wrappers"
 import { useQueryParam } from "./router"
 import { fire } from "./firebase"

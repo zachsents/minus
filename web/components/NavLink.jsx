@@ -10,7 +10,11 @@ export function NavLink({ children, button = false, href, className, ...props })
     const isActive = router.asPath.includes(href)
 
     return (
-        <Link href={href} shallow={href?.startsWith("#")} scroll={!href?.startsWith("#")}>
+        <Link
+            href={href}
+            shallow={href?.startsWith("#")} scroll={!href?.startsWith("#")}
+            className="text-dark"
+        >
             {button ?
                 <Button radius="xl" size="md" {...props}>
                     {children}
