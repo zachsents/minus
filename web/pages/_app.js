@@ -8,6 +8,8 @@ import "@web/styles/backgrounds.css"
 import { mantineTheme } from "@web/theme"
 import { QueryClient, QueryClientProvider } from "react-query"
 import { AuthProvider, FirebaseAppProvider, FirestoreProvider } from "reactfire"
+import { MODALS } from "@web/modules/constants"
+import ConfirmImportantModal from "@web/components/ConfirmImportantModal"
 
 
 const queryClient = new QueryClient()
@@ -36,5 +38,6 @@ export default function MyApp({ Component, pageProps }) {
 }
 
 const modals = {
+    [MODALS.IMPORTANT_CONFIRM]: ConfirmImportantModal,
 }
 

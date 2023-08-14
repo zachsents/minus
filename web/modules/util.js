@@ -1,6 +1,8 @@
+import { openContextModal } from "@mantine/modals"
 import { customAlphabet } from "nanoid"
 import { alphanumeric } from "nanoid-dictionary"
 import { useEffect, useState } from "react"
+import { MODALS } from "./constants"
 
 
 const _uniqueId = customAlphabet(alphanumeric, 10)
@@ -75,3 +77,18 @@ export function useIsClient() {
     return isClient
 }
 
+
+/**
+ * @param {string} action
+ * @param {{ title: string } & import("../components/ConfirmImportantModal.jsx").ConfirmImportantModalProps} options
+ */
+export function openImportantConfirmModal(action = "", {
+    title,
+    ...innerProps
+} = {}) {
+    openContextModal({
+        modal: MODALS.IMPORTANT_CONFIRM,
+        title: <b className="mr-lg">{title || `Are you sure you want to ${action}?`}</b>,
+        innerProps,
+    })
+}

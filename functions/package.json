@@ -2,7 +2,7 @@
     "name": "functions",
     "description": "Cloud Functions for Firebase",
     "scripts": {
-        "dev": "firebase emulators:start",
+        "dev": "firebase emulators:start --only functions",
         "shell": "firebase functions:shell",
         "start": "npm run shell",
         "deploy": "build-deps build -c ../functions && firebase deploy --only functions && build-deps clean",
@@ -16,6 +16,7 @@
         "@google-cloud/pubsub": "^3.7.1",
         "firebase-admin": "^11.9.0",
         "firebase-functions": "^4.4.1",
+        "joi": "^17.9.2",
         "shared": "workspace:*"
     },
     "devDependencies": {

@@ -9,3 +9,9 @@ export const workflowVersionStoragePath = id => `${WORKFLOW_VERSIONS_STORAGE_FOL
 export const ORGANIZATIONS_COLLECTION = "organizations"
 
 export const USER_DATA_COLLECTION = "user-data"
+
+
+export const API_ROUTE = {
+    CREATE_ORGANIZATION: "create-organization",
+    DELETE_ORGANIZATION: "delete-organization",
+}

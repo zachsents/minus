@@ -1,11 +1,12 @@
 import { collection, doc, query, where } from "firebase/firestore"
 import { useMemo } from "react"
 import { useUser } from "reactfire"
-import { ORGANIZATIONS_COLLECTION, USER_DATA_COLLECTION } from "shared/constants/firebase"
+import { API_ROUTE, ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/constants/firebase"
+import { fire, useFirestoreCount } from "./firebase"
 import { useFirestoreCollectionData, useFirestoreDocData } from "./firebase/reactfire-wrappers"
-import { useQueryParam } from "./router"
-import { fire } from "./firebase"
 import { useUpdateDoc } from "./firebase/use-update-doc"
+import { useQueryParam } from "./router"
+import { useAPI } from "./firebase/api"
 
 
 const organizationRef = orgId => orgId && doc(fire.db, ORGANIZATIONS_COLLECTION, orgId)
@@ -65,4 +66,44 @@ export function useUpdateOrganization(orgId) {
 
     const ref = organizationRef(orgId)
     return useUpdateDoc(ref)
+}
+
+
+export function useDeleteOrganization(orgId) {
+    orgId ??= useQueryParam("orgId")[0]
+
+    const [deleteOrg, query] = useAPI(API_ROUTE.DELETE_ORGANIZATION)
+    return [() => deleteOrg({ orgId }), query]
+}
+
+
+export function useOrganizationWorkflowCount(orgId) {
+
+    const fsQuery = useMemo(() => query(
+        collection(fire.db, WORKFLOWS_COLLECTION),
+        where("organization", "==", organizationRef(orgId)),
+    ), [orgId])
+
+    const [count] = useFirestoreCount(fsQuery)
+    return count
+}
+
+
+export function getUserRole(org, uid) {
+    if (org?.owner === uid)
+        return "owner"
+    if (org?.members?.find(member => member === uid))
+        return "member"
+    if (org?.admins?.find(admin => admin === uid))
+        return "admin"
+}
+
+
+export function isUserAtLeastAdmin(org, uid) {
+    return getUserRole(org, uid) === "admin" || getUserRole(org, uid) === "owner"
+}
+
+
+export function getTotalMemberCount(org) {
+    return (org?.members?.length || 0) + (org?.admins?.length || 0) + 1
 }

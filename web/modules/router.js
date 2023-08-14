@@ -18,7 +18,7 @@ export function redirectKeepParams(router, path, shallow = false) {
 }
 
 
-export function useQueryParam(param) {
+export function useQueryParam(param, defaultValue) {
     const router = useRouter()
     const value = router.query[param]
 
@@ -28,6 +28,11 @@ export function useQueryParam(param) {
             shallow: true,
         })
     })
+
+    useEffect(() => {
+        if (value === undefined && defaultValue !== undefined)
+            setValue(defaultValue)
+    }, [])
 
     return [value, setValue]
 }
