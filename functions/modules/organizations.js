@@ -13,14 +13,14 @@ import { HttpsError } from "firebase-functions/v2/https"
  * @typedef {object} Organization
  * 
  * @property {string} name
+ * @property {import("firebase-admin").firestore.Timestamp} createdAt
+ * @property {string} plan
+ * 
  * @property {UserID} owner
  * @property {UserID[]} admins
  * @property {UserID[]} members
- * @property {import("firebase-admin/firestore").DocumentReference[]} workflows
  * 
  * @property {UserID} createdFor Every account is started with a personal organization
- * 
- * @property {import("firebase-admin").firestore.Timestamp} createdAt
  */
 
 
@@ -33,6 +33,7 @@ export async function createOrganization({
 } = {}) {
     return db.collection(ORGANIZATIONS_COLLECTION).add({
         name,
+        color: "primary",
         ...data,
 
         createdAt: FieldValue.serverTimestamp(),

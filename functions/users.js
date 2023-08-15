@@ -1,8 +1,9 @@
-import functions from "firebase-functions"
-import { createOrganization } from "./modules/organizations.js"
 import admin from "firebase-admin"
-import { USER_DATA_COLLECTION } from "shared/constants/firebase.js"
 import { FieldValue } from "firebase-admin/firestore"
+import functions from "firebase-functions"
+import { USER_DATA_COLLECTION } from "shared/constants/firebase.js"
+import { PLAN } from "shared/constants/plans.js"
+import { createOrganization } from "./modules/organizations.js"
 
 
 export const setupUserAccount = functions.auth.user().onCreate(async (user) => {
@@ -18,6 +19,7 @@ export const setupUserAccount = functions.auth.user().onCreate(async (user) => {
         name: user.displayName ? `${user.displayName}'s Organization` : "Personal Organization",
         owner: user.uid,
         createdFor: user.uid,
+        plan: PLAN.FREE,
     })
 
     await userDataRef.update({

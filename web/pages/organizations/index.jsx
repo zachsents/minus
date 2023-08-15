@@ -35,10 +35,6 @@ export default function OrganizationsPage() {
         defaultValue: true,
     })
 
-    const createOrganization = () => {
-        console.log("create app")
-    }
-
     return (
         <>
             <PageHead title="Your Organizations" />
@@ -64,10 +60,7 @@ export default function OrganizationsPage() {
                             <Group position="apart">
                                 <Title order={2}>Your Organizations</Title>
                                 <Link href="/organizations/create">
-                                    <GlassButton
-                                        onClick={createOrganization}
-                                        leftIcon={<TbPlus />} radius="xl" matchColor
-                                    >
+                                    <GlassButton leftIcon={<TbPlus />} radius="xl" matchColor>
                                         New Organization
                                     </GlassButton>
                                 </Link>

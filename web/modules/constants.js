@@ -1,4 +1,4 @@
-import { TbAbacus, TbActivity, TbArrowsSplit2, TbBusinessplan, TbHeartHandshake, TbStarFilled, TbTriangleSquareCircle } from "react-icons/tb"
+import { TbActivity, TbArrowsSplit2 } from "react-icons/tb"
 import { CONTROL_MODIFIER } from "shared/constants"
 
 
@@ -78,34 +78,3 @@ export const ACTIVITY = {
 export const LAST_ACTIVE_EXPIRATION = 1000 * 60 * 2
 
 
-export const PLAN = {
-    FREE: "free",
-    STARTER: "starter",
-    PRO: "pro",
-    BUSINESS: "business",
-    EXPERTS: "experts",
-}
-
-export const PLAN_LABELS = {
-    [PLAN.FREE]: "Free",
-    [PLAN.STARTER]: "Starter",
-    [PLAN.PRO]: "Pro",
-    [PLAN.BUSINESS]: "Business",
-    [PLAN.EXPERTS]: "Experts",
-}
-
-export const PLAN_ICONS = {
-    [PLAN.FREE]: TbTriangleSquareCircle,
-    [PLAN.STARTER]: TbAbacus,
-    [PLAN.PRO]: TbStarFilled,
-    [PLAN.BUSINESS]: TbBusinessplan,
-    [PLAN.EXPERTS]: TbHeartHandshake,
-}
-
-export const PLAN_COLORS = {
-    [PLAN.FREE]: "gray",
-    [PLAN.STARTER]: "blue",
-    [PLAN.PRO]: "yellow",
-    [PLAN.BUSINESS]: "orange",
-    [PLAN.EXPERTS]: "dark",
-}

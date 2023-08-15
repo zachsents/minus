@@ -7,6 +7,8 @@ import { useFirestoreCollectionData, useFirestoreDocData } from "./firebase/reac
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { useQueryParam } from "./router"
 import { useAPI } from "./firebase/api"
+import { useRouter } from "next/router"
+import { useEffect } from "react"
 
 
 const organizationRef = orgId => orgId && doc(fire.db, ORGANIZATIONS_COLLECTION, orgId)
@@ -53,11 +55,11 @@ export function useOrganization(orgId) {
     orgId ??= useQueryParam("orgId")[0]
 
     const ref = organizationRef(orgId)
-    const { data: organization } = useFirestoreDocData(ref)
+    const { data: organization, hasEmitted } = useFirestoreDocData(ref)
 
     const [updateOrganization] = useUpdateDoc(ref)
 
-    return [organization, updateOrganization]
+    return [hasEmitted ? (organization ?? null) : undefined, updateOrganization]
 }
 
 
@@ -66,6 +68,11 @@ export function useUpdateOrganization(orgId) {
 
     const ref = organizationRef(orgId)
     return useUpdateDoc(ref)
+}
+
+
+export function useCreateOrganization() {
+    return useAPI(API_ROUTE.CREATE_ORGANIZATION)
 }
 
 
@@ -106,4 +113,17 @@ export function isUserAtLeastAdmin(org, uid) {
 
 export function getTotalMemberCount(org) {
     return (org?.members?.length || 0) + (org?.admins?.length || 0) + 1
+}
+
+
+export function useOrganizationMustExist(orgId, redirect = "/organizations") {
+
+    const [org] = useOrganization(orgId)
+    const router = useRouter()
+
+    useEffect(() => {
+        if (org === null) {
+            router.push(redirect)
+        }
+    }, [org])
 }

@@ -1,14 +1,15 @@
 import { ActionIcon, Badge, Button, Card, Center, ColorSwatch, Divider, Group, Loader, Menu, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
-import { PLAN, PLAN_COLORS, PLAN_ICONS, PLAN_LABELS } from "@web/modules/constants"
 import { aOrAn } from "@web/modules/grammar"
 import { getTotalMemberCount, getUserRole, isUserAtLeastAdmin, useDeleteOrganization, useOrganization, useOrganizationWorkflowCount } from "@web/modules/organizations"
+import { PLAN_INFO } from "@web/modules/plans"
 import { openImportantConfirmModal } from "@web/modules/util"
 import classNames from "classnames"
 import Link from "next/link"
 import { useMemo } from "react"
 import { TbArrowRight, TbBrandStackshare, TbDots, TbLogout, TbPlugConnected, TbReportMoney, TbTrash } from "react-icons/tb"
 import { useUser } from "reactfire"
+import { PLAN } from "shared/constants/plans"
 
 
 export default function OrganizationCard({ id, highlightParts }) {
@@ -18,7 +19,7 @@ export default function OrganizationCard({ id, highlightParts }) {
     const { data: user } = useUser()
     const role = useMemo(() => getUserRole(org, user?.uid), [user, org])
 
-    const PlanIcon = PLAN_ICONS[org?.plan]
+    const PlanInfo = PLAN_INFO[org?.plan]
     const orgColor = org?.color ?? "primary"
 
     const workflowCount = useOrganizationWorkflowCount(id)
@@ -65,7 +66,7 @@ export default function OrganizationCard({ id, highlightParts }) {
                         </Group>
 
                         <Badge
-                            radius="sm" color={PLAN_COLORS[org?.plan] || "gray"}
+                            radius="sm" color={PlanInfo?.color || "gray"}
                             variant={org?.plan === PLAN.EXPERTS ? "filled" : "light"}
                             className="self-start"
                             classNames={{
@@ -75,8 +76,8 @@ export default function OrganizationCard({ id, highlightParts }) {
                             }}
                         >
                             <Group spacing="xs">
-                                {PlanIcon && <PlanIcon className="text-xs" />}
-                                <span >{PLAN_LABELS[org?.plan] || "Unknown"} Plan</span>
+                                {PlanInfo?.icon && <PlanInfo.icon className="text-xs" />}
+                                <span>{PlanInfo?.label || "Unknown"} Plan</span>
                             </Group>
                         </Badge>
                     </Stack>

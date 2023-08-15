@@ -30,9 +30,9 @@ export function useQueryParam(param, defaultValue) {
     })
 
     useEffect(() => {
-        if (value === undefined && defaultValue !== undefined)
+        if (router.isReady && value === undefined && defaultValue !== undefined)
             setValue(defaultValue)
-    }, [])
+    }, [router.isReady])
 
     return [value, setValue]
 }
