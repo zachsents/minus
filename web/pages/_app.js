@@ -10,9 +10,12 @@ import { QueryClient, QueryClientProvider } from "react-query"
 import { AuthProvider, FirebaseAppProvider, FirestoreProvider } from "reactfire"
 import { MODALS } from "@web/modules/constants"
 import ConfirmImportantModal from "@web/components/ConfirmImportantModal"
+import TimeAgo from 'javascript-time-ago'
+import en from "javascript-time-ago/locale/en"
 
 
 const queryClient = new QueryClient()
+TimeAgo.addDefaultLocale(en)
 
 
 export default function MyApp({ Component, pageProps }) {

@@ -4,9 +4,13 @@ import { fire } from "."
 
 
 export function useFirestoreDocData(docRef) {
-    return useFirestoreDocDataRF(docRef || doc(fire.db, "placeholder", "placeholder"), {
+    const { data, ...query } = useFirestoreDocDataRF(docRef || doc(fire.db, "placeholder", "placeholder"), {
         idField: "id",
     })
+    return {
+        data: query.hasEmitted ? (data ?? null) : undefined,
+        ...query,
+    }
 }
 
 

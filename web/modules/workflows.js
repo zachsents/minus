@@ -13,16 +13,18 @@ import { LAST_ACTIVE_EXPIRATION } from "./constants"
 
 const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
 
+
 export function useWorkflow(workflowId) {
     workflowId ??= useQueryParam("workflowId")[0]
-    const ref = workflowRef(workflowId)
 
+    const ref = workflowRef(workflowId)
     const { data: workflow } = useFirestoreDocData(ref)
 
     const [updateWorkflow] = useUpdateDoc(ref)
 
     return [workflow, updateWorkflow]
 }
+
 
 export function useWorkflowGraph(workflowId) {
 
@@ -87,4 +89,16 @@ export function useActiveUserOnWorkflow(workflowId) {
             })
         }
     })
+}
+
+
+export function useActiveUsers(workflowId) {
+
+    const [workflow] = useWorkflow(workflowId)
+
+    return useMemo(
+        () => Object.entries(workflow?.activeUsers ?? {})
+            .filter(([, userData]) => Date.now() - userData.lastActiveAt?.toDate() < LAST_ACTIVE_EXPIRATION + 1000),
+        [workflow]
+    )
 }

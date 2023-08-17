@@ -1,4 +1,4 @@
-import { Button, Center, Loader, Space, Stack, Text, TextInput, Title } from "@mantine/core"
+import { Button, Space, Stack, Text, TextInput, Title } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useLocalStorage } from "@mantine/hooks"
 import { notifications } from "@mantine/notifications"
@@ -9,6 +9,7 @@ import { useState } from "react"
 import { FcGoogle } from "react-icons/fc"
 import { TbArrowLeft, TbMail } from "react-icons/tb"
 import { useMutation } from "react-query"
+import CenteredLoader from "./CenteredLoader"
 
 
 export default function LoginForm({ redirect = "/dashboard" }) {
@@ -57,9 +58,7 @@ export default function LoginForm({ redirect = "/dashboard" }) {
     switch (signInState) {
         case "google": return googleQuery.isLoading ?
             <LoginShell title="Signing you in...">
-                <Center my="xl">
-                    <Loader size="sm" />
-                </Center>
+                <CenteredLoader />
             </LoginShell> :
             <LoginShell title="Success!" />
 

@@ -10,7 +10,7 @@ importers:
       prettier: ^2.8.8
       turbo: latest
     devDependencies:
-      '@turbo/gen': 1.10.12_bir6x3g64ycygfv3l4v3letmxi
+      '@turbo/gen': 1.10.12_qobivwqysb4oyvo7tfdjaajnaa
       eslint: 7.32.0
       eslint-config-custom: link:eslint-config-custom
       prettier: 2.8.8
@@ -95,6 +95,7 @@ importers:
       framer-motion: ^10.12.18
       fuzzy: ^0.1.3
       immer: ^10.0.2
+      javascript-time-ago: ^2.5.9
       lodash: ^4.17.21
       lunr: ^2.3.9
       nanoid: ^4.0.2
@@ -127,6 +128,7 @@ importers:
       framer-motion: 10.13.1_biqbaboplfbrettd7655fr4n2y
       fuzzy: 0.1.3
       immer: 10.0.2
+      javascript-time-ago: 2.5.9
       lodash: 4.17.21
       lunr: 2.3.9
       nanoid: 4.0.2
@@ -2143,7 +2145,7 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@turbo/gen/1.10.12_bir6x3g64ycygfv3l4v3letmxi:
+  /@turbo/gen/1.10.12_qobivwqysb4oyvo7tfdjaajnaa:
     resolution: {integrity: sha512-noop5+3MBFsgPQ7O2vQpS6YYiah+ZrOioa4cDDpZceUVsKVXvUHFmC2nEVyKSJZhO/8SLvbDE/esB/MGw5b2tw==}
     hasBin: true
     dependencies:
@@ -2155,7 +2157,7 @@ packages:
       node-plop: 0.26.3
       proxy-agent: 6.3.0
       semver: 7.5.4
-      ts-node: 10.9.1_bir6x3g64ycygfv3l4v3letmxi
+      ts-node: 10.9.1_qobivwqysb4oyvo7tfdjaajnaa
       update-check: 1.5.4
       validate-npm-package-name: 5.0.0
     transitivePeerDependencies:
@@ -5515,6 +5517,12 @@ packages:
       istanbul-lib-report: 3.0.0
     dev: true
 
+  /javascript-time-ago/2.5.9:
+    resolution: {integrity: sha512-pQ8mNco/9g9TqWXWWjP0EWl6i/lAQScOyEeXy5AB+f7MfLSdgyV9BJhiOD1zrIac/lrxPYOWNbyl/IW8CW5n0A==}
+    dependencies:
+      relative-time-format: 1.1.6
+    dev: false
+
   /jest-changed-files/29.5.0:
     resolution: {integrity: sha512-IFG34IUMUaNBIxjQXF/iu7g6EcdMrGRRxaUSw92I/2g2YC6vCdTltl4nHvt7Ci5nSJwXIkCu8Ka1DKF+X7Z1Ag==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -7477,6 +7485,10 @@ packages:
       rc: 1.2.8
     dev: true
 
+  /relative-time-format/1.1.6:
+    resolution: {integrity: sha512-aCv3juQw4hT1/P/OrVltKWLlp15eW1GRcwP1XdxHrPdZE9MtgqFpegjnTjLhi2m2WI9MT/hQQtE+tjEWG1hgkQ==}
+    dev: false
+
   /remove-accents/0.4.2:
     resolution: {integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==}
     dev: false
@@ -8152,7 +8164,7 @@ packages:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
     dev: true
 
-  /ts-node/10.9.1_bir6x3g64ycygfv3l4v3letmxi:
+  /ts-node/10.9.1_qobivwqysb4oyvo7tfdjaajnaa:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -8171,7 +8183,7 @@ packages:
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 20.4.5
+      '@types/node': 17.0.45
       acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3

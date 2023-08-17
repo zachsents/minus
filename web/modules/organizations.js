@@ -127,3 +127,17 @@ export function useOrganizationMustExist(orgId, redirect = "/organizations") {
         }
     }, [org])
 }
+
+
+export function useOrganizationWorkflows(orgId) {
+    orgId ??= useQueryParam("orgId")[0]
+
+    const ref = organizationRef(orgId)
+
+    const { data: workflows } = useFirestoreCollectionData(query(
+        collection(fire.db, WORKFLOWS_COLLECTION),
+        where("organization", "==", ref)
+    ))
+
+    return workflows
+}

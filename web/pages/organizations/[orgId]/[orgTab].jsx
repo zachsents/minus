@@ -1,16 +1,19 @@
-import { Box, Button, Card, Center, Divider, Group, Loader, Progress, Space, Stack, Tabs, Text, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { Badge, Box, Button, Card, Divider, Group, Progress, Space, Stack, Tabs, Text, Title, Tooltip, useMantineTheme } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
+import CenteredLoader from "@web/components/CenteredLoader"
 import DashboardHeader from "@web/components/DashboardHeader"
 import EditableText from "@web/components/EditableText"
 import Footer from "@web/components/Footer"
 import HorizontalScrollBox from "@web/components/HorizontalScrollBox"
 import PageHead from "@web/components/PageHead"
 import Section from "@web/components/Section"
-import WorkflowCard from "@web/components/WorkflowCard"
-import { useOrganization, useOrganizationMustExist } from "@web/modules/organizations"
+import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
+import { useOrganization, useOrganizationMustExist, useOrganizationWorkflows } from "@web/modules/organizations"
+import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
 import classNames from "classnames"
 import { TbAlertCircle, TbAlertTriangle, TbBrandStackshare, TbChevronRight, TbLayoutDashboard, TbPlugConnected, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
+import { PLAN } from "shared/constants/plans"
 
 
 export default function OrganizationDashboardPage() {
@@ -22,6 +25,8 @@ export default function OrganizationDashboardPage() {
 
     const [orgTab, setOrgTab] = useQueryParam("orgTab")
 
+    const PlanInfo = PLAN_INFO[org?.plan]
+
     return (
         <>
             <PageHead title={org?.name || "Loading"} />
@@ -31,17 +36,36 @@ export default function OrganizationDashboardPage() {
             {org ?
                 <Section size="md" className="mt-xl">
                     <Stack pb="md">
-                        <Group align="stretch" spacing="xs">
-                            <Box bg={org?.color ?? "primary"} className="w-3 transition-colors rounded-sm" />
+                        <Group position="apart">
+                            <Group align="stretch" spacing="xs">
+                                <Box bg={org?.color ?? "primary"} className="w-3 transition-colors rounded-sm" />
+                                <EditableText
+                                    value={org.name}
+                                    onChange={name => updateOrg({ name })}
+                                    // classNames={{ group: "hover:!bg-dark-400" }}
+                                    showSaveButton
+                                >
+                                    <Title order={2}>{org.name}</Title>
+                                </EditableText>
+                            </Group>
 
-                            <EditableText
-                                value={org.name}
-                                onChange={name => updateOrg({ name })}
-                                // classNames={{ group: "hover:!bg-dark-400" }}
-                                showSaveButton
-                            >
-                                <Title order={2}>{org.name}</Title>
-                            </EditableText>
+                            <Tooltip label="Go to Billing">
+                                <Badge
+                                    radius="sm" color={PlanInfo?.color || "gray"} size="lg"
+                                    variant={org?.plan === PLAN.EXPERTS ? "filled" : "light"}
+                                    classNames={{
+                                        root: classNames("cursor-pointer", {
+                                            "shadow-sm": org?.plan === PLAN.EXPERTS
+                                        })
+                                    }}
+                                    onClick={() => setOrgTab("billing")}
+                                >
+                                    <Group spacing="xs">
+                                        {PlanInfo?.icon && <PlanInfo.icon className="text-xs" />}
+                                        <span>{PlanInfo?.label || "Unknown"} Plan</span>
+                                    </Group>
+                                </Badge>
+                            </Tooltip>
                         </Group>
                     </Stack>
 
@@ -78,14 +102,10 @@ export default function OrganizationDashboardPage() {
                         </Tabs.List>
 
                         <OverviewPanel />
-                        <Tabs.Panel value="workflows">
-                            Workflows
-                        </Tabs.Panel>
+                        <WorkflowsPanel />
                     </Tabs>
                 </Section> :
-                <Center>
-                    <Loader />
-                </Center>}
+                <CenteredLoader />}
 
             <Space h="10rem" />
 
@@ -98,6 +118,9 @@ export default function OrganizationDashboardPage() {
 function OverviewPanel() {
 
     const [, setOrgTab] = useQueryParam("orgTab")
+    const workflows = useOrganizationWorkflows()
+
+    workflows.sort((a, b) => b.lastEditedAt?.toDate() - a.lastEditedAt?.toDate())
 
     return (
         <Tabs.Panel value="overview">
@@ -171,19 +194,18 @@ function OverviewPanel() {
                 <Group align="stretch" noWrap className="min-h-[14rem]">
                     <Stack className="flex-1 gap-1">
                         <Title order={5}>Recent Workflows</Title>
-                        <div className="flex-1 base-border rounded-md overflow-hidden">
-                            <HorizontalScrollBox className="h-full bg-gray-100">
-                                <Group className="h-full items-stretch p-2" noWrap>
-                                    <WorkflowCard className="shrink-0 w-60" />
-                                    <WorkflowCard className="shrink-0 w-60" />
-                                    <WorkflowCard className="shrink-0 w-60" />
-                                    <WorkflowCard className="shrink-0 w-60" />
-                                    <WorkflowCard className="shrink-0 w-60" />
-                                    <WorkflowCard className="shrink-0 w-60" />
-                                    <WorkflowCard className="shrink-0 w-60" />
-                                </Group>
-                            </HorizontalScrollBox>
-                        </div>
+
+                        {workflows ?
+                            <div className="flex-1 base-border rounded-md overflow-hidden">
+                                <HorizontalScrollBox className="h-full bg-gray-100">
+                                    <Group className="h-full items-stretch p-2" noWrap>
+                                        {workflows?.map(workflow =>
+                                            <WorkflowCard id={workflow.id} className="shrink-0 w-60" key={workflow.id} />
+                                        )}
+                                    </Group>
+                                </HorizontalScrollBox>
+                            </div> :
+                            <CenteredLoader />}
                     </Stack>
                 </Group>
 
@@ -206,6 +228,26 @@ function OverviewPanel() {
                         </Stack>
                     </Group>
                 </Stack>
+            </Stack>
+        </Tabs.Panel>
+    )
+}
+
+
+function WorkflowsPanel() {
+
+    const workflows = useOrganizationWorkflows()
+
+    return (
+        <Tabs.Panel value="workflows">
+            <Stack className="gap-xl">
+                <Title order={3}>Workflows</Title>
+
+                {workflows ?
+                    workflows?.map(workflow =>
+                        <WorkflowCardRow id={workflow.id} key={workflow.id} />
+                    ) :
+                    <CenteredLoader />}
             </Stack>
         </Tabs.Panel>
     )

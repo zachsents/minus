@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Card, Center, ColorSwatch, Divider, Group, Loader, Menu, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
+import { ActionIcon, Badge, Button, Card, ColorSwatch, Divider, Group, Menu, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import { aOrAn } from "@web/modules/grammar"
 import { getTotalMemberCount, getUserRole, isUserAtLeastAdmin, useDeleteOrganization, useOrganization, useOrganizationWorkflowCount } from "@web/modules/organizations"
@@ -10,6 +10,7 @@ import { useMemo } from "react"
 import { TbArrowRight, TbBrandStackshare, TbDots, TbLogout, TbPlugConnected, TbReportMoney, TbTrash } from "react-icons/tb"
 import { useUser } from "reactfire"
 import { PLAN } from "shared/constants/plans"
+import CenteredLoader from "./CenteredLoader"
 
 
 export default function OrganizationCard({ id, highlightParts }) {
@@ -159,9 +160,7 @@ export default function OrganizationCard({ id, highlightParts }) {
                     </Group>
                 </Stack>
             </> :
-                <Center>
-                    <Loader size="sm" />
-                </Center>}
+                <CenteredLoader />}
         </Card>
     )
 }
