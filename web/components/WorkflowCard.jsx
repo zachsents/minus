@@ -65,7 +65,7 @@ export default function WorkflowCard({ id, className }) {
 }
 
 
-export function WorkflowCardRow({ id, className }) {
+export function WorkflowCardRow({ id, className, highlightParts }) {
 
     const [workflow, updateWorkflow] = useWorkflow(id)
     const [erroredRuns, totalErrors] = useWorkflowRecentErrors(id)
@@ -78,6 +78,10 @@ export function WorkflowCardRow({ id, className }) {
     const confirmDelete = () => openImportantConfirmModal("delete this workflow", {
         onConfirm: deleteWorkflow,
     })
+
+    const displayName = highlightParts ?
+        highlightParts.map((part, i) => i % 2 == 0 ? part : <span className="text-yellow-800" key={i}>{part}</span>) :
+        workflow?.name
 
     return workflow !== null ?
         <Group align="stretch">
@@ -97,7 +101,7 @@ export function WorkflowCardRow({ id, className }) {
                                     </Text>
                                 </Group>
                                 <Text className="font-bold leading-5 line-clamp-2">
-                                    {workflow?.name}
+                                    {displayName}
                                 </Text>
                                 <Text fz="xs" color="dimmed">
                                     {workflow?.lastEditedAt ?

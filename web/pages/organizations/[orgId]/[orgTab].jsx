@@ -8,11 +8,13 @@ import GlassButton from "@web/components/GlassButton"
 import HorizontalScrollBox from "@web/components/HorizontalScrollBox"
 import PageHead from "@web/components/PageHead"
 import ProblemCard from "@web/components/ProblemCard"
+import SearchInput from "@web/components/SearchInput"
 import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
 import { useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows } from "@web/modules/organizations"
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
+import { useSearch } from "@web/modules/search"
 import classNames from "classnames"
 import Link from "next/link"
 import { TbBrandStackshare, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
@@ -244,6 +246,11 @@ function WorkflowsPanel() {
     const [orgId] = useQueryParam("orgId")
     const workflows = useOrganizationWorkflows()
 
+    const [filteredWorkflows, query, setQuery, filteredWorkflowNames] = useSearch(workflows, {
+        selector: workflow => workflow.name,
+        highlight: true,
+    })
+
     return (
         <Tabs.Panel value="workflows">
             <Stack className="gap-xl">
@@ -257,10 +264,24 @@ function WorkflowsPanel() {
                     </Link>
                 </Group>
 
+                <SearchInput
+                    value={query}
+                    onChange={event => setQuery(event.currentTarget.value)}
+                    onClear={() => setQuery("")}
+                    noun="workflow"
+                    quantity={workflows?.length ?? 0}
+                />
+
                 {workflows ?
-                    workflows?.map(workflow =>
-                        <WorkflowCardRow id={workflow.id} key={workflow.id} />
-                    ) :
+                    filteredWorkflows?.length ?
+                        filteredWorkflows?.map((workflow, i) =>
+                            <WorkflowCardRow
+                                id={workflow.id}
+                                highlightParts={filteredWorkflowNames[i]}
+                                key={workflow.id}
+                            />
+                        ) :
+                        <Text size="sm" color="dimmed" align="center">No workflows found.</Text> :
                     <CenteredLoader />}
             </Stack>
         </Tabs.Panel>
