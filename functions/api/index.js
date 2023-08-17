@@ -1,10 +1,11 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https"
 import { API_ROUTE } from "shared/constants/firebase.js"
-import { assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, createOrganization, deleteOrganization } from "../modules/organizations.js"
+import { assertUserMustBeInOrganization, assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, createOrganization, deleteOrganization, organizationRef } from "../modules/organizations.js"
 import { APIRequestSchema, validateSchema } from "./schema.js"
 import Joi from "joi"
 import { PLAN } from "shared/constants/plans.js"
-import { deleteWorkflow, getWorkflow } from "../modules/workflows.js"
+import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow } from "../modules/workflows.js"
+import { assertAny } from "../modules/assert.js"
 
 
 export const api = onCall(async ({ data, auth }) => {
@@ -32,9 +33,9 @@ export const api = onCall(async ({ data, auth }) => {
         }), params)
 
         return await createOrganization({
+            ...params,
             owner: auth.uid,
             plan: PLAN.FREE,
-            ...params,
         }).then(ref => ({ orgId: ref.id }))
     }
 
@@ -44,7 +45,33 @@ export const api = onCall(async ({ data, auth }) => {
         }), params)
 
         const workflow = await getWorkflow(params.workflowId)
-        await assertUserMustHaveAdminRightsForOrganization(workflow.organization.id, auth.uid)
+        await assertAny(
+            () => assertUserMustHaveAdminRightsForOrganization(workflow.organization.id, auth.uid),
+            () => assertUserMustBeWorkflowCreator(params.workflowId, auth.uid),
+        )
         return await deleteWorkflow(params.workflowId)
     }
+
+    else if (route === API_ROUTE.CREATE_WORKFLOW) {
+        await validateSchema(Joi.object({
+            orgId: Joi.string().required(),
+            name: Joi.string().required(),
+            organization: Joi.forbidden(),
+            createdAt: Joi.forbidden(),
+            currentVersion: Joi.forbidden(),
+            creator: Joi.forbidden(),
+            isEnabled: Joi.forbidden(),
+        }), params)
+
+        await assertUserMustBeInOrganization(params.orgId, auth.uid)
+
+        const { orgId, ...rest } = params
+
+        return await createWorkflow({
+            ...rest,
+            creator: auth.uid,
+            organization: organizationRef(orgId),
+        }).then(ref => ({ workflowId: ref.id }))
+    }
 })
+

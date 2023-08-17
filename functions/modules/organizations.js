@@ -119,4 +119,14 @@ export async function assertUserMustHaveAdminRightsForOrganization(organizationI
         return
 
     throw new HttpsError("permission-denied", "You do not have permissions for this organization")
-} 
+}
+
+
+export async function assertUserMustBeInOrganization(organizationId, userId) {
+    const org = await getOrganization(organizationId)
+
+    if (org.owner === userId || org.admins.includes(userId) || org.members.includes(userId))
+        return
+
+    throw new HttpsError("permission-denied", "You are not in this organization")
+}

@@ -9,7 +9,7 @@ import { DATA_TYPE_LABELS, typesMatch } from "shared/constants"
 import { INTERFACE_ID_PREFIX } from "../constants"
 import { useEditorStoreProperty } from "../editor-store"
 import { graphEquality, useUndoRedo } from "../undo"
-import { useUpdateWorkflowGraph, useWorkflowGraph } from "../workflows"
+import { useUpdateWorkflow, useUpdateWorkflowGraph, useWorkflowGraph } from "../workflows"
 import { getDefinition } from "./nodes"
 import { projectAbsoluteScreenPointToRF } from "./projection"
 
@@ -66,6 +66,7 @@ export function usePaneContextMenu() {
 
 export function useGraphSaving(nodes, edges, setNodes, setEdges) {
 
+    const [updateWorkflow] = useUpdateWorkflow()
     const [remoteGraph, isGraphLoaded] = useWorkflowGraph()
     const [updateGraph] = useUpdateWorkflowGraph()
     const [canSave, setCanSave] = useState(false)
@@ -88,6 +89,7 @@ export function useGraphSaving(nodes, edges, setNodes, setEdges) {
     useEffect(() => {
         if (canSave) {
             updateGraph({ nodes, edges })
+            updateWorkflow({ lastEditedAt: new Date() })
             console.debug("Updating remote graph")
         }
     }, [debouncedConvertedGraph])

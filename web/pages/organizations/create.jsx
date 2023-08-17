@@ -68,7 +68,7 @@ export default function CreateOrganizationPage() {
 
     return (
         <>
-            <PageHead title="Your Organizations" />
+            <PageHead title="Create an Organization" />
 
             <DashboardHeader />
 

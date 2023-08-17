@@ -16,5 +16,6 @@ export const API_ROUTE = {
     CREATE_ORGANIZATION: "create-organization",
     DELETE_ORGANIZATION: "delete-organization",
 
+    CREATE_WORKFLOW: "create-workflow",
     DELETE_WORKFLOW: "delete-workflow",
 }

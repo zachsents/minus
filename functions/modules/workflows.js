@@ -1,9 +1,12 @@
 import { WORKFLOWS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION, WORKFLOW_VERSIONS_COLLECTION } from "shared/constants/firebase.js"
 import { db } from "../index.js"
 import { HttpsError } from "firebase-functions/v2/https"
+import { FieldValue } from "firebase-admin/firestore"
 
 
 /** @typedef {string} WorkflowID */
+
+/** @typedef {string} UserID */
 
 
 /**
@@ -11,6 +14,8 @@ import { HttpsError } from "firebase-functions/v2/https"
  * 
  * @property {string} name
  * @property {boolean} isEnabled
+ * @property {UserID} creator
+ * @property {import("firebase-admin/firestore").Timestamp} createdAt
  * @property {import("firebase-admin/firestore").Timestamp} lastEditedAt
  * 
  * @property {import("firebase-admin/firestore").DocumentReference} organization
@@ -44,6 +49,37 @@ export async function getWorkflow(workflowId) {
 
 
 /**
+ * @param {Partial<Workflow>} [data={}]
+ */
+export async function createWorkflow({
+    name = "New Workflow",
+    ...data
+} = {}) {
+    const workflowRef = db.collection(WORKFLOWS_COLLECTION).doc()
+    const versionRef = db.collection(WORKFLOW_VERSIONS_COLLECTION).doc()
+
+    await Promise.all([
+        workflowRef.set({
+            name,
+            ...data,
+            createdAt: FieldValue.serverTimestamp(),
+            currentVersion: versionRef,
+            isEnabled: false,
+        }),
+
+        versionRef.set({
+            name: "Version 1",
+            createdAt: FieldValue.serverTimestamp(),
+            graph: JSON.stringify({ nodes: [], edges: [] }),
+            workflow: workflowRef,
+        })
+    ])
+
+    return workflowRef
+}
+
+
+/**
  * @param {WorkflowID} workflowId
  * @param {import("firebase-admin/firestore").WriteBatch} [batch]
  */
@@ -68,4 +104,15 @@ export async function deleteWorkflow(workflowId, batch) {
 
     if (!passedBatch)
         await batch.commit()
+}
+
+
+/**
+ * @param {WorkflowID} workflowId
+ * @param {UserID} userId
+ */
+export async function assertUserMustBeWorkflowCreator(workflowId, userId) {
+    const workflow = await getWorkflow(workflowId)
+    if (workflow.creator !== userId)
+        throw new HttpsError("permission-denied", "User must be workflow creator")
 }

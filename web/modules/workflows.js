@@ -27,6 +27,13 @@ export function useWorkflow(workflowId) {
 }
 
 
+export function useUpdateWorkflow(workflowId) {
+    workflowId ??= useQueryParam("workflowId")[0]
+    const ref = workflowRef(workflowId)
+    return useUpdateDoc(ref)
+}
+
+
 export function useWorkflowGraph(workflowId) {
 
     const [workflow] = useWorkflow(workflowId)
@@ -51,6 +58,10 @@ export function useUpdateWorkflowGraph(workflowId) {
     }))
 
     return [updateGraph, updateQuery]
+}
+
+export function useCreateWorkflow() {
+    return useAPI(API_ROUTE.CREATE_WORKFLOW)
 }
 
 

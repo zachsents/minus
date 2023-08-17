@@ -1,9 +1,10 @@
-import { Badge, Box, Button, Divider, Group, Progress, Space, Stack, Tabs, Text, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { Badge, Box, Button, Center, Divider, Group, Progress, Space, Stack, Tabs, Text, Title, Tooltip, useMantineTheme } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import CenteredLoader from "@web/components/CenteredLoader"
 import DashboardHeader from "@web/components/DashboardHeader"
 import EditableText from "@web/components/EditableText"
 import Footer from "@web/components/Footer"
+import GlassButton from "@web/components/GlassButton"
 import HorizontalScrollBox from "@web/components/HorizontalScrollBox"
 import PageHead from "@web/components/PageHead"
 import ProblemCard from "@web/components/ProblemCard"
@@ -13,7 +14,8 @@ import { useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflo
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
 import classNames from "classnames"
-import { TbBrandStackshare, TbLayoutDashboard, TbPlugConnected, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
+import Link from "next/link"
+import { TbBrandStackshare, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
 import { PLAN } from "shared/constants/plans"
 
 
@@ -119,7 +121,7 @@ export default function OrganizationDashboardPage() {
 function OverviewPanel() {
 
     const [, setOrgTab] = useQueryParam("orgTab")
-    const workflows = useOrganizationRecentWorkflows()
+    const recentWorkflows = useOrganizationRecentWorkflows()
 
     return (
         <Tabs.Panel value="overview">
@@ -194,14 +196,18 @@ function OverviewPanel() {
                     <Stack className="flex-1 gap-1">
                         <Title order={5}>Recent Workflows</Title>
 
-                        {workflows ?
+                        {recentWorkflows ?
                             <div className="flex-1 base-border rounded-md overflow-hidden">
                                 <HorizontalScrollBox className="h-full bg-gray-100">
-                                    <Group className="h-full items-stretch p-2" noWrap>
-                                        {workflows?.map(workflow =>
-                                            <WorkflowCard id={workflow.id} className="shrink-0 w-60" key={workflow.id} />
-                                        )}
-                                    </Group>
+                                    {recentWorkflows.length ?
+                                        <Group className="h-full items-stretch p-2" noWrap>
+                                            {recentWorkflows.map(workflow =>
+                                                <WorkflowCard id={workflow.id} className="shrink-0 w-60" key={workflow.id} />
+                                            )}
+                                        </Group> :
+                                        <Center className="h-full text-gray">
+                                            <Text>No recent workflows.</Text>
+                                        </Center>}
                                 </HorizontalScrollBox>
                             </div> :
                             <CenteredLoader />}
@@ -235,12 +241,21 @@ function OverviewPanel() {
 
 function WorkflowsPanel() {
 
+    const [orgId] = useQueryParam("orgId")
     const workflows = useOrganizationWorkflows()
 
     return (
         <Tabs.Panel value="workflows">
             <Stack className="gap-xl">
-                <Title order={3}>Workflows</Title>
+                <Group position="apart" noWrap>
+                    <Title order={3}>Workflows</Title>
+
+                    <Link href={`/workflows/create?orgId=${orgId}`}>
+                        <GlassButton leftIcon={<TbPlus />} radius="xl" matchColor>
+                            New Workflow
+                        </GlassButton>
+                    </Link>
+                </Group>
 
                 {workflows ?
                     workflows?.map(workflow =>

@@ -189,7 +189,7 @@ export function WorkflowCardRow({ id, className }) {
                     <Menu.Item icon={<TbArrowRight />} component={Link} href={editUrl}>
                         Open
                     </Menu.Item>
-                    {workflow.isEnabled ?
+                    {workflow?.isEnabled ?
                         <Menu.Item icon={<TbConfettiOff />} color="red" onClick={disable}>
                             Disable
                         </Menu.Item> :
