@@ -1,14 +1,15 @@
 import { useInterval, useWindowEvent } from "@mantine/hooks"
-import { useFirestoreDocData } from "@web/modules/firebase/reactfire-wrappers"
-import { deleteField, doc, serverTimestamp } from "firebase/firestore"
+import { useFirestoreCollectionData, useFirestoreDocData } from "@web/modules/firebase/reactfire-wrappers"
+import { Timestamp, collection, deleteField, doc, orderBy, query, serverTimestamp, where } from "firebase/firestore"
 import { useCallback, useEffect, useMemo } from "react"
 import { useUser } from "reactfire"
-import { WORKFLOWS_COLLECTION } from "shared/constants/firebase"
+import { API_ROUTE, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION } from "shared/constants/firebase"
+import { LAST_ACTIVE_EXPIRATION } from "./constants"
 import { fire } from "./firebase"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { convertGraphForRemote, convertGraphFromRemote } from "./graph"
 import { useQueryParam } from "./router"
-import { LAST_ACTIVE_EXPIRATION } from "./constants"
+import { useAPI } from "./firebase/api"
 
 
 const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
@@ -50,6 +51,14 @@ export function useUpdateWorkflowGraph(workflowId) {
     }))
 
     return [updateGraph, updateQuery]
+}
+
+
+export function useDeleteWorkflow(workflowId) {
+    workflowId ??= useQueryParam("workflowId")[0]
+
+    const [deleteWorkflow, query] = useAPI(API_ROUTE.DELETE_WORKFLOW)
+    return [() => deleteWorkflow({ workflowId }), query]
 }
 
 
@@ -101,4 +110,26 @@ export function useActiveUsers(workflowId) {
             .filter(([, userData]) => Date.now() - userData.lastActiveAt?.toDate() < LAST_ACTIVE_EXPIRATION + 1000),
         [workflow]
     )
+}
+
+
+export function useWorkflowRecentErrors(workflowId, timePeriodMs = 1000 * 60 * 60 * 24) {
+    workflowId ??= useQueryParam("workflowId")[0]
+
+    const ref = workflowRef(workflowId)
+
+    // Need to use useMemo to prevent infinite loop from constantly changing timestamp
+    const timestamp = useMemo(() => Timestamp.fromMillis(Date.now() - timePeriodMs), [timePeriodMs])
+
+    const { data: runs } = useFirestoreCollectionData(query(
+        collection(fire.db, WORKFLOW_RUNS_COLLECTION),
+        where("workflow", "==", ref),
+        where("queuedAt", ">", timestamp),
+        orderBy("queuedAt", "desc"),
+        orderBy("hasErrors", "==", true),
+    ))
+
+    const totalErrors = useMemo(() => runs?.reduce((sum, run) => sum + run.errors?.length, 0), [runs])
+
+    return [runs, totalErrors]
 }

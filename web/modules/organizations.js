@@ -1,4 +1,4 @@
-import { collection, doc, query, where } from "firebase/firestore"
+import { collection, doc, limit, orderBy, query, where } from "firebase/firestore"
 import { useMemo } from "react"
 import { useUser } from "reactfire"
 import { API_ROUTE, ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/constants/firebase"
@@ -137,6 +137,22 @@ export function useOrganizationWorkflows(orgId) {
     const { data: workflows } = useFirestoreCollectionData(query(
         collection(fire.db, WORKFLOWS_COLLECTION),
         where("organization", "==", ref)
+    ))
+
+    return workflows
+}
+
+
+export function useOrganizationRecentWorkflows(orgId) {
+    orgId ??= useQueryParam("orgId")[0]
+
+    const ref = organizationRef(orgId)
+
+    const { data: workflows } = useFirestoreCollectionData(query(
+        collection(fire.db, WORKFLOWS_COLLECTION),
+        where("organization", "==", ref),
+        orderBy("lastEditedAt", "desc"),
+        limit(5),
     ))
 
     return workflows

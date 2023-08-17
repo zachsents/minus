@@ -2,6 +2,7 @@ import { FieldValue } from "firebase-admin/firestore"
 import { ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/constants/firebase.js"
 import { db } from "../index.js"
 import { HttpsError } from "firebase-functions/v2/https"
+import { deleteWorkflow } from "./workflows.js"
 
 
 /** @typedef {string} UserID */
@@ -25,13 +26,38 @@ import { HttpsError } from "firebase-functions/v2/https"
 
 
 /**
+ * @param {OrganizationID} orgId
+ */
+export function organizationRef(orgId) {
+    return db.collection(ORGANIZATIONS_COLLECTION).doc(orgId)
+}
+
+
+/**
+ * @param {OrganizationID} orgId
+ * @returns {Promise<Organization & { id: OrganizationID }>}
+ */
+export async function getOrganization(orgId) {
+    const doc = await organizationRef(orgId).get()
+
+    if (!doc.exists)
+        throw new HttpsError("not-found", "Organization not found")
+
+    return {
+        id: doc.id,
+        ...doc.data(),
+    }
+}
+
+
+/**
  * @param {Partial<Organization>} [data={}]
  */
 export async function createOrganization({
     name = "New Organization",
     ...data
 } = {}) {
-    return db.collection(ORGANIZATIONS_COLLECTION).add({
+    return await db.collection(ORGANIZATIONS_COLLECTION).add({
         name,
         color: "primary",
         ...data,
@@ -46,12 +72,14 @@ export async function createOrganization({
  */
 export async function deleteOrganization(organizationId) {
 
-    const orgRef = db.collection(ORGANIZATIONS_COLLECTION).doc(organizationId)
+    const orgRef = organizationRef(organizationId)
     const batch = db.batch()
 
-    db.collection(WORKFLOWS_COLLECTION)
-        .where("organization", "==", orgRef).get()
-        .then(snapshot => snapshot.docs.forEach(doc => batch.delete(doc.ref)))
+    await Promise.all(
+        await db.collection(WORKFLOWS_COLLECTION)
+            .where("organization", "==", orgRef).get()
+            .then(snapshot => snapshot.docs.map(doc => deleteWorkflow(doc.id, batch)))
+    )
 
     batch.delete(orgRef)
 
@@ -65,7 +93,7 @@ export async function deleteOrganization(organizationId) {
  * @param {"member" | "admin"} rank
  */
 export async function changeUserPermissions(organizationId, userId, rank) {
-    await db.collection(ORGANIZATIONS_COLLECTION).doc(organizationId).update({
+    await organizationRef(organizationId).update({
         admins: rank === "admin" ? FieldValue.arrayUnion(userId) : FieldValue.arrayRemove(userId),
         members: rank === "member" ? FieldValue.arrayUnion(userId) : FieldValue.arrayRemove(userId),
     })
@@ -77,11 +105,18 @@ export async function changeUserPermissions(organizationId, userId, rank) {
  * @param {UserID} userId
  */
 export async function assertUserMustOwnOrganization(organizationId, userId) {
-    const org = await db.collection(ORGANIZATIONS_COLLECTION).doc(organizationId).get()
+    const org = await getOrganization(organizationId)
 
-    if (!org.exists)
-        throw new HttpsError("not-found", "Organization not found")
-
-    if (org.data().owner !== userId)
+    if (org.owner !== userId)
         throw new HttpsError("permission-denied", "You do not own this organization")
 }
+
+
+export async function assertUserMustHaveAdminRightsForOrganization(organizationId, userId) {
+    const org = await getOrganization(organizationId)
+
+    if (org.owner === userId || org.admins.includes(userId))
+        return
+
+    throw new HttpsError("permission-denied", "You do not have permissions for this organization")
+} 

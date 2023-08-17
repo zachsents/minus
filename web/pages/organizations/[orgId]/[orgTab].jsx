@@ -1,4 +1,4 @@
-import { Badge, Box, Button, Card, Divider, Group, Progress, Space, Stack, Tabs, Text, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { Badge, Box, Button, Divider, Group, Progress, Space, Stack, Tabs, Text, Title, Tooltip, useMantineTheme } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import CenteredLoader from "@web/components/CenteredLoader"
 import DashboardHeader from "@web/components/DashboardHeader"
@@ -6,13 +6,14 @@ import EditableText from "@web/components/EditableText"
 import Footer from "@web/components/Footer"
 import HorizontalScrollBox from "@web/components/HorizontalScrollBox"
 import PageHead from "@web/components/PageHead"
+import ProblemCard from "@web/components/ProblemCard"
 import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
-import { useOrganization, useOrganizationMustExist, useOrganizationWorkflows } from "@web/modules/organizations"
+import { useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows } from "@web/modules/organizations"
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
 import classNames from "classnames"
-import { TbAlertCircle, TbAlertTriangle, TbBrandStackshare, TbChevronRight, TbLayoutDashboard, TbPlugConnected, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
+import { TbBrandStackshare, TbLayoutDashboard, TbPlugConnected, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
 import { PLAN } from "shared/constants/plans"
 
 
@@ -118,9 +119,7 @@ export default function OrganizationDashboardPage() {
 function OverviewPanel() {
 
     const [, setOrgTab] = useQueryParam("orgTab")
-    const workflows = useOrganizationWorkflows()
-
-    workflows.sort((a, b) => b.lastEditedAt?.toDate() - a.lastEditedAt?.toDate())
+    const workflows = useOrganizationRecentWorkflows()
 
     return (
         <Tabs.Panel value="overview">
@@ -293,51 +292,5 @@ function DesignCard({ children, design, color, buttonText = "View All", classNam
                 </Button>
             </Stack>
         </div>
-    )
-}
-
-
-/**
- * @param {{ level: ("error" | "warning") }} props
- */
-function ProblemCard({ level }) {
-
-    const Icon = level === "error" ? TbAlertCircle : TbAlertTriangle
-
-    return (
-        <Tooltip label="Open Workflow" withArrow position="right">
-            <Card
-                className={classNames("px-md py-xs cursor-pointer border-solid border-1", {
-                    "border-red-200 bg-red-50": level === "error",
-                    "border-yellow-200 bg-yellow-50": level === "warning",
-                })}
-            >
-                <Group noWrap>
-                    <Icon className={classNames({
-                        "text-red-700": level === "error",
-                        "text-yellow-700": level === "warning",
-                    })} />
-                    <div className="flex-1">
-                        <Text className={classNames("text-xs font-bold", {
-                            "text-red-700": level === "error",
-                            "text-yellow-700": level === "warning",
-                        })}>
-                            {level == "error" ? "Error" : "Warning"} in Workflow
-                        </Text>
-                        <Text className="text-xs text-gray">
-                            Handle order confirmation emails
-                        </Text>
-                        <div className="h-2" />
-                        <Text className={classNames("font-mono text-xs", {
-                            "text-red-800": level === "error",
-                            "text-yellow-800": level === "warning",
-                        })}>
-                            Exceeded prompt character limit.
-                        </Text>
-                    </div>
-                    <TbChevronRight />
-                </Group>
-            </Card>
-        </Tooltip>
     )
 }
