@@ -12,7 +12,7 @@ import { useMutation } from "react-query"
 import CenteredLoader from "./CenteredLoader"
 
 
-export default function LoginForm({ redirect = "/dashboard" }) {
+export default function LoginForm({ redirect = "/organizations" }) {
 
     const router = useRouter()
 

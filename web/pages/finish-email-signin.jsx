@@ -12,7 +12,7 @@ export default function FinishEmailSignInPage() {
 
     const { mutate: signIn, ...query } = useMutation(finishEmailSignIn, {
         onSuccess: () => {
-            router.push("/dashboard")
+            router.push("/organizations")
         }
     })
 

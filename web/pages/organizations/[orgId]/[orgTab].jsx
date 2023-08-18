@@ -88,7 +88,7 @@ export default function OrganizationDashboardPage() {
                                 Overview
                             </Tabs.Tab>
                             <Divider label="Build" className="text-gray" />
-                            <Tabs.Tab value="workflows" icon={<TbBrandStackshare />}>
+                            <Tabs.Tab value="workflows" icon={<TbBrandStackshare />} className="font-bold">
                                 Workflows
                             </Tabs.Tab>
                             <Tabs.Tab value="integrations" icon={<TbPlugConnected />}>

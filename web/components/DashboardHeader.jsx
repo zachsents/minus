@@ -20,7 +20,6 @@ export default function DashboardHeader() {
             showCTA={false}
             leftSection={
                 <Group spacing="lg">
-                    <NavLink href="/dashboard" size="sm">Dashboard</NavLink>
                     <NavLink href="/organizations" size="sm">Organizations</NavLink>
 
                     <div className="group cursor-pointer" onClick={() => spotlight.open()}>

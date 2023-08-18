@@ -38,7 +38,7 @@ export function useQueryParam(param, defaultValue) {
 }
 
 
-export function useMustNotBeLoggedIn(redirect = "/dashboard") {
+export function useMustNotBeLoggedIn(redirect = "/organizations") {
 
     const router = useRouter()
     const { hasEmitted, data: user } = useUser()
