@@ -1,20 +1,22 @@
-import { ActionIcon, Badge, Button, Card, Grid, Group, Menu, Popover, Stack, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Badge, Button, Card, Grid, Group, Menu, Popover, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import { formatDate } from "@web/modules/grammar"
 import { preventDefault, stopPropagation } from "@web/modules/props"
+import { openImportantConfirmModal } from "@web/modules/util"
 import { useDeleteWorkflow, useWorkflow, useWorkflowRecentErrors } from "@web/modules/workflows"
 import classNames from "classnames"
 import TimeAgo from "javascript-time-ago"
 import Link from "next/link"
-import { TbArrowRight, TbBrandGmail, TbConfetti, TbConfettiOff, TbDotsVertical, TbTrash } from "react-icons/tb"
+import { TbArrowRight, TbConfetti, TbConfettiOff, TbDotsVertical, TbTrash } from "react-icons/tb"
 import ActiveUsersGroup from "./ActiveUsersGroup"
 import CenteredLoader from "./CenteredLoader"
 import ProblemCard from "./ProblemCard"
-import { openImportantConfirmModal } from "@web/modules/util"
 
 
 export default function WorkflowCard({ id, className }) {
 
-    const [workflow] = useWorkflow(id)
+    const theme = useMantineTheme()
+
+    const [workflow] = useWorkflow(id, true)
     const editUrl = `/workflows/${id}/edit`
 
     return workflow !== null ?
@@ -25,12 +27,18 @@ export default function WorkflowCard({ id, className }) {
         >
             {workflow !== undefined ?
                 <Stack className="gap-1 h-full">
-                    <Group spacing="xs" className="text-xs">
-                        <TbBrandGmail className="text-red" />
-                        <Text >
-                            When an email is received
-                        </Text>
-                    </Group>
+                    {workflow?.trigger ?
+                        <Group className="gap-xs text-xs">
+                            <workflow.trigger.info.icon style={{
+                                color: theme.fn.themeColor(workflow.trigger.info.color, 6)
+                            }} />
+                            <Text>
+                                {workflow.trigger.info.whenName || workflow.trigger.info.name}
+                            </Text>
+                        </Group> :
+                        <Text size="sm" color="dimmed">
+                            No trigger set
+                        </Text>}
 
                     <Text className="font-bold leading-5 line-clamp-2">
                         {workflow?.name}
@@ -67,7 +75,9 @@ export default function WorkflowCard({ id, className }) {
 
 export function WorkflowCardRow({ id, className, highlightParts }) {
 
-    const [workflow, updateWorkflow] = useWorkflow(id)
+    const theme = useMantineTheme()
+
+    const [workflow, updateWorkflow] = useWorkflow(id, true)
     const [erroredRuns, totalErrors] = useWorkflowRecentErrors(id)
     const editUrl = `/workflows/${id}/edit`
 
@@ -94,12 +104,19 @@ export function WorkflowCardRow({ id, className, highlightParts }) {
                     <Grid>
                         <Grid.Col span="auto">
                             <Stack className="gap-1 h-full justify-center">
-                                <Group noWrap spacing="xs" className="text-xs">
-                                    <TbBrandGmail className="text-red" />
-                                    <Text>
-                                        When an email is received
-                                    </Text>
-                                </Group>
+                                {workflow?.trigger ?
+                                    <Group className="gap-xs text-xs">
+                                        <workflow.trigger.info.icon style={{
+                                            color: theme.fn.themeColor(workflow.trigger.info.color, 6)
+                                        }} />
+                                        <Text>
+                                            {workflow.trigger.info.whenName || workflow.trigger.info.name}
+                                        </Text>
+                                    </Group> :
+                                    <Text size="sm" color="dimmed">
+                                        No trigger set
+                                    </Text>}
+
                                 <Text className="font-bold leading-5 line-clamp-2">
                                     {displayName}
                                 </Text>
@@ -158,7 +175,7 @@ export function WorkflowCardRow({ id, className, highlightParts }) {
                                             </Stack>
                                         </Popover.Dropdown>
                                     </Popover> :
-                                    <Badge color="green" radius="sm">
+                                    <Badge color="green" radius="sm" {...preventDefault("onClick", true)}>
                                         No Errors
                                     </Badge>}
                             </Stack>
@@ -200,6 +217,9 @@ export function WorkflowCardRow({ id, className, highlightParts }) {
                         <Menu.Item icon={<TbConfetti />} color="green" onClick={enable}>
                             Enable
                         </Menu.Item>}
+
+                    <Menu.Divider />
+
                     <Menu.Item icon={<TbTrash />} onClick={confirmDelete} color="red">
                         Delete
                     </Menu.Item>

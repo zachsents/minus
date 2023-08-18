@@ -1,27 +1,34 @@
 import { useInterval, useWindowEvent } from "@mantine/hooks"
 import { useFirestoreCollectionData, useFirestoreDocData } from "@web/modules/firebase/reactfire-wrappers"
-import { Timestamp, collection, deleteField, doc, orderBy, query, serverTimestamp, where } from "firebase/firestore"
+import { Timestamp, collection, deleteField, doc, limit, orderBy, query, serverTimestamp, where } from "firebase/firestore"
 import { useCallback, useEffect, useMemo } from "react"
 import { useUser } from "reactfire"
-import { API_ROUTE, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION } from "shared/constants/firebase"
+import { API_ROUTE, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION } from "shared/constants/firebase"
 import { LAST_ACTIVE_EXPIRATION } from "./constants"
 import { fire } from "./firebase"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { convertGraphForRemote, convertGraphFromRemote } from "./graph"
 import { useQueryParam } from "./router"
 import { useAPI } from "./firebase/api"
+import { TRIGGER_INFO } from "./triggers"
 
 
 const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
 
 
-export function useWorkflow(workflowId) {
+export function useWorkflow(workflowId, withTrigger = false) {
     workflowId ??= useQueryParam("workflowId")[0]
 
     const ref = workflowRef(workflowId)
     const { data: workflow } = useFirestoreDocData(ref)
 
     const [updateWorkflow] = useUpdateDoc(ref)
+
+    if (withTrigger) {
+        const trigger = useWorkflowTrigger(workflowId)
+        if (workflow && trigger !== undefined)
+            workflow.trigger = trigger
+    }
 
     return [workflow, updateWorkflow]
 }
@@ -59,6 +66,27 @@ export function useUpdateWorkflowGraph(workflowId) {
 
     return [updateGraph, updateQuery]
 }
+
+
+export function useWorkflowTrigger(workflowId) {
+    workflowId ??= useQueryParam("workflowId")[0]
+
+    const { data: triggers, hasEmitted } = useFirestoreCollectionData(query(
+        collection(fire.db, WORKFLOW_TRIGGERS_COLLECTION),
+        where("workflow", "==", workflowRef(workflowId)),
+        limit(1),
+    ))
+
+    if (hasEmitted) {
+        const trigger = triggers?.[0]
+
+        return trigger ? {
+            ...trigger,
+            info: TRIGGER_INFO[trigger.type],
+        } : null
+    }
+}
+
 
 export function useCreateWorkflow() {
     return useAPI(API_ROUTE.CREATE_WORKFLOW)

@@ -1,9 +1,14 @@
-import { Button, Divider, Grid, Group, NumberInput, Popover, Select, Stack, Text, TextInput, Textarea } from "@mantine/core"
-import { TbBrandGmail, TbRun } from "react-icons/tb"
+import { Button, Divider, Grid, Group, NumberInput, Popover, Select, Stack, Text, TextInput, Textarea, useMantineTheme } from "@mantine/core"
+import { useWorkflow } from "@web/modules/workflows"
+import { motion } from "framer-motion"
+import { TbRun } from "react-icons/tb"
 
 
 export default function TriggerBar() {
 
+    const theme = useMantineTheme()
+
+    const [workflow] = useWorkflow(null, true)
 
     return (
         <Group position="apart" className="px-sm py-2 border-solid border-0 border-b-1 border-gray-300">
@@ -12,16 +17,32 @@ export default function TriggerBar() {
                     Trigger
                 </Text>
                 <Divider orientation="vertical" />
-                <Group spacing="xs">
-                    <TbBrandGmail className="text-red" />
-                    <Text>
-                        When an email is received
-                    </Text>
-                </Group>
-
-                <Button variant="subtle" radius="xl" size="xs" color="gray" compact>
-                    Change Trigger
-                </Button>
+                {workflow?.trigger ?
+                    <>
+                        <Group spacing="xs">
+                            <workflow.trigger.info.icon style={{
+                                color: theme.fn.themeColor(workflow.trigger.info.color, 6)
+                            }} />
+                            <Text>
+                                {workflow.trigger.info.whenName}
+                            </Text>
+                        </Group>
+                        <Button variant="subtle" radius="xl" size="xs" color="gray" compact>
+                            Change Trigger
+                        </Button>
+                    </> :
+                    <>
+                        <Text size="sm" color="dimmed">
+                            No trigger set
+                        </Text>
+                        <Button
+                            variant="filled" radius="xl" size="xs" compact
+                            component={motion.div} animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ repeat: 100 }}
+                        >
+                            Add Trigger
+                        </Button>
+                    </>}
             </Group>
 
             <Popover shadow="sm" position="bottom-end" width="28rem">
