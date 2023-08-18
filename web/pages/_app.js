@@ -1,17 +1,18 @@
 import { MantineProvider } from "@mantine/core"
 import { ModalsProvider } from "@mantine/modals"
 import { Notifications } from "@mantine/notifications"
+import ConfirmImportantModal from "@web/components/ConfirmImportantModal"
+import { SpotlightProvider } from "@web/contexts/spotlight"
+import { MODALS } from "@web/modules/constants"
 import "@web/modules/firebase"
 import { fire } from "@web/modules/firebase"
-import "@web/styles/globals.css"
 import "@web/styles/backgrounds.css"
+import "@web/styles/globals.css"
 import { mantineTheme } from "@web/theme"
-import { QueryClient, QueryClientProvider } from "react-query"
-import { AuthProvider, FirebaseAppProvider, FirestoreProvider } from "reactfire"
-import { MODALS } from "@web/modules/constants"
-import ConfirmImportantModal from "@web/components/ConfirmImportantModal"
 import TimeAgo from 'javascript-time-ago'
 import en from "javascript-time-ago/locale/en"
+import { QueryClient, QueryClientProvider } from "react-query"
+import { AuthProvider, FirebaseAppProvider, FirestoreProvider } from "reactfire"
 
 
 const queryClient = new QueryClient()
@@ -26,11 +27,13 @@ export default function MyApp({ Component, pageProps }) {
                     <QueryClientProvider client={queryClient}>
                         <MantineProvider theme={mantineTheme} withNormalizeCSS withGlobalStyles withCSSVariables>
                             <ModalsProvider modals={modals}>
-                                {/* This wrapper makes the footer stick to the bottom of the page */}
-                                <div className="min-h-screen flex flex-col">
-                                    <Component {...pageProps} />
-                                </div>
-                                <Notifications autoClose={3000} />
+                                <SpotlightProvider>
+                                    {/* This wrapper makes the footer stick to the bottom of the page */}
+                                    <div className="min-h-screen flex flex-col">
+                                        <Component {...pageProps} />
+                                    </div>
+                                    <Notifications autoClose={3000} />
+                                </SpotlightProvider>
                             </ModalsProvider>
                         </MantineProvider>
                     </QueryClientProvider>

@@ -6,11 +6,12 @@ import { useUser } from "reactfire"
 import { API_ROUTE, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION } from "shared/constants/firebase"
 import { LAST_ACTIVE_EXPIRATION } from "./constants"
 import { fire } from "./firebase"
+import { useAPI } from "./firebase/api"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { convertGraphForRemote, convertGraphFromRemote } from "./graph"
 import { useQueryParam } from "./router"
-import { useAPI } from "./firebase/api"
 import { TRIGGER_INFO } from "./triggers"
+import { organizationRef, useUserOrganizations } from "./organizations"
 
 
 const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
@@ -171,4 +172,24 @@ export function useWorkflowRecentErrors(workflowId, timePeriodMs = 1000 * 60 * 6
     const totalErrors = useMemo(() => runs?.reduce((sum, run) => sum + run.errors?.length, 0), [runs])
 
     return [runs, totalErrors]
+}
+
+
+/**
+ * @param {string[]} [organizationIds]
+ */
+export function useWorkflowsAcrossOrganizations(organizationIds) {
+
+    organizationIds ??= useUserOrganizations().all.map(org => org.id)
+
+    const orgRefs = organizationIds.map(orgId => organizationRef(orgId))
+    if (orgRefs.length == 0)
+        orgRefs.push("placeholder")
+
+    const { data: workflows } = useFirestoreCollectionData(query(
+        collection(fire.db, WORKFLOWS_COLLECTION),
+        where("organization", "in", orgRefs),
+    ))
+
+    return workflows
 }

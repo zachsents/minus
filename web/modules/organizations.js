@@ -1,17 +1,16 @@
 import { collection, doc, limit, orderBy, query, where } from "firebase/firestore"
-import { useMemo } from "react"
+import { useRouter } from "next/router"
+import { useEffect, useMemo } from "react"
 import { useUser } from "reactfire"
 import { API_ROUTE, ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/constants/firebase"
 import { fire, useFirestoreCount } from "./firebase"
+import { useAPI } from "./firebase/api"
 import { useFirestoreCollectionData, useFirestoreDocData } from "./firebase/reactfire-wrappers"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { useQueryParam } from "./router"
-import { useAPI } from "./firebase/api"
-import { useRouter } from "next/router"
-import { useEffect } from "react"
 
 
-const organizationRef = orgId => orgId && doc(fire.db, ORGANIZATIONS_COLLECTION, orgId)
+export const organizationRef = orgId => orgId && doc(fire.db, ORGANIZATIONS_COLLECTION, orgId)
 
 
 export function useUserOrganizations() {
@@ -157,3 +156,4 @@ export function useOrganizationRecentWorkflows(orgId) {
 
     return workflows
 }
+

@@ -6,7 +6,7 @@ import { TbSearch, TbX } from "react-icons/tb"
 
 const SearchInput = forwardRef(({
     noun, quantity,
-    hotkeys = ["/"],
+    hotkeys = [],
     onClear,
 
     onKeyDown,
@@ -47,7 +47,7 @@ const SearchInput = forwardRef(({
                         <ActionIcon size="sm" radius="sm" onClick={handleClear}>
                             <TbX size="0.9em" />
                         </ActionIcon> :
-                        focused ?
+                        (focused || hotkeys.length == 0) ?
                             // need this empty div to prevent the input from shrinking
                             <div></div> :
                             <Kbd size="xs">/</Kbd>

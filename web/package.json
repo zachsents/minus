@@ -18,6 +18,7 @@
         "@mantine/modals": "^6.0.16",
         "@mantine/notifications": "^6.0.16",
         "@mantine/prism": "^6.0.16",
+        "@mantine/spotlight": "^6.0.16",
         "@monaco-editor/react": "^4.5.1",
         "classnames": "^2.3.2",
         "dayjs": "^1.11.9",
