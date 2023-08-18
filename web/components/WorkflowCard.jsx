@@ -2,7 +2,7 @@ import { ActionIcon, Badge, Button, Card, Grid, Group, Menu, Popover, Stack, Tex
 import { formatDate } from "@web/modules/grammar"
 import { preventDefault, stopPropagation } from "@web/modules/props"
 import { openImportantConfirmModal } from "@web/modules/util"
-import { useDeleteWorkflow, useWorkflow, useWorkflowRecentErrors } from "@web/modules/workflows"
+import { useCanUserDeleteWorkflow, useDeleteWorkflow, useWorkflow, useWorkflowRecentErrors } from "@web/modules/workflows"
 import classNames from "classnames"
 import TimeAgo from "javascript-time-ago"
 import Link from "next/link"
@@ -92,6 +92,8 @@ export function WorkflowCardRow({ id, className, highlightParts }) {
     const displayName = highlightParts ?
         highlightParts.map((part, i) => i % 2 == 0 ? part : <span className="text-yellow-800" key={i}>{part}</span>) :
         workflow?.name
+
+    const canDelete = useCanUserDeleteWorkflow(id)
 
     return workflow !== null ?
         <Group align="stretch">
@@ -218,11 +220,13 @@ export function WorkflowCardRow({ id, className, highlightParts }) {
                             Enable
                         </Menu.Item>}
 
-                    <Menu.Divider />
+                    {canDelete && <>
+                        <Menu.Divider />
 
-                    <Menu.Item icon={<TbTrash />} onClick={confirmDelete} color="red">
-                        Delete
-                    </Menu.Item>
+                        <Menu.Item icon={<TbTrash />} onClick={confirmDelete} color="red">
+                            Delete
+                        </Menu.Item>
+                    </>}
                 </Menu.Dropdown>
             </Menu>
         </Group> :

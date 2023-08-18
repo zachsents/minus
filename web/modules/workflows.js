@@ -11,7 +11,7 @@ import { useUpdateDoc } from "./firebase/use-update-doc"
 import { convertGraphForRemote, convertGraphFromRemote } from "./graph"
 import { useQueryParam } from "./router"
 import { TRIGGER_INFO } from "./triggers"
-import { organizationRef, useUserOrganizations } from "./organizations"
+import { organizationRef, useOrganization, useUserOrganizations } from "./organizations"
 
 
 const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
@@ -192,4 +192,18 @@ export function useWorkflowsAcrossOrganizations(organizationIds) {
     ))
 
     return workflows
+}
+
+
+export function useCanUserDeleteWorkflow(workflowId) {
+
+    const { data: user } = useUser()
+
+    const [workflow] = useWorkflow(workflowId)
+    const [org] = useOrganization(workflow?.organization?.id)
+
+    const isWorkflowCreator = workflow?.creator === user.uid
+    const isAtLeastAdminInOrganization = org?.admins?.includes(user.uid) || org?.owner === user.uid
+
+    return isWorkflowCreator || isAtLeastAdminInOrganization
 }
