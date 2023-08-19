@@ -1,4 +1,4 @@
-import { Badge, Box, Button, Center, Divider, Group, Progress, Space, Stack, Tabs, Text, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { Badge, Box, Button, Center, Divider, Group, Progress, Space, Stack, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
 import { useHover } from "@mantine/hooks"
 import CenteredLoader from "@web/components/CenteredLoader"
 import DashboardHeader from "@web/components/DashboardHeader"
@@ -11,10 +11,11 @@ import ProblemCard from "@web/components/ProblemCard"
 import SearchInput from "@web/components/SearchInput"
 import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
-import { useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows } from "@web/modules/organizations"
+import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows } from "@web/modules/organizations"
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
 import { useSearch } from "@web/modules/search"
+import { openImportantConfirmModal } from "@web/modules/util"
 import classNames from "classnames"
 import Link from "next/link"
 import { TbBrandStackshare, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
@@ -108,6 +109,7 @@ export default function OrganizationDashboardPage() {
 
                         <OverviewPanel />
                         <WorkflowsPanel />
+                        <SettingsPanel />
                     </Tabs>
                 </Section> :
                 <CenteredLoader />}
@@ -283,6 +285,46 @@ function WorkflowsPanel() {
                         ) :
                         <Text size="sm" color="dimmed" align="center">No workflows found.</Text> :
                     <CenteredLoader />}
+            </Stack>
+        </Tabs.Panel>
+    )
+}
+
+
+function SettingsPanel() {
+
+    const [org] = useOrganization()
+
+    const [deleteOrg] = useDeleteOrganization()
+    const confirmDelete = () => openImportantConfirmModal("delete this organization", {
+        onConfirm: deleteOrg,
+    })
+
+    return (
+        <Tabs.Panel value="settings">
+            <Stack className="gap-xl">
+                <Title order={3}>Organization Settings</Title>
+
+                <TextInput
+                    placeholder="Organization Name"
+                    label="Organization Name"
+                    value={org?.name ?? ""}
+                />
+
+                <Divider label="Danger Zone" />
+
+                <Group position="apart">
+                    <div>
+                        <Text fz="sm">
+                            Delete your organization.
+                        </Text>
+                        <Text fz="xs" color="dimmed">
+                            This action is irreversible.
+                        </Text>
+                    </div>
+
+                    <Button color="red" onClick={confirmDelete}>Delete Organization</Button>
+                </Group>
             </Stack>
         </Tabs.Panel>
     )
