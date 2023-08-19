@@ -200,7 +200,7 @@ export function useCanUserDeleteWorkflow(workflowId) {
     const { data: user } = useUser()
 
     const [workflow] = useWorkflow(workflowId)
-    const [org] = useOrganization(workflow?.organization?.id)
+    const [org] = useOrganization(workflow?.organization?.id ?? "placeholder")
 
     const isWorkflowCreator = workflow?.creator === user.uid
     const isAtLeastAdminInOrganization = org?.admins?.includes(user.uid) || org?.owner === user.uid
