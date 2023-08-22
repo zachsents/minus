@@ -90,7 +90,9 @@ export function useOrganizationWorkflowCount(orgId) {
         where("organization", "==", organizationRef(orgId)),
     ), [orgId])
 
-    const [count] = useFirestoreCount(fsQuery)
+    const [count] = useFirestoreCount(fsQuery, {
+        queryKey: `organization-workflow-count-${orgId}`,
+    })
     return count
 }
 
