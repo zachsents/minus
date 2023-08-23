@@ -1,8 +1,8 @@
 import admin from "firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
 import functions from "firebase-functions"
-import { USER_DATA_COLLECTION } from "shared/constants/firebase.js"
-import { PLAN } from "shared/constants/plans.js"
+import { USER_DATA_COLLECTION } from "shared/firebase.js"
+import { PLAN } from "shared/plans.js"
 import { createOrganization } from "./modules/organizations.js"
 
 

@@ -1,5 +1,5 @@
 import { TbAbacus, TbBusinessplan, TbHeartHandshake, TbStarFilled, TbTriangleSquareCircle } from "react-icons/tb"
-import { PLAN } from "shared/constants/plans"
+import { PLAN } from "shared/plans"
 
 
 export const PLAN_INFO = {

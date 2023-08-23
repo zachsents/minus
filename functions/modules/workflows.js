@@ -1,4 +1,4 @@
-import { WORKFLOWS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION, WORKFLOW_VERSIONS_COLLECTION } from "shared/constants/firebase.js"
+import { WORKFLOWS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION, WORKFLOW_VERSIONS_COLLECTION } from "shared/firebase.js"
 import { db } from "../index.js"
 import { HttpsError } from "firebase-functions/v2/https"
 import { FieldValue } from "firebase-admin/firestore"

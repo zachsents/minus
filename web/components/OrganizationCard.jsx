@@ -9,7 +9,7 @@ import Link from "next/link"
 import { useMemo } from "react"
 import { TbArrowRight, TbBrandStackshare, TbDots, TbLogout, TbPlugConnected, TbReportMoney, TbTrash } from "react-icons/tb"
 import { useUser } from "reactfire"
-import { PLAN } from "shared/constants/plans"
+import { PLAN } from "shared/plans"
 import CenteredLoader from "./CenteredLoader"
 
 

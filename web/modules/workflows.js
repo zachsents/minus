@@ -3,7 +3,7 @@ import { useFirestoreCollectionData, useFirestoreDocData } from "@web/modules/fi
 import { Timestamp, collection, deleteField, doc, limit, orderBy, query, serverTimestamp, where } from "firebase/firestore"
 import { useCallback, useEffect, useMemo } from "react"
 import { useUser } from "reactfire"
-import { API_ROUTE, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION } from "shared/constants/firebase"
+import { API_ROUTE, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION } from "shared/firebase"
 import { LAST_ACTIVE_EXPIRATION } from "./constants"
 import { fire } from "./firebase"
 import { useAPI } from "./firebase/api"

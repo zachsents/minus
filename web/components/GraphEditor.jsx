@@ -6,7 +6,7 @@ import { usePasteElementsFromClipboardCallback } from "@web/modules/graph/duplic
 import { TbArrowBack, TbArrowForward } from "react-icons/tb"
 import { Background, ControlButton, Controls, MiniMap, ReactFlow, useEdgesState, useNodesState } from "reactflow"
 import "reactflow/dist/style.css"
-import { EDGE_TYPE, NODE_TYPE } from "shared/constants"
+import { EDGE_TYPE, NODE_TYPE } from "shared"
 import ActionNode from "./ActionNode"
 import DataEdge from "./DataEdge"
 import GhostBuster from "./GhostBuster"

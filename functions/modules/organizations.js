@@ -1,5 +1,5 @@
 import { FieldValue } from "firebase-admin/firestore"
-import { ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/constants/firebase.js"
+import { ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/firebase.js"
 import { db } from "../index.js"
 import { HttpsError } from "firebase-functions/v2/https"
 import { deleteWorkflow } from "./workflows.js"

@@ -11,7 +11,7 @@ import classNames from "classnames"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { TbArrowRight, TbExternalLink, TbReportMoney } from "react-icons/tb"
-import { PLAN } from "shared/constants/plans"
+import { PLAN } from "shared/plans"
 
 
 export default function CreateOrganizationPage() {

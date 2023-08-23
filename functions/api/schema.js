@@ -1,6 +1,6 @@
 import { HttpsError } from "firebase-functions/v2/https"
 import Joi from "joi"
-import { API_ROUTE } from "shared/constants/firebase.js"
+import { API_ROUTE } from "shared/firebase.js"
 
 
 /**

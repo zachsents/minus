@@ -23,8 +23,8 @@ import Link from "next/link"
 import { useEffect } from "react"
 import { TbArrowBigDownLines, TbArrowBigUpLines, TbBrandStackshare, TbDots, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUser, TbUserMinus, TbUsers } from "react-icons/tb"
 import { useUser } from "reactfire"
-import { API_ROUTE } from "shared/constants/firebase"
-import { PLAN } from "shared/constants/plans"
+import { API_ROUTE } from "shared/firebase"
+import { PLAN } from "shared/plans"
 
 
 export default function OrganizationDashboardPage() {

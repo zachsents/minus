@@ -1,4 +1,4 @@
-import { DATA_TYPE } from "shared/constants/index.js"
+import { DATA_TYPE } from "shared/index.js"
 
 
 /** @type {import("../../defaults/base-defaults.js").BaseNodeDefinition} */

@@ -6,7 +6,7 @@ import { useDefinition, useDisabled, useModifier, useNodeHasValidationErrors, us
 import classNames from "classnames"
 import { forwardRef, useEffect, useMemo } from "react"
 import { TbAdjustments, TbCheck, TbDots, TbPlayerPlay, TbX } from "react-icons/tb"
-import { CONTROL_MODIFIER } from "shared/constants"
+import { CONTROL_MODIFIER } from "shared"
 import ActionNodeHandle from "./ActionNodeHandle"
 import CheckableMenuItem from "./CheckableMenuItem"
 import NodeModifierWrapper from "./NodeModifierWrapper"

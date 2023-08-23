@@ -1,5 +1,5 @@
 import { TbActivity, TbArrowsSplit2 } from "react-icons/tb"
-import { CONTROL_MODIFIER } from "shared/constants"
+import { CONTROL_MODIFIER } from "shared"
 
 
 export const LOCAL_STORAGE_KEYS = {
