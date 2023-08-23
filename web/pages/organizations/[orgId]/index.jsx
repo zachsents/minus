@@ -8,6 +8,6 @@ export default function OrganizationIndexPage() {
 
     useEffect(() => {
         if (router.isReady)
-            router.push(`/organizations/${router.query.orgId}/overview`)
+            router.replace(`/organizations/${router.query.orgId}/overview`)
     }, [router.isReady])
 }

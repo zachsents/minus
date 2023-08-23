@@ -1,4 +1,5 @@
-import { Badge, Box, Button, Center, Divider, Group, Progress, Space, Stack, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { ActionIcon, Badge, Box, Button, Center, Divider, Group, Loader, Menu, Progress, Space, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { useForm } from "@mantine/form"
 import { useHover } from "@mantine/hooks"
 import CenteredLoader from "@web/components/CenteredLoader"
 import DashboardHeader from "@web/components/DashboardHeader"
@@ -11,6 +12,7 @@ import ProblemCard from "@web/components/ProblemCard"
 import SearchInput from "@web/components/SearchInput"
 import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
+import { useAPIQuery } from "@web/modules/firebase/api"
 import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows } from "@web/modules/organizations"
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
@@ -18,7 +20,10 @@ import { useSearch } from "@web/modules/search"
 import { openImportantConfirmModal } from "@web/modules/util"
 import classNames from "classnames"
 import Link from "next/link"
-import { TbBrandStackshare, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUsers } from "react-icons/tb"
+import { useEffect } from "react"
+import { TbArrowBigDownLines, TbArrowBigUpLines, TbBrandStackshare, TbDots, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUser, TbUserMinus, TbUsers } from "react-icons/tb"
+import { useUser } from "reactfire"
+import { API_ROUTE } from "shared/constants/firebase"
 import { PLAN } from "shared/constants/plans"
 
 
@@ -110,6 +115,7 @@ export default function OrganizationDashboardPage() {
                         <OverviewPanel />
                         <WorkflowsPanel />
                         <SettingsPanel />
+                        <TeamPanel />
                     </Tabs>
                 </Section> :
                 <CenteredLoader />}
@@ -291,9 +297,142 @@ function WorkflowsPanel() {
 }
 
 
-function SettingsPanel() {
+function TeamPanel() {
 
     const [org] = useOrganization()
+
+    const [members, membersQuery] = useAPIQuery(API_ROUTE.GET_PUBLIC_USER_DATA, {
+        userIds: org?.members,
+    }, { enabled: !!org?.members })
+    const [admins, adminsQuery] = useAPIQuery(API_ROUTE.GET_PUBLIC_USER_DATA, {
+        userIds: org?.admins,
+    }, { enabled: !!org?.admins })
+    const [owner, ownerQuery] = useAPIQuery(API_ROUTE.GET_PUBLIC_USER_DATA, {
+        userId: org?.owner,
+    }, { enabled: !!org?.owner })
+
+    const isTeamLoading = membersQuery.isLoading || adminsQuery.isLoading || ownerQuery.isLoading
+
+    return (
+        <Tabs.Panel value="team">
+            <Stack className="gap-xl">
+                <Group>
+                    <Title order={3}>Team</Title>
+
+                    {isTeamLoading && <Loader size="sm" />}
+                </Group>
+
+                <Table highlightOnHover>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th className="flex justify-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {owner &&
+                            <TeamMemberRow
+                                user={owner}
+                                role={<Badge radius="sm" color="yellow">Owner</Badge>}
+                            />}
+
+                        {Object.values(admins ?? {}).map(user =>
+                            <TeamMemberRow
+                                user={user}
+                                role={<Badge radius="sm">Admin</Badge>}
+                                menuItems={<>
+                                    <Menu.Item icon={<TbArrowBigDownLines />}>
+                                        Remove as Admin
+                                    </Menu.Item>
+                                    <Menu.Item icon={<TbUserMinus />}>
+                                        Remove from Organization
+                                    </Menu.Item>
+                                </>}
+                                key={`admin-${user.id}`}
+                            />
+                        )}
+
+                        {Object.values(members ?? {}).map(user =>
+                            <TeamMemberRow
+                                user={user}
+                                role={<Badge radius="sm" color="gray">Member</Badge>}
+                                menuItems={<>
+                                    <Menu.Item icon={<TbArrowBigUpLines />}>
+                                        Make Admin
+                                    </Menu.Item>
+                                    <Menu.Item icon={<TbUserMinus />}>
+                                        Remove from Organization
+                                    </Menu.Item>
+                                </>}
+                                key={`member-${user.id}`}
+                            />
+                        )}
+                    </tbody>
+                </Table>
+            </Stack>
+        </Tabs.Panel>
+    )
+}
+
+
+function TeamMemberRow({ user, role, menuItems }) {
+
+    const { data: loggedInUser } = useUser()
+    const isYou = loggedInUser?.uid === user?.uid
+
+    return (
+        <tr>
+            <td>
+                <Tooltip label="You" disabled={!isYou} withinPortal>
+                    <Group spacing="xs">
+                        {user?.displayName}
+                        {isYou && <TbUser />}
+                    </Group>
+                </Tooltip>
+            </td>
+            <td>{user?.email}</td>
+            <td>{role}</td>
+            <td className="w-[1%]">
+                <Center>
+                    {!!menuItems &&
+                        <Menu position="bottom-end" withArrow shadow="sm">
+                            <Menu.Target>
+                                <ActionIcon>
+                                    <TbDots />
+                                </ActionIcon>
+                            </Menu.Target>
+                            <Menu.Dropdown>
+                                {menuItems}
+                            </Menu.Dropdown>
+                        </Menu>}
+                </Center>
+            </td>
+        </tr>
+    )
+}
+
+
+function SettingsPanel() {
+
+    const [org, updateOrg] = useOrganization()
+
+    const nameForm = useForm({
+        initialValues: { name: org?.name ?? "" },
+        validate: { name: value => !value }
+    })
+
+    useEffect(() => {
+        nameForm.setValues({ name: org?.name ?? "" })
+    }, [org?.name])
+
+    const isNameDifferent = org?.name !== nameForm.values.name
+
+    const updateOrgName = ({ name }) => {
+        if (isNameDifferent)
+            updateOrg({ name })
+    }
 
     const [deleteOrg] = useDeleteOrganization()
     const confirmDelete = () => openImportantConfirmModal("delete this organization", {
@@ -305,11 +444,20 @@ function SettingsPanel() {
             <Stack className="gap-xl">
                 <Title order={3}>Organization Settings</Title>
 
-                <TextInput
-                    placeholder="Organization Name"
-                    label="Organization Name"
-                    value={org?.name ?? ""}
-                />
+                <form onSubmit={nameForm.onSubmit(updateOrgName)}>
+                    <Text fz="sm">Organization Name</Text>
+                    <Group position="apart">
+                        <TextInput
+                            placeholder="Organization Name"
+                            {...nameForm.getInputProps("name")}
+                            className="flex-1"
+                        />
+                        {isNameDifferent &&
+                            <Button size="sm" type="submit" disabled={!nameForm.isValid()}>
+                                Save
+                            </Button>}
+                    </Group>
+                </form>
 
                 <Divider label="Danger Zone" />
 

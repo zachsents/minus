@@ -7,12 +7,14 @@ import { useRouter } from "next/router"
 export function NavLink({ children, button = false, href, className, ...props }) {
 
     const router = useRouter()
-    const isActive = router.asPath.includes(href)
+
+    const isHash = href?.startsWith("#")
+    const isActive = isHash ? router.asPath.includes(href) : router.asPath === href
 
     return (
         <Link
             href={href}
-            shallow={href?.startsWith("#")} scroll={!href?.startsWith("#")}
+            shallow={isHash} scroll={!isHash}
             className="text-dark"
         >
             {button ?

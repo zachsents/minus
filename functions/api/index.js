@@ -6,6 +6,8 @@ import Joi from "joi"
 import { PLAN } from "shared/constants/plans.js"
 import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow } from "../modules/workflows.js"
 import { assertAny } from "../modules/assert.js"
+import admin from "firebase-admin"
+import _ from "lodash"
 
 
 export const api = onCall(async ({ data, auth }) => {
@@ -27,9 +29,6 @@ export const api = onCall(async ({ data, auth }) => {
     else if (route === API_ROUTE.CREATE_ORGANIZATION) {
         await validateSchema(Joi.object({
             name: Joi.string().required(),
-            owner: Joi.forbidden(),
-            createdAt: Joi.forbidden(),
-            plan: Joi.forbidden(),
         }), params)
 
         return await createOrganization({
@@ -56,11 +55,6 @@ export const api = onCall(async ({ data, auth }) => {
         await validateSchema(Joi.object({
             orgId: Joi.string().required(),
             name: Joi.string().required(),
-            organization: Joi.forbidden(),
-            createdAt: Joi.forbidden(),
-            currentVersion: Joi.forbidden(),
-            creator: Joi.forbidden(),
-            isEnabled: Joi.forbidden(),
         }), params)
 
         await assertUserMustBeInOrganization(params.orgId, auth.uid)
@@ -72,6 +66,29 @@ export const api = onCall(async ({ data, auth }) => {
             creator: auth.uid,
             organization: organizationRef(orgId),
         }).then(ref => ({ workflowId: ref.id }))
+    }
+
+    else if (route === API_ROUTE.GET_PUBLIC_USER_DATA) {
+        await validateSchema(Joi.object({
+            userId: Joi.string(),
+            userIds: Joi.array().items(Joi.string()),
+        }), params)
+
+        const publicProperties = ["uid", "email", "displayName", "photoURL"]
+
+        if (params.userId) {
+            const user = await admin.auth().getUser(params.userId)
+            return _.pick(user, publicProperties)
+        }
+
+        if (params.userIds) {
+            const { users } = await admin.auth().getUsers(
+                params.userIds.map(userId => ({ uid: userId }))
+            )
+            return _.keyBy(users.map(user => _.pick(user, publicProperties)), "uid")
+        }
+
+        throw new HttpsError("invalid-argument", "Either userId or userIds must be provided")
     }
 })
 

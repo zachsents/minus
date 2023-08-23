@@ -1,10 +1,10 @@
 import { Center, Loader } from "@mantine/core"
 
 
-export default function CenteredLoader({ containerProps = {}, loaderProps = {} }) {
+export default function CenteredLoader({ noPadding = false, size = "xs", containerProps = {}, loaderProps = {} }) {
     return (
-        <Center py="xl" {...containerProps}>
-            <Loader size="xs" {...loaderProps} />
+        <Center py={noPadding ? undefined : "xl"} {...containerProps}>
+            <Loader size={size} {...loaderProps} />
         </Center>
     )
 }

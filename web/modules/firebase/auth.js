@@ -6,7 +6,7 @@ import { useMutation } from "react-query"
 import { notifications } from "@mantine/notifications"
 
 
-export function signInWithGoogle() {
+export async function signInWithGoogle() {
     const provider = new GoogleAuthProvider()
     return signInWithPopup(fire.auth, provider)
         .then(result => {

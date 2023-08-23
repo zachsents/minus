@@ -8,6 +8,9 @@ import { API_ROUTE } from "shared/constants/firebase.js"
  * @param {*} data
  */
 export async function validateSchema(schema, data) {
+    if (data === undefined)
+        throw new HttpsError("invalid-argument", "Schema validation failed: data is undefined")
+
     try {
         return await schema.validateAsync(data)
     }

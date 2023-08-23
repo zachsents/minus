@@ -18,4 +18,6 @@ export const API_ROUTE = {
 
     CREATE_WORKFLOW: "create-workflow",
     DELETE_WORKFLOW: "delete-workflow",
+
+    GET_PUBLIC_USER_DATA: "get-public-user-data",
 }

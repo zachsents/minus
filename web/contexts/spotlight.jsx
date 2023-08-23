@@ -24,7 +24,7 @@ export function SpotlightProvider({ children }) {
         description: "Workflow",
         onTrigger: () => router.push(`/workflows/${workflow.id}/edit`),
         icon: <TbBrandStackshare />,
-    }))
+    })) ?? []
 
     return (
         <MantineSpotlightProvider

@@ -60,6 +60,8 @@ export async function createOrganization({
     return await db.collection(ORGANIZATIONS_COLLECTION).add({
         name,
         color: "primary",
+        members: [],
+        admins: [],
         ...data,
 
         createdAt: FieldValue.serverTimestamp(),
