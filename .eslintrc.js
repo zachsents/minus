@@ -7,4 +7,7 @@ module.exports = {
             rootDir: ["pages/*/"],
         },
     },
+    parserOptions: {
+        ecmaVersion: "latest",
+    },
 }
