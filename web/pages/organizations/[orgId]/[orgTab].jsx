@@ -1,6 +1,7 @@
 import { ActionIcon, Badge, Box, Button, Center, Divider, Group, Loader, Menu, Progress, Space, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useHover } from "@mantine/hooks"
+import { modals } from "@mantine/modals"
 import CenteredLoader from "@web/components/CenteredLoader"
 import DashboardHeader from "@web/components/DashboardHeader"
 import EditableText from "@web/components/EditableText"
@@ -12,16 +13,17 @@ import ProblemCard from "@web/components/ProblemCard"
 import SearchInput from "@web/components/SearchInput"
 import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
-import { useAPIQuery } from "@web/modules/firebase/api"
-import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows } from "@web/modules/organizations"
+import { MODALS } from "@web/modules/constants"
+import { useAPI, useAPIQuery } from "@web/modules/firebase/api"
+import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows, useUserMustBeInOrganization } from "@web/modules/organizations"
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
 import { useSearch } from "@web/modules/search"
-import { openImportantConfirmModal } from "@web/modules/util"
+import { confirmFirst, openImportantConfirmModal } from "@web/modules/util"
 import classNames from "classnames"
 import Link from "next/link"
 import { useEffect } from "react"
-import { TbArrowBigDownLines, TbArrowBigUpLines, TbBrandStackshare, TbDots, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUser, TbUserMinus, TbUsers } from "react-icons/tb"
+import { TbBrandStackshare, TbDots, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUser, TbUserMinus, TbUserPlus, TbUsers } from "react-icons/tb"
 import { useUser } from "reactfire"
 import { API_ROUTE } from "shared/firebase"
 import { PLAN } from "shared/plans"
@@ -31,6 +33,7 @@ export default function OrganizationDashboardPage() {
 
     useMustBeLoggedIn()
     useOrganizationMustExist()
+    useUserMustBeInOrganization()
 
     const [org, updateOrg] = useOrganization()
 
@@ -313,13 +316,33 @@ function TeamPanel() {
 
     const isTeamLoading = membersQuery.isLoading || adminsQuery.isLoading || ownerQuery.isLoading
 
+    const openInviteModal = () => modals.openContextModal({
+        modal: MODALS.ADD_ORGANIZATION_MEMBER,
+        title: `Invite Member to ${org?.name}`,
+        centered: true,
+        innerProps: {
+            orgId: org?.id,
+        },
+    })
+
     return (
         <Tabs.Panel value="team">
             <Stack className="gap-xl">
-                <Group>
-                    <Title order={3}>Team</Title>
+                <Group position="apart" noWrap>
+                    <Group noWrap>
+                        <Title order={3}>Team</Title>
 
-                    {isTeamLoading && <Loader size="sm" />}
+                        {isTeamLoading && <Loader size="xs" />}
+                    </Group>
+
+                    <Group spacing="xs">
+                        <GlassButton
+                            leftIcon={<TbUserPlus />} radius="xl" matchColor size="xs"
+                            onClick={openInviteModal}
+                        >
+                            Invite Member
+                        </GlassButton>
+                    </Group>
                 </Group>
 
                 <Table highlightOnHover>
@@ -333,40 +356,19 @@ function TeamPanel() {
                     </thead>
                     <tbody>
                         {owner &&
-                            <TeamMemberRow
-                                user={owner}
-                                role={<Badge radius="sm" color="yellow">Owner</Badge>}
-                            />}
+                            <TeamMemberRow user={owner} role="owner" orgId={org?.id} />}
 
                         {Object.values(admins ?? {}).map(user =>
                             <TeamMemberRow
-                                user={user}
-                                role={<Badge radius="sm">Admin</Badge>}
-                                menuItems={<>
-                                    <Menu.Item icon={<TbArrowBigDownLines />}>
-                                        Remove as Admin
-                                    </Menu.Item>
-                                    <Menu.Item icon={<TbUserMinus />}>
-                                        Remove from Organization
-                                    </Menu.Item>
-                                </>}
-                                key={`admin-${user.id}`}
+                                user={user} role="admin" orgId={org?.id}
+                                key={`admin-${user.uid}`}
                             />
                         )}
 
                         {Object.values(members ?? {}).map(user =>
                             <TeamMemberRow
-                                user={user}
-                                role={<Badge radius="sm" color="gray">Member</Badge>}
-                                menuItems={<>
-                                    <Menu.Item icon={<TbArrowBigUpLines />}>
-                                        Make Admin
-                                    </Menu.Item>
-                                    <Menu.Item icon={<TbUserMinus />}>
-                                        Remove from Organization
-                                    </Menu.Item>
-                                </>}
-                                key={`member-${user.id}`}
+                                user={user} role="member" orgId={org?.id}
+                                key={`member-${user.uid}`}
                             />
                         )}
                     </tbody>
@@ -377,10 +379,45 @@ function TeamPanel() {
 }
 
 
-function TeamMemberRow({ user, role, menuItems }) {
+function TeamMemberRow({ orgId, user, role }) {
 
     const { data: loggedInUser } = useUser()
     const isYou = loggedInUser?.uid === user?.uid
+
+    const [removeFromOrganization, removeQuery] = useAPI(API_ROUTE.REMOVE_FROM_ORGANIZATION, {
+        orgId: orgId,
+        userId: user.uid,
+    })
+    const confirmRemoveFromOrganization = confirmFirst(removeFromOrganization, {
+        action: "remove this member from the organization",
+    })
+
+    let menuItems = []
+    switch (role) {
+        case "owner": break
+        case "admin":
+            menuItems.push(
+                <Menu.Item
+                    onClick={() => confirmRemoveFromOrganization()}
+                    icon={<TbUserMinus />}
+                    key="remove-from-org"
+                >
+                    {isYou ? "Leave Organization" : "Remove from Organization"}
+                </Menu.Item>
+            )
+            break
+        case "member":
+            menuItems.push(
+                <Menu.Item
+                    onClick={() => confirmRemoveFromOrganization()}
+                    icon={<TbUserMinus />}
+                    key="remove-from-org"
+                >
+                    {isYou ? "Leave Organization" : "Remove from Organization"}
+                </Menu.Item>
+            )
+            break
+    }
 
     return (
         <tr>
@@ -393,13 +430,15 @@ function TeamMemberRow({ user, role, menuItems }) {
                 </Tooltip>
             </td>
             <td>{user?.email}</td>
-            <td>{role}</td>
+            <td>
+                <Badge radius="sm" color={roleBadgeColor[role]}>{role}</Badge>
+            </td>
             <td className="w-[1%]">
                 <Center>
-                    {!!menuItems &&
+                    {menuItems.length > 0 &&
                         <Menu position="bottom-end" withArrow shadow="sm">
                             <Menu.Target>
-                                <ActionIcon>
+                                <ActionIcon loading={removeQuery.isLoading}>
                                     <TbDots />
                                 </ActionIcon>
                             </Menu.Target>
@@ -411,6 +450,12 @@ function TeamMemberRow({ user, role, menuItems }) {
             </td>
         </tr>
     )
+}
+
+const roleBadgeColor = {
+    owner: "yellow",
+    admin: "primary",
+    member: "gray",
 }
 
 

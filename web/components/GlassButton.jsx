@@ -2,6 +2,9 @@ import { Button, useMantineTheme } from "@mantine/core"
 import { motion } from "framer-motion"
 
 
+/**
+ * @param {{ matchColor: boolean } & import("@mantine/core").ButtonProps} props
+ */
 export default function GlassButton({ children, matchColor = false, ...props }) {
 
     const theme = useMantineTheme()

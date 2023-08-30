@@ -1,13 +1,15 @@
-import { HttpsError, onCall } from "firebase-functions/v2/https"
-import { API_ROUTE } from "shared/firebase.js"
-import { assertUserMustBeInOrganization, assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, createOrganization, deleteOrganization, organizationRef } from "../modules/organizations.js"
-import { APIRequestSchema, validateSchema } from "./schema.js"
-import Joi from "joi"
-import { PLAN } from "shared/plans.js"
-import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow } from "../modules/workflows.js"
-import { assertAny } from "../modules/assert.js"
 import admin from "firebase-admin"
+import { FieldValue } from "firebase-admin/firestore"
+import { HttpsError, onCall } from "firebase-functions/v2/https"
+import Joi from "joi"
 import _ from "lodash"
+import { API_ROUTE } from "shared/firebase.js"
+import { PLAN } from "shared/plans.js"
+import { assertAny } from "../modules/assert.js"
+import { sendEmailFromTemplate } from "../modules/mail.js"
+import { assertUserCantBeInOrganization, assertUserMustBeInOrganization, assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, createOrganization, deleteOrganization, getOrganization, organizationRef } from "../modules/organizations.js"
+import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow } from "../modules/workflows.js"
+import { APIRequestSchema, validateSchema } from "./schema.js"
 
 
 export const api = onCall(async ({ data, auth }) => {
@@ -71,24 +73,129 @@ export const api = onCall(async ({ data, auth }) => {
     else if (route === API_ROUTE.GET_PUBLIC_USER_DATA) {
         await validateSchema(Joi.object({
             userId: Joi.string(),
+            userEmail: Joi.string(),
             userIds: Joi.array().items(Joi.string()),
         }), params)
 
         const publicProperties = ["uid", "email", "displayName", "photoURL"]
 
-        if (params.userId) {
-            const user = await admin.auth().getUser(params.userId)
-            return _.pick(user, publicProperties)
-        }
+        try {
+            if (params.userId) {
+                const user = await admin.auth().getUser(params.userId)
+                return _.pick(user, publicProperties)
+            }
 
-        if (params.userIds) {
-            const { users } = await admin.auth().getUsers(
-                params.userIds.map(userId => ({ uid: userId }))
-            )
-            return _.keyBy(users.map(user => _.pick(user, publicProperties)), "uid")
+            if (params.userEmail) {
+                const user = await admin.auth().getUserByEmail(params.userEmail)
+                return _.pick(user, publicProperties)
+            }
+
+            if (params.userIds) {
+                const { users } = await admin.auth().getUsers(
+                    params.userIds.map(userId => ({ uid: userId }))
+                )
+                return _.keyBy(users.map(user => _.pick(user, publicProperties)), "uid")
+            }
+        }
+        catch (err) {
+            throw new HttpsError("unknown", err.message)
         }
 
         throw new HttpsError("invalid-argument", "Either userId or userIds must be provided")
     }
-})
 
+    else if (route === API_ROUTE.INVITE_USER_TO_ORGANIZATION) {
+        await validateSchema(Joi.object({
+            orgId: Joi.string().required(),
+            userEmail: Joi.string().required(),
+        }), params)
+
+        await assertUserMustBeInOrganization(params.orgId, auth.uid)
+
+        const org = await getOrganization(params.orgId)
+
+        if (org.pendingInvitations?.includes(params.userEmail))
+            throw new HttpsError("already-exists", "User is already invited")
+
+        let user
+        try {
+            user = await admin.auth().getUserByEmail(params.userEmail)
+        }
+        catch (err) {
+            if (err.code !== "auth/user-not-found")
+                throw err
+
+            // user doesnt have a Minus account -- send invitation email
+            await sendEmailFromTemplate(params.userEmail, "invite-user-no-account", {
+                name: params.userEmail,
+                company: org.name,
+            })
+
+            await organizationRef(params.orgId).update({
+                pendingInvitations: FieldValue.arrayUnion(params.userEmail),
+            })
+
+            return
+        }
+
+        await assertUserCantBeInOrganization(params.orgId, user.uid)
+
+        await sendEmailFromTemplate(params.userEmail, "invite-user-with-account", {
+            name: user.displayName || user.email,
+            company: org.name,
+        })
+
+        await organizationRef(params.orgId).update({
+            pendingInvitations: FieldValue.arrayUnion(params.userEmail),
+        })
+    }
+
+    else if (route === API_ROUTE.ACCEPT_INVITATION) {
+        await validateSchema(Joi.object({
+            orgId: Joi.string().required(),
+        }), params)
+
+        const user = await admin.auth().getUser(auth.uid)
+        const org = await getOrganization(params.orgId)
+
+        if (!org.pendingInvitations?.includes(user.email))
+            throw new HttpsError("not-found", "User is not invited")
+
+        await organizationRef(params.orgId).update({
+            pendingInvitations: FieldValue.arrayRemove(user.email),
+            members: FieldValue.arrayUnion(user.uid),
+        })
+    }
+
+    else if (route === API_ROUTE.REJECT_INVITATION) {
+        await validateSchema(Joi.object({
+            orgId: Joi.string().required(),
+        }), params)
+
+        const user = await admin.auth().getUser(auth.uid)
+        const org = await getOrganization(params.orgId)
+
+        if (!org.pendingInvitations?.includes(user.email))
+            throw new HttpsError("not-found", "User is not invited")
+
+        await organizationRef(params.orgId).update({
+            pendingInvitations: FieldValue.arrayRemove(user.email),
+        })
+    }
+
+    else if (route === API_ROUTE.REMOVE_FROM_ORGANIZATION) {
+        await validateSchema(Joi.object({
+            orgId: Joi.string().required(),
+            userId: Joi.string().required(),
+        }), params)
+
+        // only requiring member rights right now, but might change to admin rights later
+        await assertUserMustBeInOrganization(params.orgId, auth.uid)
+        await assertUserMustBeInOrganization(params.orgId, params.userId)
+
+        await organizationRef(params.orgId).update({
+            members: FieldValue.arrayRemove(params.userId),
+            admins: FieldValue.arrayRemove(params.userId),
+        })
+    }
+})

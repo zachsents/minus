@@ -1,8 +1,9 @@
-import { openContextModal } from "@mantine/modals"
+import { modals, openContextModal } from "@mantine/modals"
 import { customAlphabet } from "nanoid"
 import { alphanumeric } from "nanoid-dictionary"
 import { useEffect, useState } from "react"
 import { MODALS } from "./constants"
+import { Text } from "@mantine/core"
 
 
 const _uniqueId = customAlphabet(alphanumeric, 10)
@@ -96,4 +97,24 @@ export function openImportantConfirmModal(action = "", {
 
 export function getInitials(str) {
     return str.split(/\s+/).map(word => word[0]).slice(0, 2).join("").toUpperCase()
+}
+
+
+export function confirmFirst(fn, {
+    title = "Are you sure?",
+    action,
+    ...modalProps
+} = {}) {
+    return (...args) => modals.openConfirmModal({
+        title,
+        children: <Text size="sm">{action ? `Are you sure you want to ${action}?` : "Are you sure?"}</Text>,
+        cancelProps: { variant: "outline" },
+        centered: true,
+        onConfirm: () => fn(...args),
+        labels: {
+            confirm: "Yes",
+            cancel: "Cancel",
+        },
+        ...modalProps,
+    })
 }

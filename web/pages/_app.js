@@ -1,6 +1,7 @@
 import { MantineProvider } from "@mantine/core"
 import { ModalsProvider } from "@mantine/modals"
 import { Notifications } from "@mantine/notifications"
+import AddOrganizationMemberModal from "@web/components/AddOrganizationMemberModal"
 import ConfirmImportantModal from "@web/components/ConfirmImportantModal"
 import { SpotlightProvider } from "@web/contexts/spotlight"
 import { MODALS } from "@web/modules/constants"
@@ -45,5 +46,6 @@ export default function MyApp({ Component, pageProps }) {
 
 const modals = {
     [MODALS.IMPORTANT_CONFIRM]: ConfirmImportantModal,
+    [MODALS.ADD_ORGANIZATION_MEMBER]: AddOrganizationMemberModal,
 }
 

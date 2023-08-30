@@ -17,7 +17,7 @@ export function useUserOrganizations() {
 
     const { data: user } = useUser()
 
-    const [ownerQuery, adminQuery, memberQuery] = useMemo(() => user ? [
+    const [ownerQuery, adminQuery, memberQuery, invitedQuery] = useMemo(() => user ? [
         query(
             collection(fire.db, ORGANIZATIONS_COLLECTION),
             where("owner", "==", user.uid),
@@ -30,22 +30,28 @@ export function useUserOrganizations() {
             collection(fire.db, ORGANIZATIONS_COLLECTION),
             where("members", "array-contains", user.uid),
         ),
+        query(
+            collection(fire.db, ORGANIZATIONS_COLLECTION),
+            where("pendingInvitations", "array-contains", user.email),
+        ),
     ] : [], [user])
 
     const { data: ownerOrgs } = useFirestoreCollectionData(ownerQuery)
     const { data: adminOrgs } = useFirestoreCollectionData(adminQuery)
     const { data: memberOrgs } = useFirestoreCollectionData(memberQuery)
+    const { data: invitedOrgs } = useFirestoreCollectionData(invitedQuery)
 
     return {
         owner: ownerOrgs,
         admin: adminOrgs,
         member: memberOrgs,
+        invited: invitedOrgs,
         all: [
             ...(ownerOrgs || []),
             ...(adminOrgs || []),
             ...(memberOrgs || []),
         ],
-        loaded: !!ownerOrgs && !!adminOrgs && !!memberOrgs,
+        loaded: !!ownerOrgs && !!adminOrgs && !!memberOrgs && !!invitedOrgs,
     }
 }
 
@@ -112,6 +118,11 @@ export function isUserAtLeastAdmin(org, uid) {
 }
 
 
+export function isUserInOrganization(org, uid) {
+    return !!getUserRole(org, uid)
+}
+
+
 export function getTotalMemberCount(org) {
     return (org?.members?.length || 0) + (org?.admins?.length || 0) + 1
 }
@@ -127,6 +138,20 @@ export function useOrganizationMustExist(orgId, redirect = "/organizations") {
             router.push(redirect)
         }
     }, [org])
+}
+
+
+export function useUserMustBeInOrganization(orgId) {
+    const { data: user } = useUser()
+    const [org] = useOrganization(orgId)
+    const router = useRouter()
+
+    useEffect(() => {
+        if (!org || !user) return
+
+        if (!isUserInOrganization(org, user.uid))
+            router.push("/organizations")
+    }, [org, user?.uid])
 }
 
 

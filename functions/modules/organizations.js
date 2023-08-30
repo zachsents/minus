@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore"
+import { HttpsError } from "firebase-functions/v2/https"
 import { ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/firebase.js"
 import { db } from "../index.js"
-import { HttpsError } from "firebase-functions/v2/https"
 import { deleteWorkflow } from "./workflows.js"
 
 
@@ -20,6 +20,7 @@ import { deleteWorkflow } from "./workflows.js"
  * @property {UserID} owner
  * @property {UserID[]} admins
  * @property {UserID[]} members
+ * @property {string[]} pendingInvitations These are email addresses, not UIDs.
  * 
  * @property {UserID} createdFor Every account is started with a personal organization
  */
@@ -117,7 +118,7 @@ export async function assertUserMustOwnOrganization(organizationId, userId) {
 export async function assertUserMustHaveAdminRightsForOrganization(organizationId, userId) {
     const org = await getOrganization(organizationId)
 
-    if (org.owner === userId || org.admins.includes(userId))
+    if (org.owner === userId || org.admins?.includes(userId))
         return
 
     throw new HttpsError("permission-denied", "You do not have permissions for this organization")
@@ -127,8 +128,16 @@ export async function assertUserMustHaveAdminRightsForOrganization(organizationI
 export async function assertUserMustBeInOrganization(organizationId, userId) {
     const org = await getOrganization(organizationId)
 
-    if (org.owner === userId || org.admins.includes(userId) || org.members.includes(userId))
+    if (org.owner === userId || org.admins?.includes(userId) || org.members?.includes(userId))
         return
 
     throw new HttpsError("permission-denied", "You are not in this organization")
+}
+
+
+export async function assertUserCantBeInOrganization(organizationId, userId) {
+    const org = await getOrganization(organizationId)
+
+    if (org.owner === userId || org.admins?.includes(userId) || org.members?.includes(userId))
+        throw new HttpsError("permission-denied", "User must not be in this organization")
 }

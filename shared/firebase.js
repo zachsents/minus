@@ -11,6 +11,7 @@ export const ORGANIZATIONS_COLLECTION = "organizations"
 
 export const USER_DATA_COLLECTION = "user-data"
 
+export const OUTBOUND_MAIL_COLLECTION = "outbound-mail"
 
 export const API_ROUTE = {
     CREATE_ORGANIZATION: "create-organization",
@@ -20,4 +21,9 @@ export const API_ROUTE = {
     DELETE_WORKFLOW: "delete-workflow",
 
     GET_PUBLIC_USER_DATA: "get-public-user-data",
+
+    INVITE_USER_TO_ORGANIZATION: "invite-user-to-organization",
+    ACCEPT_INVITATION: "accept-invitation",
+    REJECT_INVITATION: "reject-invitation",
+    REMOVE_FROM_ORGANIZATION: "remove-from-organization",
 }

@@ -19,6 +19,8 @@ export default function OrganizationCard({ id, highlightParts }) {
 
     const { data: user } = useUser()
     const role = useMemo(() => getUserRole(org, user?.uid), [user, org])
+    const isAdmin = isUserAtLeastAdmin(org, user?.uid)
+    const isOwner = org?.owner === user?.uid
 
     const PlanInfo = PLAN_INFO[org?.plan]
     const orgColor = org?.color ?? "primary"
@@ -134,26 +136,27 @@ export default function OrganizationCard({ id, highlightParts }) {
                                     Manage Billing
                                 </Menu.Item>
 
-                                {org.owner !== user?.uid && <>
+                                {!isOwner && <>
                                     <Menu.Label>Your Role</Menu.Label>
                                     <Menu.Item icon={<TbLogout />}>
                                         Leave
                                     </Menu.Item>
                                 </>}
 
-                                {isUserAtLeastAdmin(org, user?.uid) && <>
+                                {isAdmin && <>
                                     <Menu.Label>Edit Organization</Menu.Label>
                                     <SwatchArray
                                         colors={["primary", "pink", "yellow", "teal", "indigo"]}
                                         onChange={color => updateOrg({ color })}
                                         value={orgColor}
                                     />
-                                    <Menu.Item
-                                        icon={<TbTrash />} color="red.7"
-                                        onClick={confirmDelete}
-                                    >
-                                        Delete
-                                    </Menu.Item>
+                                    {isOwner &&
+                                        <Menu.Item
+                                            icon={<TbTrash />} color="red.7"
+                                            onClick={confirmDelete}
+                                        >
+                                            Delete
+                                        </Menu.Item>}
                                 </>}
                             </Menu.Dropdown>
                         </Menu>

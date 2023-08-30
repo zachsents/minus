@@ -14,10 +14,14 @@ export async function api(route, params = {}) {
 
 /**
  * @param {string} route
+ * @param {object} [defaultParams={}]
  * @param {import("react-query").UseMutationOptions} [mutationOptions={}]
  */
-export function useAPI(route, mutationOptions = {}) {
-    const { mutateAsync, ...query } = useMutation(params => api(route, params), mutationOptions)
+export function useAPI(route, defaultParams = {}, mutationOptions = {}) {
+    const { mutateAsync, ...query } = useMutation(params => api(route, {
+        ...defaultParams,
+        ...params,
+    }), mutationOptions)
     return [mutateAsync, query]
 }
 

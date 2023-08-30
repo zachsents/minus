@@ -1,4 +1,4 @@
-import { Alert, Chip, Container, Grid, Group, Loader, SimpleGrid, Space, Stack, Text, Title } from "@mantine/core"
+import { Alert, Button, Chip, Container, Grid, Group, Loader, SimpleGrid, Space, Stack, Text, Title, Tooltip } from "@mantine/core"
 import { useLocalStorage } from "@mantine/hooks"
 import DashboardHeader from "@web/components/DashboardHeader"
 import Footer from "@web/components/Footer"
@@ -8,12 +8,14 @@ import PageHead from "@web/components/PageHead"
 import SearchInput from "@web/components/SearchInput"
 import Section from "@web/components/Section"
 import { LOCAL_STORAGE_KEYS } from "@web/modules/constants"
+import { useAPI } from "@web/modules/firebase/api"
 import { useUserOrganizations } from "@web/modules/organizations"
 import { useMustBeLoggedIn } from "@web/modules/router"
 import { useSearch } from "@web/modules/search"
 import Link from "next/link"
 import { useState } from "react"
-import { TbPlus } from "react-icons/tb"
+import { TbPlus, TbUsers } from "react-icons/tb"
+import { API_ROUTE } from "shared/firebase"
 
 
 export default function OrganizationsPage() {
@@ -72,6 +74,13 @@ export default function OrganizationsPage() {
                                     <Text size="sm" color="dimmed">Loading organizations</Text>
                                 </Group> :
                                 <>
+                                    {organizations.invited?.length > 0 &&
+                                        <Stack spacing="xs">
+                                            {organizations.invited.map(org =>
+                                                <OrganizationInvitation org={org} key={org.id} />
+                                            )}
+                                        </Stack>}
+
                                     <Stack spacing="xs">
                                         <SearchInput
                                             value={query}
@@ -121,5 +130,49 @@ export default function OrganizationsPage() {
 
             <Footer showCompanies={false} />
         </>
+    )
+}
+
+
+function OrganizationInvitation({ org }) {
+
+    const [acceptInvitation, acceptQuery] = useAPI(API_ROUTE.ACCEPT_INVITATION, {
+        orgId: org.id,
+    })
+    const [rejectInvitation, rejectQuery] = useAPI(API_ROUTE.REJECT_INVITATION, {
+        orgId: org.id,
+    })
+
+    return (
+        <Alert
+            title={`Pending Invitation from ${org.name}`} icon={<TbUsers />} color={org.color} radius="md"
+            key={org.id}
+        >
+            <Stack spacing="xs">
+                <Text>You&apos;ve been invited to join the organization &quot;{org.name}&quot;</Text>
+                <Group>
+                    <Button
+                        compact color={org.color}
+                        onClick={() => acceptInvitation()}
+                        loading={acceptQuery.isLoading}
+                        disabled={rejectQuery.isLoading}
+                    >
+                        Accept
+                    </Button>
+                    <Tooltip
+                        label="If you reject this accidentally, an organization member will have to invite you again." withinPortal
+                    >
+                        <Button
+                            variant="subtle" compact color={org.color}
+                            onClick={() => rejectInvitation()}
+                            loading={rejectQuery.isLoading}
+                            disabled={acceptQuery.isLoading}
+                        >
+                            Reject
+                        </Button>
+                    </Tooltip>
+                </Group>
+            </Stack>
+        </Alert>
     )
 }
