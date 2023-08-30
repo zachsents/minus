@@ -202,13 +202,11 @@ export function useCanUserDeleteWorkflow(workflowId) {
     const [workflow] = useWorkflow(workflowId)
     const [org] = useOrganization(workflow?.organization?.id ?? "placeholder")
 
-    const isWorkflowCreator = workflow?.creator === user.uid
-    const isAtLeastAdminInOrganization = org?.admins?.includes(user.uid) || org?.owner === user.uid
+    if (!workflow || !org || !user)
+        return false
+
+    const isWorkflowCreator = workflow.creator === user.uid
+    const isAtLeastAdminInOrganization = org.admins?.includes(user.uid) || org.owner === user.uid
 
     return isWorkflowCreator || isAtLeastAdminInOrganization
 }
-
-// WILO: going to establish an iam-type system for permissions
-// could do it like google, where every resource has a permissions object with a map
-// of users and their permissions, but that may be pretty overkill. I'll have to
-// see. I think I'll just start with a fixed lookup table for roles.
