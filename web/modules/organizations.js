@@ -8,6 +8,7 @@ import { useAPI } from "./firebase/api"
 import { useFirestoreCollectionData, useFirestoreDocData } from "./firebase/reactfire-wrappers"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { useQueryParam } from "./router"
+import { PLAN_LIMITS } from "shared"
 
 
 export const organizationRef = orgId => orgId && doc(fire.db, ORGANIZATIONS_COLLECTION, orgId)
@@ -90,6 +91,9 @@ export function useDeleteOrganization(orgId) {
 
 
 export function useOrganizationWorkflowCount(orgId) {
+    orgId ??= useQueryParam("orgId")[0]
+
+    const [org] = useOrganization()
 
     const fsQuery = useMemo(() => query(
         collection(fire.db, WORKFLOWS_COLLECTION),
@@ -99,7 +103,10 @@ export function useOrganizationWorkflowCount(orgId) {
     const [count] = useFirestoreCount(fsQuery, {
         queryKey: `organization-workflow-count-${orgId}`,
     })
-    return count
+
+    const limit = PLAN_LIMITS[org?.plan]?.workflows ?? 1
+
+    return [count, limit, count < limit]
 }
 
 
@@ -184,3 +191,8 @@ export function useOrganizationRecentWorkflows(orgId) {
     return workflows
 }
 
+
+export function useOrganizationWorkflowTotalRunCount(orgId) {
+    const workflows = useOrganizationWorkflows(orgId)
+    return useMemo(() => workflows?.reduce((sum, workflow) => sum + (workflow.currentRunCount ?? 0), 0), [workflows])
+}

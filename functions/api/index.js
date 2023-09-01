@@ -7,7 +7,7 @@ import { API_ROUTE } from "shared/firebase.js"
 import { PLAN } from "shared/plans.js"
 import { assertAny } from "../modules/assert.js"
 import { sendEmailFromTemplate } from "../modules/mail.js"
-import { assertUserCantBeInOrganization, assertUserMustBeInOrganization, assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, createOrganization, deleteOrganization, getOrganization, organizationRef } from "../modules/organizations.js"
+import { assertUserCantBeInOrganization, assertUserMustBeInOrganization, assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, assertWorkflowLimit, createOrganization, deleteOrganization, getOrganization, organizationRef } from "../modules/organizations.js"
 import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow } from "../modules/workflows.js"
 import { APIRequestSchema, validateSchema } from "./schema.js"
 
@@ -60,6 +60,7 @@ export const api = onCall(async ({ data, auth }) => {
         }), params)
 
         await assertUserMustBeInOrganization(params.orgId, auth.uid)
+        await assertWorkflowLimit(params.orgId)
 
         const { orgId, ...rest } = params
 

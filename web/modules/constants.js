@@ -12,6 +12,7 @@ export const LOCAL_STORAGE_KEYS = {
     HAS_LOGGED_IN: "hasLoggedIn",
     SIGN_IN_EMAIL: "signInEmail",
     SHOW_INTRO_ALERT: "showIntroAlert",
+    SHOW_WORKFLOW_USAGE: "showWorkflowUsage",
 }
 
 export const HANDLE_TYPE = {

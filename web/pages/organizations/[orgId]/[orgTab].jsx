@@ -1,6 +1,6 @@
-import { ActionIcon, Badge, Box, Button, Center, Divider, Group, Loader, Menu, Progress, Space, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { Accordion, ActionIcon, Badge, Box, Button, Center, Divider, Group, Loader, Menu, RingProgress, Space, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
 import { useForm } from "@mantine/form"
-import { useHover } from "@mantine/hooks"
+import { useHover, useLocalStorage } from "@mantine/hooks"
 import { modals } from "@mantine/modals"
 import CenteredLoader from "@web/components/CenteredLoader"
 import DashboardHeader from "@web/components/DashboardHeader"
@@ -13,9 +13,9 @@ import ProblemCard from "@web/components/ProblemCard"
 import SearchInput from "@web/components/SearchInput"
 import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
-import { MODALS } from "@web/modules/constants"
+import { LOCAL_STORAGE_KEYS, MODALS } from "@web/modules/constants"
 import { useAPI, useAPIQuery } from "@web/modules/firebase/api"
-import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflows, useUserMustBeInOrganization } from "@web/modules/organizations"
+import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflowCount, useOrganizationWorkflowTotalRunCount, useOrganizationWorkflows, useUserMustBeInOrganization } from "@web/modules/organizations"
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
 import { useSearch } from "@web/modules/search"
@@ -23,10 +23,10 @@ import { confirmFirst, openImportantConfirmModal } from "@web/modules/util"
 import classNames from "classnames"
 import Link from "next/link"
 import { useEffect } from "react"
-import { TbBrandStackshare, TbDots, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbSettings, TbUser, TbUserMinus, TbUserPlus, TbUsers } from "react-icons/tb"
+import { TbBrandStackshare, TbDots, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbRun, TbSettings, TbUser, TbUserMinus, TbUserPlus, TbUsers } from "react-icons/tb"
 import { useUser } from "reactfire"
 import { API_ROUTE } from "shared/firebase"
-import { PLAN } from "shared/plans"
+import { PLAN, PLAN_LIMITS } from "shared/plans"
 
 
 export default function OrganizationDashboardPage() {
@@ -231,13 +231,7 @@ function OverviewPanel() {
                     <Title order={5}>Workflow Runs</Title>
 
                     <Group grow align="flex-start">
-                        <Stack spacing="xs">
-                            <Text className="text-xs text-gray">Usage</Text>
-                            <Progress value={50} size="xl" />
-                            <Text className="text-sm">
-                                1,742 / 3,500 workflow runs this month
-                            </Text>
-                        </Stack>
+                        <WorkflowRunsProgress />
 
                         <Stack spacing="xs">
                             <Text className="text-xs text-gray">Problems</Text>
@@ -262,18 +256,48 @@ function WorkflowsPanel() {
         highlight: true,
     })
 
+    const [showUsage, setShowUsage] = useLocalStorage({
+        key: LOCAL_STORAGE_KEYS.SHOW_WORKFLOW_USAGE,
+        defaultValue: true,
+    })
+
+    const [, , canCreateWorkflows] = useOrganizationWorkflowCount()
+
     return (
         <Tabs.Panel value="workflows">
             <Stack className="gap-xl">
                 <Group position="apart" noWrap>
                     <Title order={3}>Workflows</Title>
 
-                    <Link href={`/workflows/create?orgId=${orgId}`}>
-                        <GlassButton leftIcon={<TbPlus />} radius="xl" matchColor>
-                            New Workflow
-                        </GlassButton>
-                    </Link>
+                    {canCreateWorkflows &&
+                        <Link href={`/workflows/create?orgId=${orgId}`}>
+                            <GlassButton leftIcon={<TbPlus />} radius="xl" matchColor>
+                                New Workflow
+                            </GlassButton>
+                        </Link>}
                 </Group>
+
+                <Accordion
+                    variant="filled"
+                    value={showUsage ? "usage" : null} onChange={val => setShowUsage(!!val)}
+                    classNames={{
+                        label: "p-xs",
+                        control: "p-0 text-xs",
+                    }}
+                >
+                    <Accordion.Item value="usage">
+                        <Accordion.Control>
+                            {showUsage ? "Usage" : "Show Usage"}
+                        </Accordion.Control>
+                        <Accordion.Panel>
+                            <Group grow>
+                                <WorkflowProgress />
+                                <WorkflowRunsProgress />
+                            </Group>
+                        </Accordion.Panel>
+                    </Accordion.Item>
+                </Accordion>
+
 
                 <SearchInput
                     value={query}
@@ -563,5 +587,64 @@ function DesignCard({ children, design, color, buttonText = "View All", classNam
                 </Button>
             </Stack>
         </div>
+    )
+}
+
+
+function WorkflowRunsProgress() {
+
+    const [org] = useOrganization()
+
+    const workflowRunCount = useOrganizationWorkflowTotalRunCount()
+    const workflowRunLimit = PLAN_LIMITS[org?.plan]?.dailyWorkflowRuns ?? 1
+
+    return (
+        <Group spacing="xs" noWrap>
+            <RingProgress
+                sections={[
+                    { value: (workflowRunCount ?? 0) * 100 / workflowRunLimit, color: "primary" }
+                ]}
+                roundCaps
+                size={90} thickness={10}
+                label={<Center className="text-primary text-lg">
+                    <TbRun />
+                </Center>}
+            />
+            <div>
+                <Text className="text-xs text-gray font-bold uppercase mb-1">Workflow Runs</Text>
+                <Text className="text-sm">
+                    {workflowRunCount ?? "Loading..."} / {workflowRunLimit} workflow runs today
+                </Text>
+                <Text className="text-xs text-gray">{workflowRunLimit - workflowRunCount} remaining &mdash; resets daily at midnight</Text>
+            </div>
+        </Group>
+    )
+}
+
+
+function WorkflowProgress() {
+
+    const [workflowCount, workflowLimit] = useOrganizationWorkflowCount()
+
+    return (
+        <Group spacing="xs" noWrap>
+            <RingProgress
+                sections={[
+                    { value: (workflowCount ?? 0) * 100 / workflowLimit, color: "primary" }
+                ]}
+                roundCaps
+                size={90} thickness={10}
+                label={<Center className="text-primary text-lg">
+                    <TbBrandStackshare />
+                </Center>}
+            />
+            <div>
+                <Text className="text-xs text-gray font-bold uppercase mb-1">Workflows</Text>
+                <Text className="text-sm">
+                    {workflowCount ?? "Loading..."} / {workflowLimit} workflows
+                </Text>
+                <Text className="text-xs text-gray">{workflowLimit - workflowCount} remaining</Text>
+            </div>
+        </Group>
     )
 }

@@ -25,7 +25,7 @@ export default function OrganizationCard({ id, highlightParts }) {
     const PlanInfo = PLAN_INFO[org?.plan]
     const orgColor = org?.color ?? "primary"
 
-    const workflowCount = useOrganizationWorkflowCount(id)
+    const [workflowCount] = useOrganizationWorkflowCount(id)
 
     const { hovered: coverHovered, ref: coverRef } = useHover()
     const { hovered: buttonHovered, ref: buttonRef } = useHover()

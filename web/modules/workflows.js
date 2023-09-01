@@ -9,9 +9,9 @@ import { fire } from "./firebase"
 import { useAPI } from "./firebase/api"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { convertGraphForRemote, convertGraphFromRemote } from "./graph"
+import { organizationRef, useOrganization, useUserOrganizations } from "./organizations"
 import { useQueryParam } from "./router"
 import { TRIGGER_INFO } from "./triggers"
-import { organizationRef, useOrganization, useUserOrganizations } from "./organizations"
 
 
 const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)

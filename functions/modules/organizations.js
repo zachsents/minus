@@ -2,7 +2,8 @@ import { FieldValue } from "firebase-admin/firestore"
 import { HttpsError } from "firebase-functions/v2/https"
 import { ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/firebase.js"
 import { db } from "../index.js"
-import { deleteWorkflow } from "./workflows.js"
+import { countWorkflowsForOrganization, deleteWorkflow } from "./workflows.js"
+import { PLAN_LIMITS } from "shared/plans.js"
 
 
 /** @typedef {string} UserID */
@@ -140,4 +141,15 @@ export async function assertUserCantBeInOrganization(organizationId, userId) {
 
     if (org.owner === userId || org.admins?.includes(userId) || org.members?.includes(userId))
         throw new HttpsError("permission-denied", "User must not be in this organization")
+}
+
+
+export async function assertWorkflowLimit(organizationId) {
+    const org = await getOrganization(organizationId)
+    const workflowCount = await countWorkflowsForOrganization(organizationId)
+
+    const workflowLimit = PLAN_LIMITS[org.plan].workflows
+
+    if (workflowCount >= workflowLimit)
+        throw new HttpsError("resource-exhausted", "Workflow limit reached")
 }
