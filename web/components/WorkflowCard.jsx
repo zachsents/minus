@@ -165,11 +165,11 @@ export function WorkflowCardRow({ id, className, highlightParts }) {
                                         </Popover.Target>
                                         <Popover.Dropdown {...preventDefault("onClick", true)}>
                                             <Stack spacing="xs">
-                                                {erroredRuns?.flatMap(run => run.errors.map(error =>
+                                                {erroredRuns?.flatMap(run => run.errors.map((error, i) =>
                                                     <ProblemCard
                                                         subtitle={formatDate(run.queuedAt)}
                                                         level="error" compact
-                                                        key={run.id}
+                                                        key={`${run.id}-${i}`}
                                                     >
                                                         {error}
                                                     </ProblemCard>

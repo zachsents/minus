@@ -1,14 +1,16 @@
-import { collection, doc, limit, orderBy, query, where } from "firebase/firestore"
+import { Timestamp, collection, doc, getDocs, limit, orderBy, query, where } from "firebase/firestore"
 import { useRouter } from "next/router"
 import { useEffect, useMemo } from "react"
+import { useQueries } from "react-query"
 import { useUser } from "reactfire"
-import { API_ROUTE, ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/firebase"
+import { PLAN_LIMITS } from "shared"
+import { API_ROUTE, ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION } from "shared/firebase"
 import { fire, useFirestoreCount } from "./firebase"
 import { useAPI } from "./firebase/api"
 import { useFirestoreCollectionData, useFirestoreDocData } from "./firebase/reactfire-wrappers"
 import { useUpdateDoc } from "./firebase/use-update-doc"
 import { useQueryParam } from "./router"
-import { PLAN_LIMITS } from "shared"
+import { workflowRef } from "./workflows"
 
 
 export const organizationRef = orgId => orgId && doc(fire.db, ORGANIZATIONS_COLLECTION, orgId)
@@ -192,7 +194,29 @@ export function useOrganizationRecentWorkflows(orgId) {
 }
 
 
-export function useOrganizationWorkflowTotalRunCount(orgId) {
+export function useOrganizationRecentRuns(orgId, timePeriodMs = 1000 * 60 * 60 * 24) {
+
     const workflows = useOrganizationWorkflows(orgId)
-    return useMemo(() => workflows?.reduce((sum, workflow) => sum + (workflow.currentRunCount ?? 0), 0), [workflows])
+
+    // Need to use useMemo to prevent infinite loop from constantly changing timestamp
+    const timestamp = useMemo(() => Timestamp.fromMillis(Date.now() - timePeriodMs), [timePeriodMs])
+
+    const queries = useMemo(() => workflows?.map(workflow => ({
+        queryKey: ["workflow-recent-runs", workflow.id, timestamp],
+        queryFn: async () => {
+            const snapshot = await getDocs(query(
+                collection(fire.db, WORKFLOW_RUNS_COLLECTION),
+                where("workflow", "==", workflowRef(workflow.id)),
+                where("queuedAt", ">", timestamp),
+                orderBy("queuedAt", "desc"),
+            ))
+            return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+        },
+    })) ?? [], [workflows, timestamp])
+
+    const results = useQueries(queries)
+
+    const runs = results.flatMap(({ data }) => data ?? []).sort((a, b) => b.queuedAt - a.queuedAt)
+
+    return runs
 }

@@ -14,7 +14,7 @@ import { useQueryParam } from "./router"
 import { TRIGGER_INFO } from "./triggers"
 
 
-const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
+export const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
 
 
 export function useWorkflow(workflowId, withTrigger = false) {
@@ -164,9 +164,9 @@ export function useWorkflowRecentErrors(workflowId, timePeriodMs = 1000 * 60 * 6
     const { data: runs } = useFirestoreCollectionData(query(
         collection(fire.db, WORKFLOW_RUNS_COLLECTION),
         where("workflow", "==", ref),
+        where("hasErrors", "==", true),
         where("queuedAt", ">", timestamp),
         orderBy("queuedAt", "desc"),
-        orderBy("hasErrors", "==", true),
     ))
 
     const totalErrors = useMemo(() => runs?.reduce((sum, run) => sum + run.errors?.length, 0), [runs])

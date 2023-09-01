@@ -15,7 +15,8 @@ import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
 import { LOCAL_STORAGE_KEYS, MODALS } from "@web/modules/constants"
 import { useAPI, useAPIQuery } from "@web/modules/firebase/api"
-import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentWorkflows, useOrganizationWorkflowCount, useOrganizationWorkflowTotalRunCount, useOrganizationWorkflows, useUserMustBeInOrganization } from "@web/modules/organizations"
+import { formatDate } from "@web/modules/grammar"
+import { useDeleteOrganization, useOrganization, useOrganizationMustExist, useOrganizationRecentRuns, useOrganizationRecentWorkflows, useOrganizationWorkflowCount, useOrganizationWorkflows, useUserMustBeInOrganization } from "@web/modules/organizations"
 import { PLAN_INFO } from "@web/modules/plans"
 import { useMustBeLoggedIn, useQueryParam } from "@web/modules/router"
 import { useSearch } from "@web/modules/search"
@@ -136,6 +137,10 @@ function OverviewPanel() {
     const [, setOrgTab] = useQueryParam("orgTab")
     const recentWorkflows = useOrganizationRecentWorkflows()
 
+    const runs = useOrganizationRecentRuns()
+    const erroredRuns = runs?.filter(run => run.errors?.length > 0)
+    const totalErrors = erroredRuns?.flatMap(run => run.errors).length
+
     return (
         <Tabs.Panel value="overview">
             <Stack className="gap-10">
@@ -234,9 +239,20 @@ function OverviewPanel() {
                         <WorkflowRunsProgress />
 
                         <Stack spacing="xs">
-                            <Text className="text-xs text-gray">Problems</Text>
-                            <ProblemCard level="error" />
-                            <ProblemCard level="warning" />
+                            <Text className="text-xs text-gray">
+                                Errors ({totalErrors ?? "Loading..."}) - Last 24 Hours
+                            </Text>
+
+                            {erroredRuns?.flatMap(run => run.errors.map((error, i) =>
+                                <ProblemCard
+                                    title={"Error in "}
+                                    subtitle={formatDate(run.queuedAt)}
+                                    level="error" compact
+                                    key={`${run.id}-${i}`}
+                                >
+                                    {error}
+                                </ProblemCard>
+                            ))}
                         </Stack>
                     </Group>
                 </Stack>
@@ -595,7 +611,8 @@ function WorkflowRunsProgress() {
 
     const [org] = useOrganization()
 
-    const workflowRunCount = useOrganizationWorkflowTotalRunCount()
+    const recentRuns = useOrganizationRecentRuns()
+    const workflowRunCount = recentRuns?.length
     const workflowRunLimit = PLAN_LIMITS[org?.plan]?.dailyWorkflowRuns ?? 1
 
     return (
@@ -613,9 +630,9 @@ function WorkflowRunsProgress() {
             <div>
                 <Text className="text-xs text-gray font-bold uppercase mb-1">Workflow Runs</Text>
                 <Text className="text-sm">
-                    {workflowRunCount ?? "Loading..."} / {workflowRunLimit} workflow runs today
+                    {workflowRunCount ?? "Loading..."} / {workflowRunLimit} workflow runs &mdash; last 24 hours
                 </Text>
-                <Text className="text-xs text-gray">{workflowRunLimit - workflowRunCount} remaining &mdash; resets daily at midnight</Text>
+                <Text className="text-xs text-gray">{workflowRunLimit - workflowRunCount} remaining</Text>
             </div>
         </Group>
     )
