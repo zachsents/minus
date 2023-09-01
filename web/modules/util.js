@@ -4,6 +4,7 @@ import { alphanumeric } from "nanoid-dictionary"
 import { useEffect, useState } from "react"
 import { MODALS } from "./constants"
 import { Text } from "@mantine/core"
+import { useDebouncedValue } from "@mantine/hooks"
 
 
 const _uniqueId = customAlphabet(alphanumeric, 10)
@@ -117,4 +118,35 @@ export function confirmFirst(fn, {
         },
         ...modalProps,
     })
+}
+
+
+/**
+ * @param {*} state
+ * @param {(newState: any) => void} setState
+ * @param {number} debounce
+ * @param {object} options
+ * @param {(a: any, b: any) => boolean} options.equalityFn
+ */
+export function useDebouncedSynchronizedState(state, setState, debounce, {
+    equalityFn = (a, b) => a == b,
+} = {}) {
+    const [instantState, setInstantState] = useState(state)
+
+    // Sync: instant state -> debounced
+    const [debouncedState] = useDebouncedValue(instantState, debounce)
+
+    // Sync: debounced -> upper state
+    useEffect(() => {
+        if (!equalityFn(debouncedState, state))
+            setState(debouncedState)
+    }, [debouncedState])
+
+    // Sync: upper state -> instant state
+    useEffect(() => {
+        if (!equalityFn(state, instantState))
+            setInstantState(state)
+    }, [state])
+
+    return [instantState, setInstantState]
 }

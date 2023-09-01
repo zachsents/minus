@@ -65,9 +65,9 @@ export function useOrganization(orgId) {
     const ref = organizationRef(orgId)
     const { data: organization, hasEmitted } = useFirestoreDocData(ref)
 
-    const [updateOrganization] = useUpdateDoc(ref)
+    const [updateOrganization, updateQuery] = useUpdateDoc(ref)
 
-    return [hasEmitted ? (organization ?? null) : undefined, updateOrganization]
+    return [hasEmitted ? (organization ?? null) : undefined, updateOrganization, updateQuery]
 }
 
 

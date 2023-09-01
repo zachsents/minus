@@ -8,6 +8,7 @@ import EditableText from "@web/components/EditableText"
 import Footer from "@web/components/Footer"
 import GlassButton from "@web/components/GlassButton"
 import HorizontalScrollBox from "@web/components/HorizontalScrollBox"
+import MultiTextInput from "@web/components/MultiTextInput"
 import PageHead from "@web/components/PageHead"
 import ProblemCard from "@web/components/ProblemCard"
 import SearchInput from "@web/components/SearchInput"
@@ -501,22 +502,27 @@ const roleBadgeColor = {
 
 function SettingsPanel() {
 
-    const [org, updateOrg] = useOrganization()
+    const [org, updateOrg, updateQuery] = useOrganization()
 
-    const nameForm = useForm({
-        initialValues: { name: org?.name ?? "" },
-        validate: { name: value => !value }
+    const settingsForm = useForm({
+        initialValues: {
+            name: org?.name ?? "",
+            errorNotificationEmails: org?.errorNotificationEmails ?? [],
+        },
+        validate: {
+            name: value => !value,
+            errorNotificationEmails: value => value.some(email => !email || !email.includes("@")),
+        },
+        validateInputOnChange: true,
     })
 
     useEffect(() => {
-        nameForm.setValues({ name: org?.name ?? "" })
+        settingsForm.setFieldValue("name", org?.name ?? "")
     }, [org?.name])
 
-    const isNameDifferent = org?.name !== nameForm.values.name
-
-    const updateOrgName = ({ name }) => {
-        if (isNameDifferent)
-            updateOrg({ name })
+    const handleSubmit = async values => {
+        await updateOrg(values)
+        settingsForm.resetDirty()
     }
 
     const [deleteOrg] = useDeleteOrganization()
@@ -529,19 +535,50 @@ function SettingsPanel() {
             <Stack className="gap-xl">
                 <Title order={3}>Organization Settings</Title>
 
-                <form onSubmit={nameForm.onSubmit(updateOrgName)}>
-                    <Text fz="sm">Organization Name</Text>
-                    <Group position="apart">
-                        <TextInput
-                            placeholder="Organization Name"
-                            {...nameForm.getInputProps("name")}
-                            className="flex-1"
-                        />
-                        {isNameDifferent &&
-                            <Button size="sm" type="submit" disabled={!nameForm.isValid()}>
-                                Save
+                <form onSubmit={settingsForm.onSubmit(handleSubmit)}>
+                    <Stack spacing="xl">
+                        {settingsForm.isDirty() &&
+                            <Button
+                                size="sm" type="submit" compact disabled={!settingsForm.isValid()}
+                                className="self-end -my-xl"
+                                loading={updateQuery.isLoading}
+                            >
+                                Save Changes
                             </Button>}
-                    </Group>
+
+                        <div>
+                            <Text fz="sm">Organization Name</Text>
+                            <Group position="apart">
+                                <TextInput
+                                    placeholder="Organization Name"
+                                    {...settingsForm.getInputProps("name")}
+                                    className="flex-1"
+                                />
+                            </Group>
+                        </div>
+
+                        <MultiTextInput
+                            label="Error Notifications"
+                            emptyLabel="No error notifications configured."
+                            addLabel="Add Email"
+                            inputProps={{ placeholder: "mark@facebook.com" }}
+                            max={10}
+                            {...settingsForm.getInputProps("errorNotificationEmails")}
+                        >
+                            <Text className="text-xs text-gray mb-2">
+                                Add email addresses to receive notifications when workflows have errors.
+                            </Text>
+                        </MultiTextInput>
+
+                        {settingsForm.isDirty() &&
+                            <Button
+                                size="sm" type="submit" compact disabled={!settingsForm.isValid()}
+                                className="self-end"
+                                loading={updateQuery.isLoading}
+                            >
+                                Save Changes
+                            </Button>}
+                    </Stack>
                 </form>
 
                 <Divider label="Danger Zone" />
