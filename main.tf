@@ -58,6 +58,7 @@ resource "google_project_service" "default" {
     # Enabling the ServiceUsage API allows the new project to be quota checked from now on.
     "serviceusage.googleapis.com",
     "identitytoolkit.googleapis.com",
+    "run.googleapis.com",
   ])
   service = each.key
 
@@ -199,5 +200,41 @@ resource "google_identity_platform_project_default_config" "auth" {
   # Wait for Authentication to be initialized before enabling email/password.
   depends_on = [
     google_identity_platform_config.auth
+  ]
+}
+
+
+# Create workflow-runner Cloud Run Service
+resource "google_cloud_run_v2_service" "workflow_runner_service" {
+  provider = google-beta
+  project  = google_project.default.project_id
+  name     = "workflow-runner"
+  location = "us-central1"
+  ingress  = "INGRESS_TRAFFIC_INTERNAL_ONLY"
+
+  template {
+    containers {
+      image = "docker.io/zachsents/minus-workflow-runner"
+      ports {
+        container_port = 5050
+      }
+    }
+
+    timeout = "120s"
+  }
+
+  depends_on = [
+    google_project_service.default
+  ]
+}
+
+resource "google_cloud_tasks_queue" "run_workflow_queue" {
+  provider = google-beta
+  project  = google_project.default.project_id
+  name     = "run-workflow-queue"
+  location = "us-central1"
+
+  depends_on = [
+    google_project_service.default
   ]
 }

@@ -19,7 +19,8 @@
         "joi": "^17.9.2",
         "jsdom": "^22.1.0",
         "lodash": "^4.17.21",
-        "shared": "workspace:*"
+        "shared": "workspace:*",
+        "stripe": "^13.4.0"
     },
     "devDependencies": {
         "@zachsents/build-workspace-deps": "^1.0.0",

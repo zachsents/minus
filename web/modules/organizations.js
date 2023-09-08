@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import { useEffect, useMemo } from "react"
 import { useQueries } from "react-query"
 import { useUser } from "reactfire"
-import { PLAN_LIMITS } from "shared"
+import { PLANS } from "shared"
 import { API_ROUTE, ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION } from "shared/firebase"
 import { fire, useFirestoreCount } from "./firebase"
 import { useAPI } from "./firebase/api"
@@ -106,7 +106,7 @@ export function useOrganizationWorkflowCount(orgId) {
         queryKey: `organization-workflow-count-${orgId}`,
     })
 
-    const limit = PLAN_LIMITS[org?.plan]?.workflows ?? 1
+    const limit = PLANS[org?.plan]?.limits.workflows ?? 1
 
     return [count, limit, count < limit]
 }

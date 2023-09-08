@@ -4,14 +4,10 @@ export const WORKFLOW_VERSIONS_COLLECTION = "workflow-versions"
 export const WORKFLOW_RUNS_COLLECTION = "workflow-runs"
 export const WORKFLOW_TRIGGERS_COLLECTION = "workflow-triggers"
 
-export const WORKFLOW_VERSIONS_STORAGE_FOLDER = "workflow-versions"
-export const workflowVersionStoragePath = id => `${WORKFLOW_VERSIONS_STORAGE_FOLDER}/${id}/graph.json`
-
 export const ORGANIZATIONS_COLLECTION = "organizations"
-
 export const USER_DATA_COLLECTION = "user-data"
-
 export const OUTBOUND_MAIL_COLLECTION = "outbound-mail"
+export const STRIPE_CUSTOMERS_COLLECTION = "stripe-customers"
 
 export const API_ROUTE = {
     CREATE_ORGANIZATION: "create-organization",
@@ -27,3 +23,6 @@ export const API_ROUTE = {
     REJECT_INVITATION: "reject-invitation",
     REMOVE_FROM_ORGANIZATION: "remove-from-organization",
 }
+
+export const WORKFLOW_RUNNER_QUEUE = "run-workflow-queue"
+export const WORKFLOW_RUNNER_URL = "https://minus-workflow-runner-fbm3h26vsq-uc.a.run.app"

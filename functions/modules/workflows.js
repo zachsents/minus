@@ -1,7 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { HttpsError } from "firebase-functions/v2/https"
 import { WORKFLOWS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION, WORKFLOW_VERSIONS_COLLECTION } from "shared/firebase.js"
-import { db } from "../index.js"
+import { db } from "../init.js"
 import { organizationRef } from "./organizations.js"
 
 

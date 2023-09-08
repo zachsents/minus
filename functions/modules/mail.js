@@ -1,5 +1,5 @@
 import { OUTBOUND_MAIL_COLLECTION } from "shared/firebase.js"
-import { db } from "../index.js"
+import { db } from "../init.js"
 import fs from "fs/promises"
 import { JSDOM } from "jsdom"
 

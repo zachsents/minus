@@ -6,7 +6,7 @@ import { PLAN } from "shared/plans.js"
 import { createOrganization } from "./modules/organizations.js"
 
 
-export const setupUserAccount = functions.auth.user().onCreate(async (user) => {
+export const onUserAccountCreated = functions.auth.user().onCreate(async (user) => {
 
     const userDataRef = admin.firestore().collection(USER_DATA_COLLECTION).doc(user.uid)
 

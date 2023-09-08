@@ -28,7 +28,7 @@ import { useEffect } from "react"
 import { TbBrandStackshare, TbDots, TbLayoutDashboard, TbPlugConnected, TbPlus, TbReportMoney, TbRun, TbSettings, TbUser, TbUserMinus, TbUserPlus, TbUsers } from "react-icons/tb"
 import { useUser } from "reactfire"
 import { API_ROUTE } from "shared/firebase"
-import { PLAN, PLAN_LIMITS } from "shared/plans"
+import { PLAN, PLANS } from "shared/plans"
 
 
 export default function OrganizationDashboardPage() {
@@ -650,7 +650,7 @@ function WorkflowRunsProgress() {
 
     const recentRuns = useOrganizationRecentRuns()
     const workflowRunCount = recentRuns?.length
-    const workflowRunLimit = PLAN_LIMITS[org?.plan]?.dailyWorkflowRuns ?? 1
+    const workflowRunLimit = PLANS[org?.plan]?.limits.dailyWorkflowRuns ?? 1
 
     return (
         <Group spacing="xs" noWrap>

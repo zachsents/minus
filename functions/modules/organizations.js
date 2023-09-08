@@ -1,9 +1,9 @@
 import { FieldValue } from "firebase-admin/firestore"
 import { HttpsError } from "firebase-functions/v2/https"
 import { ORGANIZATIONS_COLLECTION, WORKFLOWS_COLLECTION } from "shared/firebase.js"
-import { db } from "../index.js"
+import { PLANS } from "shared/plans.js"
+import { db } from "../init.js"
 import { countWorkflowsForOrganization, deleteWorkflow } from "./workflows.js"
-import { PLAN_LIMITS } from "shared/plans.js"
 
 
 /** @typedef {string} UserID */
@@ -148,7 +148,7 @@ export async function assertWorkflowLimit(organizationId) {
     const org = await getOrganization(organizationId)
     const workflowCount = await countWorkflowsForOrganization(organizationId)
 
-    const workflowLimit = PLAN_LIMITS[org.plan].workflows
+    const workflowLimit = PLANS[org.plan].limits.workflows
 
     if (workflowCount >= workflowLimit)
         throw new HttpsError("resource-exhausted", "Workflow limit reached")
