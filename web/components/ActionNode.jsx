@@ -173,11 +173,13 @@ function UpdateInternals() {
 
     const inputs = useNodeInputs()
     const outputs = useNodeOutputs()
+    const [modifier] = useModifier()
 
     const checksum = useMemo(
         () => `${inputs?.map(input => `${input.hidden}${input.mode}`).join()}` +
-            `${outputs?.map(output => `${output.hidden}`).join()}`,
-        [inputs, outputs]
+            `${outputs?.map(output => `${output.hidden}`).join()}` +
+            modifier?.id,
+        [inputs, outputs, modifier]
     )
 
     useEffect(() => {

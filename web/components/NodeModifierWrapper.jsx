@@ -1,8 +1,8 @@
 import { ActionIcon, Group, Space, Stack, Text, Tooltip } from "@mantine/core"
 import { CONTROL_MODIFIER_LABELS, HANDLE_TYPE, MODIFIER_INPUT_DEFINITIONS } from "@web/modules/constants"
 import { useModifier } from "@web/modules/graph/nodes"
-import ActionNodeHandle from "./ActionNodeHandle"
 import { TbX } from "react-icons/tb"
+import ActionNodeHandle from "./ActionNodeHandle"
 
 
 export default function NodeModifierWrapper({ children }) {

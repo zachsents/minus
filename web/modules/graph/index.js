@@ -5,8 +5,8 @@ import _ from "lodash"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { TbAlertTriangle, TbSwitch3 } from "react-icons/tb"
 import { addEdge, useReactFlow, useStore, useStoreApi } from "reactflow"
-import { DataType, doTypesMatch } from "shared"
-import { INTERFACE_ID_PREFIX } from "../constants"
+import { DataType, MODIFIER_ID_PREFIX, doTypesMatch } from "shared"
+import { INTERFACE_ID_PREFIX, MODIFIER_INPUT_DEFINITIONS } from "../constants"
 import { useEditorStoreProperty } from "../editor-store"
 import { graphEquality, useUndoRedo } from "../undo"
 import { useUpdateWorkflow, useUpdateWorkflowGraph, useWorkflowGraph } from "../workflows"
@@ -122,7 +122,12 @@ export function useOnConnectCallback(setEdges) {
             targetType = targetInterfaceDef?.type
         }
 
-        console.debug("Tried to connect", sourceType, "with", targetType)
+        else if (params.targetHandle.startsWith(MODIFIER_ID_PREFIX)) {
+            const targetNode = rf.getNode(params.target)
+            targetType = MODIFIER_INPUT_DEFINITIONS[targetNode?.data?.modifier?.type].type
+        }
+
+        console.debug("Tried to connect", sourceType.toLabel(), "with", targetType.toLabel())
 
         const connect = (options = {}) => setEdges(edges => addEdge({
             ...params,

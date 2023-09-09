@@ -1,5 +1,5 @@
 import { TbActivity, TbArrowsSplit2 } from "react-icons/tb"
-import { CONTROL_MODIFIER } from "shared"
+import { CONTROL_MODIFIER, DataType } from "shared"
 
 
 export const LOCAL_STORAGE_KEYS = {
@@ -61,9 +61,11 @@ export const CONTROL_MODIFIER_ICONS = {
 export const MODIFIER_INPUT_DEFINITIONS = {
     [CONTROL_MODIFIER.AWAIT]: {
         name: "Value",
+        type: DataType.ANY,
     },
     [CONTROL_MODIFIER.CONDITIONAL]: {
         name: "Condition",
+        type: DataType.BOOLEAN,
     },
 }
 
