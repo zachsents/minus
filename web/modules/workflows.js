@@ -4,7 +4,7 @@ import { Timestamp, collection, deleteField, doc, limit, orderBy, query, serverT
 import { useCallback, useEffect, useMemo } from "react"
 import { useUser } from "reactfire"
 import { API_ROUTE, WORKFLOWS_COLLECTION, WORKFLOW_RUNS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION } from "shared/firebase"
-import { LAST_ACTIVE_EXPIRATION } from "./constants"
+import { LAST_ACTIVE_EXPIRATION, WORKFLOW_RUN_LOAD_LIMIT } from "./constants"
 import { fire } from "./firebase"
 import { useAPI } from "./firebase/api"
 import { useUpdateDoc } from "./firebase/use-update-doc"
@@ -175,6 +175,34 @@ export function useWorkflowRecentErrors(workflowId, timePeriodMs = 1000 * 60 * 6
 }
 
 
+export function useWorkflowRecentRuns(workflowId, timePeriodMs = 1000 * 60 * 60 * 24) {
+    workflowId ??= useQueryParam("workflowId")[0]
+
+    const ref = workflowRef(workflowId)
+
+    // Need to use useMemo to prevent infinite loop from constantly changing timestamp
+    const timestamp = useMemo(() => timePeriodMs === Infinity ? null : Timestamp.fromMillis(Date.now() - timePeriodMs), [timePeriodMs])
+
+    const queryConstraints = [
+        where("workflow", "==", ref),
+        limit(WORKFLOW_RUN_LOAD_LIMIT),
+    ]
+
+    if (timePeriodMs !== Infinity)
+        queryConstraints.splice(1, 0,
+            where("queuedAt", ">", timestamp),
+            orderBy("queuedAt", "desc")
+        )
+
+    const { data: runs } = useFirestoreCollectionData(query(
+        collection(fire.db, WORKFLOW_RUNS_COLLECTION),
+        ...queryConstraints,
+    ))
+
+    return runs
+}
+
+
 /**
  * @param {string[]} [organizationIds]
  */
@@ -209,4 +237,12 @@ export function useCanUserDeleteWorkflow(workflowId) {
     const isAtLeastAdminInOrganization = org.admins?.includes(user.uid) || org.owner === user.uid
 
     return isWorkflowCreator || isAtLeastAdminInOrganization
+}
+
+
+export function useWorkflowRun(workflowRunId) {
+
+    const { data: workflowRun } = useFirestoreDocData(workflowRunId && doc(fire.db, WORKFLOW_RUNS_COLLECTION, workflowRunId))
+
+    return workflowRun
 }

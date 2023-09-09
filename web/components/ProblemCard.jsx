@@ -52,7 +52,7 @@ export default function ProblemCard({ children, title, subtitle, level, withTool
                         {!compact &&
                             <div className="h-2" />}
 
-                        <Text className={classNames("font-mono text-xs", {
+                        <Text className={classNames("font-mono text-xs line-clamp-3", {
                             "text-red-800": level === "error",
                             "text-yellow-800": level === "warning",
                         })}>

@@ -3,7 +3,7 @@ import ScheduleBuilder from "@web/components/ScheduleBuilder"
 import { addDoc, collection, doc, onSnapshot, serverTimestamp } from "firebase/firestore"
 import { TbBrandGmail, TbCheck, TbClock, TbCopy, TbHandClick, TbLink, TbRun, TbWebhook } from "react-icons/tb"
 import { useMutation } from "react-query"
-import { ASYNC_TRIGGER_URL, RUN_STATUS, SYNC_TRIGGER_URL, TRIGGER_TYPE, isStatusFinished } from "shared"
+import { ASYNC_TRIGGER_URL, DataType, RUN_STATUS, SYNC_TRIGGER_URL, TRIGGER_TYPE, isStatusFinished } from "shared"
 import { WORKFLOW_RUNS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION } from "shared/firebase"
 import { fire } from "./firebase"
 import { INTERVAL_UNITS } from "./scheduling"
@@ -162,5 +162,48 @@ export const TRIGGER_INFO = {
         renderSubtitle: () => "Click to view details",
         icon: TbBrandGmail,
         color: "red",
+
+        outputs: {
+            messageId: {
+                label: "Message ID",
+                type: DataType.STRING,
+            },
+            senderName: {
+                label: "Sender Name",
+                type: DataType.STRING,
+            },
+            senderEmailAddress: {
+                label: "Sender Email Address",
+                type: DataType.STRING,
+            },
+            subject: {
+                label: "Subject",
+                type: DataType.STRING,
+            },
+            date: {
+                label: "Date",
+                type: DataType.DATE,
+            },
+            plainText: {
+                label: "Plain Text",
+                type: DataType.LONG_STRING,
+            },
+            simpleText: {
+                label: "Simple Text",
+                type: DataType.LONG_STRING,
+            },
+            html: {
+                label: "HTML",
+                type: DataType.LONG_STRING,
+            },
+            recipientName: {
+                label: "Recipient Name",
+                type: DataType.STRING,
+            },
+            recipientEmailAddress: {
+                label: "Recipient Email Address",
+                type: DataType.STRING,
+            },
+        },
     }
 }

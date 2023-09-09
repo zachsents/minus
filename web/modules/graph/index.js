@@ -5,7 +5,7 @@ import _ from "lodash"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { TbAlertTriangle, TbSwitch3 } from "react-icons/tb"
 import { addEdge, useReactFlow, useStore, useStoreApi } from "reactflow"
-import { DATA_TYPE_LABELS, typesMatch } from "shared"
+import { DataType, doTypesMatch } from "shared"
 import { INTERFACE_ID_PREFIX } from "../constants"
 import { useEditorStoreProperty } from "../editor-store"
 import { graphEquality, useUndoRedo } from "../undo"
@@ -104,7 +104,7 @@ export function useOnConnectCallback(setEdges) {
         if (params.source == params.target)
             return
 
-        let sourceType = "any", targetType = "any"
+        let sourceType = DataType.ANY, targetType = DataType.ANY
 
         if (params.sourceHandle.startsWith(INTERFACE_ID_PREFIX)) {
             const sourceNode = rf.getNode(params.source)
@@ -129,7 +129,7 @@ export function useOnConnectCallback(setEdges) {
             ...options,
         }, edges))
 
-        if (typesMatch(sourceType, targetType))
+        if (doTypesMatch(sourceType, targetType))
             return connect()
 
         const notifId = `type-mismatch-${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`
@@ -138,7 +138,7 @@ export function useOnConnectCallback(setEdges) {
             id: notifId,
             title: "Types don't match.",
             message: <Stack spacing="xs" align="flex-start">
-                <Text>A {DATA_TYPE_LABELS[sourceType]} output can&apos;t be connected to a {DATA_TYPE_LABELS[targetType]} input.</Text>
+                <Text>A {sourceType.toLabel()} output can&apos;t be connected to a {targetType.toLabel()} input.</Text>
 
                 <Tooltip label="This could prevent your workflow from functioning normally.">
                     <Button

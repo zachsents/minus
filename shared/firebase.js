@@ -22,6 +22,8 @@ export const API_ROUTE = {
     ACCEPT_INVITATION: "accept-invitation",
     REJECT_INVITATION: "reject-invitation",
     REMOVE_FROM_ORGANIZATION: "remove-from-organization",
+
+    RUN_WORKFLOW_MANUALLY: "run-workflow-manually",
 }
 
 export const WORKFLOW_RUNNER_QUEUE = "run-workflow-queue"

@@ -251,7 +251,7 @@ function OverviewPanel() {
                                     level="error" compact
                                     key={`${run.id}-${i}`}
                                 >
-                                    {error}
+                                    {error.message}
                                 </ProblemCard>
                             ))}
                         </Stack>

@@ -13,6 +13,7 @@ export const LOCAL_STORAGE_KEYS = {
     SIGN_IN_EMAIL: "signInEmail",
     SHOW_INTRO_ALERT: "showIntroAlert",
     SHOW_WORKFLOW_USAGE: "showWorkflowUsage",
+    RUN_VIEWER_MODE: "runViewerMode",
 }
 
 export const HANDLE_TYPE = {
@@ -79,4 +80,4 @@ export const ACTIVITY = {
 
 export const LAST_ACTIVE_EXPIRATION = 1000 * 60 * 2
 
-
+export const WORKFLOW_RUN_LOAD_LIMIT = 100

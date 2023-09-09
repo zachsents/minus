@@ -1,4 +1,4 @@
-import { DATA_TYPE } from "shared/index.js"
+import { DataType } from "shared/index.js"
 
 
 /** @type {import("../../defaults/base-defaults.js").BaseNodeDefinition} */
@@ -9,18 +9,18 @@ export default {
 
     inputs: {
         template: {
-            type: DATA_TYPE.STRING,
+            type: DataType.STRING,
             required: true,
         },
         substitution: {
-            type: DATA_TYPE.ANY,
+            type: DataType.ANY,
             group: true,
         },
     },
 
     outputs: {
         result: {
-            type: DATA_TYPE.STRING,
+            type: DataType.STRING,
         }
     },
 }

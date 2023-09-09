@@ -3,13 +3,15 @@ import { FieldValue } from "firebase-admin/firestore"
 import { HttpsError, onCall } from "firebase-functions/v2/https"
 import Joi from "joi"
 import _ from "lodash"
-import { API_ROUTE } from "shared/firebase.js"
+import { API_ROUTE, WORKFLOW_RUNS_COLLECTION } from "shared/firebase.js"
+import { RUN_STATUS } from "shared/index.js"
 import { PLAN } from "shared/plans.js"
 import { assertAny } from "../modules/assert.js"
 import { sendEmailFromTemplate } from "../modules/mail.js"
 import { assertUserCantBeInOrganization, assertUserMustBeInOrganization, assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, assertWorkflowLimit, createOrganization, deleteOrganization, getOrganization, organizationRef } from "../modules/organizations.js"
-import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow } from "../modules/workflows.js"
+import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow, workflowRef } from "../modules/workflows.js"
 import { APIRequestSchema, validateSchema } from "./schema.js"
+import { db } from "../init.js"
 
 
 export const api = onCall(async ({ data, auth }) => {
@@ -198,5 +200,24 @@ export const api = onCall(async ({ data, auth }) => {
             members: FieldValue.arrayRemove(params.userId),
             admins: FieldValue.arrayRemove(params.userId),
         })
+    }
+
+    else if (route === API_ROUTE.RUN_WORKFLOW_MANUALLY) {
+        await validateSchema(Joi.object({
+            workflowId: Joi.string().required(),
+            triggerData: Joi.object().required(),
+        }), params)
+
+        await getWorkflow(params.workflowId)
+
+        const newRunRef = await db.collection(WORKFLOW_RUNS_COLLECTION).add({
+            status: RUN_STATUS.PENDING,
+            queuedAt: FieldValue.serverTimestamp(),
+            workflow: workflowRef(params.workflowId),
+            triggerData: params.triggerData,
+            trigger: null,
+        })
+
+        return { workflowRunId: newRunRef.id }
     }
 })
