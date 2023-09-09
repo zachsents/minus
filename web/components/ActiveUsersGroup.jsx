@@ -1,7 +1,9 @@
 import { Avatar, Tooltip } from "@mantine/core"
+import { notifications } from "@mantine/notifications"
 import { plural } from "@web/modules/grammar"
 import { getInitials } from "@web/modules/util"
 import { useActiveUsers } from "@web/modules/workflows"
+import { useEffect } from "react"
 import { useUser } from "reactfire"
 
 
@@ -25,6 +27,15 @@ export default function ActiveUsersGroup({
 
     const { data: user } = useUser()
     const activeUsers = useActiveUsers(workflowId)
+
+    const moreThanOneUser = activeUsers.length > 1
+    useEffect(() => {
+        if (moreThanOneUser) {
+            notifications.show({
+                message: "Multiple users are editing this workflow. This feature is still in beta and may not work as expected.",
+            })
+        }
+    }, [moreThanOneUser])
 
     return (
         <Tooltip
