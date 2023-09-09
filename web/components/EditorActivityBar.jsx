@@ -1,11 +1,10 @@
 import { ActionIcon, Group, Indicator, Space, Tabs, Text, Tooltip } from "@mantine/core"
 import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { ACTIVITY, ACTIVITY_BAR_ELEMENT_ID, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
-import { TbChartDots3, TbRobot, TbStack2, TbStarFilled, TbVersions, TbX } from "react-icons/tb"
+import { TbChartDots3, TbRobot, TbStack2, TbStarFilled, TbX } from "react-icons/tb"
 import ActionsActivity from "./ActionsActivity"
 import KeyboardShortcut from "./KeyboardShortcut"
 import ScrollBox from "./ScrollBox"
-import VersionsActivity from "./VersionsActivity"
 
 
 export default function EditorActivityBar() {
@@ -35,7 +34,7 @@ export default function EditorActivityBar() {
                 <ActivityTabIcon title="Actions" value={ACTIVITY.ACTIONS} icon={TbChartDots3} keyboardShortcut={["/"]} />
                 <ActivityTabIcon title="Integration Accounts" value={ACTIVITY.ACCOUNTS} icon={TbStack2} />
                 <Space h="xs" />
-                <ActivityTabIcon title="Versions" value={ACTIVITY.VERSIONS} icon={TbVersions} premium />
+                {/* <ActivityTabIcon title="Versions" value={ACTIVITY.VERSIONS} icon={TbVersions} premium /> */}
                 <Space h="xs" />
                 <ActivityTabIcon title="Workflow Assistant" value={ACTIVITY.ASSISTANT} icon={TbRobot} premium />
             </Tabs.List>
@@ -54,18 +53,20 @@ export default function EditorActivityBar() {
                 Integration Accounts
             </ActivityPanel>
 
-            <ActivityPanel
+            {/* <ActivityPanel
                 title="Versions"
                 value={ACTIVITY.VERSIONS}
             >
                 <VersionsActivity />
-            </ActivityPanel>
+            </ActivityPanel> */}
 
             <ActivityPanel
                 title="Workflow Assistant 🪄"
                 value={ACTIVITY.ASSISTANT}
             >
-                Workflow Assistant
+                <Text className="text-gray text-center text-sm py-xl">
+                    Coming soon!
+                </Text>
             </ActivityPanel>
         </Tabs>
     )
