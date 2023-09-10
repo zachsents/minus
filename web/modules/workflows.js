@@ -17,6 +17,11 @@ import { TRIGGER_INFO } from "./triggers"
 export const workflowRef = workflowId => workflowId && doc(fire.db, WORKFLOWS_COLLECTION, workflowId)
 
 
+export function useWorkflowId() {
+    return useQueryParam("workflowId")[0]
+}
+
+
 export function useWorkflow(workflowId, withTrigger = false) {
     workflowId ??= useQueryParam("workflowId")[0]
 

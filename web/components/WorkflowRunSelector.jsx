@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react"
 import { TbAlertCircle, TbCheck, TbLayoutGrid, TbList, TbLoader } from "react-icons/tb"
 import { RUN_STATUS, isStatusFinished } from "shared"
 import ScrollBox from "./ScrollBox"
+import TimeAgo from "javascript-time-ago"
 
 
 export default function WorkflowRunSelector({ controlled = false, withPopover = false, value, onChange, children, stopPropagationEvents, closeOnSelect = false }) {
@@ -31,14 +32,14 @@ export default function WorkflowRunSelector({ controlled = false, withPopover = 
     const selectedRun = runs?.find(run => run.id == selectedRunId)
 
     const selectedRunLabel = useMemo(() => {
-        if (!selectedRunId)
+        if (!selectedRunId || !selectedRun)
             return "Select a run"
 
         return selectedRun.queuedAt.toDate().toLocaleString(undefined, {
             dateStyle: "medium",
             timeStyle: "short",
         }) + ` - ${selectedRun.status}`
-    }, [selectedRunId])
+    }, [selectedRunId, selectedRun])
 
     useEffect(() => {
         console.debug("Selected run:", selectedRunId)
@@ -241,10 +242,18 @@ function RunRow({ run, onSelect, selected }) {
 
     const Icon = statusIcons[run.status]
 
-    const label = run.queuedAt.toDate().toLocaleString(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short",
-    })
+    const runDate = run.queuedAt.toDate()
+    const isToday = runDate.toLocaleDateString() == new Date().toLocaleDateString()
+    const label = isToday ?
+        `${new TimeAgo("en-US").format(runDate)}` :
+        run.queuedAt.toDate().toLocaleString(undefined, {
+            // dateStyle: "medium",
+            // timeStyle: "short",
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+        })
 
     return (
         <RunTooltip
@@ -289,6 +298,12 @@ function RunTooltip({ run, selected, children, ...props }) {
         <Tooltip
             withinPortal multiline {...props}
             label={<Stack miw="10rem" spacing={0}>
+                {/* <Group noWrap position="apart">
+                    <Text color="dimmed">ID</Text>
+                    <Text fw="bold">
+                        {run.id.slice(0, 3).toUpperCase()}
+                    </Text>
+                </Group> */}
                 <Group noWrap position="apart">
                     <Text color="dimmed">Status</Text>
                     <Text fw="bold" color={theme.fn.themeColor(statusColors[run.status], theme.colorScheme == "dark" ? 7 : 3)}>

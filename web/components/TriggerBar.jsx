@@ -26,7 +26,7 @@ export default function TriggerBar() {
 
     const selectRun = runId => {
         if (selectedRunId == runId && selectedRun?.id == runId)
-            form.setValues(selectedRun.triggerData)
+            form.setValues(selectedRun?.triggerData ?? {})
         setSelectedRunId(runId)
     }
 
@@ -36,7 +36,7 @@ export default function TriggerBar() {
 
     useEffect(() => {
         if (selectedRun)
-            form.setValues(selectedRun.triggerData)
+            form.setValues(selectedRun?.triggerData ?? {})
     }, [selectedRun])
 
     const [runManuallyPopoverOpened, runManuallyPopoverHandlers] = useDisclosure(false)
