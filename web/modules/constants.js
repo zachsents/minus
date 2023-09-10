@@ -78,6 +78,7 @@ export const ACTIVITY = {
     ACCOUNTS: "accounts",
     ASSISTANT: "assistant",
     VERSIONS: "versions",
+    RUNS: "runs",
 }
 
 export const LAST_ACTIVE_EXPIRATION = 1000 * 60 * 2

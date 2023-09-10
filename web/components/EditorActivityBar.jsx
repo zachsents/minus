@@ -1,10 +1,11 @@
 import { ActionIcon, Group, Indicator, Space, Tabs, Text, Tooltip } from "@mantine/core"
 import { useHotkeys, useLocalStorage } from "@mantine/hooks"
 import { ACTIVITY, ACTIVITY_BAR_ELEMENT_ID, LOCAL_STORAGE_KEYS } from "@web/modules/constants"
-import { TbChartDots3, TbRobot, TbStack2, TbStarFilled, TbX } from "react-icons/tb"
+import { TbChartDots3, TbRobot, TbRun, TbStack2, TbStarFilled, TbX } from "react-icons/tb"
 import ActionsActivity from "./ActionsActivity"
 import KeyboardShortcut from "./KeyboardShortcut"
 import ScrollBox from "./ScrollBox"
+import RunsActivity from "./RunsActivity"
 
 
 export default function EditorActivityBar() {
@@ -33,6 +34,7 @@ export default function EditorActivityBar() {
             <Tabs.List>
                 <ActivityTabIcon title="Actions" value={ACTIVITY.ACTIONS} icon={TbChartDots3} keyboardShortcut={["/"]} />
                 <ActivityTabIcon title="Integration Accounts" value={ACTIVITY.ACCOUNTS} icon={TbStack2} />
+                <ActivityTabIcon title="Runs" value={ACTIVITY.RUNS} icon={TbRun} />
                 <Space h="xs" />
                 {/* <ActivityTabIcon title="Versions" value={ACTIVITY.VERSIONS} icon={TbVersions} premium /> */}
                 <Space h="xs" />
@@ -59,6 +61,13 @@ export default function EditorActivityBar() {
             >
                 <VersionsActivity />
             </ActivityPanel> */}
+
+            <ActivityPanel
+                title="Runs"
+                value={ACTIVITY.RUNS}
+            >
+                <RunsActivity />
+            </ActivityPanel>
 
             <ActivityPanel
                 title="Workflow Assistant 🪄"

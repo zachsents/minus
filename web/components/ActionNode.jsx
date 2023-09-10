@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Indicator, Menu, Stack, Text, Tooltip } from "@mantine/core"
+import { ActionIcon, Button, Group, Indicator, Menu, Stack, Text, Tooltip } from "@mantine/core"
 import { CLICK_OUTSIDE_PD_TS, CONTROL_MODIFIER_ICONS, CONTROL_MODIFIER_LABELS, HANDLE_TYPE, INPUT_MODE } from "@web/modules/constants"
 import { useEditorStoreProperty } from "@web/modules/editor-store"
 import { useNodeInputs, useNodeOutputs } from "@web/modules/graph/interfaces"
@@ -11,6 +11,7 @@ import ActionNodeHandle from "./ActionNodeHandle"
 import CheckableMenuItem from "./CheckableMenuItem"
 import NodeModifierWrapper from "./NodeModifierWrapper"
 import ConfigureNodeModal from "./config-modal/ConfigureNodeModal"
+import { plural } from "@web/modules/grammar"
 
 
 export default function ActionNode({ id, data, selected }) {
@@ -36,6 +37,10 @@ export default function ActionNode({ id, data, selected }) {
 
     const [_disabled, upstreamDisabled, setDisabled, disabledMessage] = useDisabled(id)
     const disabled = upstreamDisabled || _disabled
+
+    const [selectedRun] = useEditorStoreProperty("selectedRun")
+    const runErrors = selectedRun?.errors?.filter(error => error.node == id)
+    const hasRunErrors = runErrors?.length > 0
 
     return (
         <div className="relative">
@@ -148,6 +153,26 @@ export default function ActionNode({ id, data, selected }) {
                             </NodeModifierWrapper>
                         </div>
                         <ConfigureNodeModal />
+
+                        {hasRunErrors &&
+                            <Tooltip position="bottom" withArrow withinPortal color="red" label={
+                                <Stack spacing="xs">
+                                    {runErrors.map((error, i) =>
+                                        <Text className="text-white font-bold" key={i}>
+                                            {error.message}
+                                        </Text>
+                                    )}
+                                </Stack>
+                            }>
+                                <div className="absolute left-1/2 top-full -translate-x-1/2 mt-xs ">
+                                    <Button
+                                        className="border-solid border-1 border-red"
+                                        color="red" size="sm" compact variant="light"
+                                    >
+                                        {runErrors.length} {plural("error", runErrors.length)}
+                                    </Button>
+                                </div>
+                            </Tooltip>}
                     </div >
                 </Tooltip> :
                 <Fallback />}

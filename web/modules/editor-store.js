@@ -10,8 +10,8 @@ export const initialData = {
     paneContextMenuPosition: null,
     undo: () => { },
     redo: () => { },
+    selectedRun: null,
 }
-
 
 export const useEditorStore = create(() => ({
     ...initialData,

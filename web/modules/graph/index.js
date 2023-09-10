@@ -104,6 +104,10 @@ export function useOnConnectCallback(setEdges) {
         if (params.source == params.target)
             return
 
+        const isTargetTaken = rf.getEdges().some(edge => edge.target === params.target && edge.targetHandle === params.targetHandle)
+        if (isTargetTaken)
+            return
+
         let sourceType = DataType.ANY, targetType = DataType.ANY
 
         if (params.sourceHandle.startsWith(INTERFACE_ID_PREFIX)) {

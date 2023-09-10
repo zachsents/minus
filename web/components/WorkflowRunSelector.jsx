@@ -1,16 +1,17 @@
 import { ActionIcon, Button, Center, Divider, Group, Popover, SegmentedControl, Stack, Text, Tooltip, useMantineTheme } from "@mantine/core"
 import { useDisclosure, useLocalStorage } from "@mantine/hooks"
 import { LOCAL_STORAGE_KEYS, WORKFLOW_RUN_LOAD_LIMIT } from "@web/modules/constants"
+import { durationSeconds } from "@web/modules/grammar"
+import { stopPropagation } from "@web/modules/props"
 import { useWorkflowRecentRuns } from "@web/modules/workflows"
 import classNames from "classnames"
 import { useEffect, useMemo, useState } from "react"
 import { TbAlertCircle, TbCheck, TbLayoutGrid, TbList, TbLoader } from "react-icons/tb"
 import { RUN_STATUS, isStatusFinished } from "shared"
 import ScrollBox from "./ScrollBox"
-import { stopPropagation } from "@web/modules/props"
 
 
-export default function WorkflowRunSelector({ controlled = false, value, onChange, children, stopPropagationEvents, closeOnSelect = false }) {
+export default function WorkflowRunSelector({ controlled = false, withPopover = false, value, onChange, children, stopPropagationEvents, closeOnSelect = false }) {
 
     const [opened, popoverHandlers] = useDisclosure(false)
     const runs = useWorkflowRecentRuns(undefined, Infinity)
@@ -20,9 +21,10 @@ export default function WorkflowRunSelector({ controlled = false, value, onChang
         defaultValue: "tile",
     })
 
-    const [selectedRunId, _setSelectedRunId] = controlled ? useState() : [value, onChange]
+    const [selectedRunId, _setSelectedRunId] = controlled ? useState() : [value]
     const setSelectedRunId = (...args) => {
-        _setSelectedRunId(...args)
+        _setSelectedRunId?.(...args)
+        onChange?.(...args)
         if (closeOnSelect)
             popoverHandlers.close()
     }
@@ -42,7 +44,34 @@ export default function WorkflowRunSelector({ controlled = false, value, onChang
         console.debug("Selected run:", selectedRunId)
     }, [selectedRunId])
 
-    return (
+    const inner =
+        <Stack spacing="xs">
+            <Group position="apart" noWrap>
+                {withPopover ? <Text>Runs</Text> : children}
+                <RunViewerModeSelector
+                    value={runViewerMode}
+                    onChange={setRunViewerMode}
+                />
+            </Group>
+
+            <RunViewer
+                value={selectedRunId}
+                onChange={setSelectedRunId}
+                mode={runViewerMode}
+            />
+
+            {runs?.length == 0 &&
+                <Text ta="center" color="dimmed" size="xs">
+                    No runs
+                </Text>}
+
+            {runs?.length == WORKFLOW_RUN_LOAD_LIMIT &&
+                <Text ta="center" color="dimmed" size="xs">
+                    Only the last {WORKFLOW_RUN_LOAD_LIMIT} runs are shown
+                </Text>}
+        </Stack>
+
+    return withPopover ?
         <Popover
             width="20rem" position="bottom-end" withinPortal shadow="sm"
             opened={opened} onOpen={popoverHandlers.open} onClose={popoverHandlers.close}
@@ -63,40 +92,18 @@ export default function WorkflowRunSelector({ controlled = false, value, onChang
                 {...stopPropagationEvents !== false && stopPropagation(stopPropagationEvents)}
             >
                 <ScrollBox insideFlex>
-                    <Stack spacing="xs" px="md">
-                        <Group position="apart" noWrap>
-                            <Text>Runs</Text>
-                            <RunViewerModeSelector
-                                value={runViewerMode}
-                                onChange={setRunViewerMode}
-                            />
-                        </Group>
-
-                        <RunViewer
-                            value={selectedRunId}
-                            onChange={setSelectedRunId}
-                            mode={runViewerMode}
-                        />
-
-                        {runs?.length == 0 &&
-                            <Text ta="center" color="dimmed" size="xs">
-                                No runs
-                            </Text>}
-
-                        {runs?.length == WORKFLOW_RUN_LOAD_LIMIT &&
-                            <Text ta="center" color="dimmed" size="xs">
-                                Only the last {WORKFLOW_RUN_LOAD_LIMIT} runs are shown
-                            </Text>}
-                    </Stack>
+                    <div className="px-md">
+                        {inner}
+                    </div>
                 </ScrollBox>
             </Popover.Dropdown>
-        </Popover>
-    )
+        </Popover> :
+        inner
 }
 
 
 
-function RunViewerModeSelector({ value, onChange }) {
+export function RunViewerModeSelector({ value, onChange }) {
 
     return (
         <SegmentedControl
@@ -128,7 +135,7 @@ function RunViewerModeSelector({ value, onChange }) {
 }
 
 
-function RunViewer({ value, onChange, mode }) {
+export function RunViewer({ value, onChange, mode }) {
 
     const runs = useWorkflowRecentRuns(undefined, Infinity)
 
@@ -189,14 +196,16 @@ function RunViewer({ value, onChange, mode }) {
 }
 
 
-const statusColors = {
+export const statusColors = {
+    [RUN_STATUS.PENDING]: "blue",
     [RUN_STATUS.RUNNING]: "blue",
     [RUN_STATUS.FAILED]: "red",
     [RUN_STATUS.COMPLETED]: "green",
 }
 
-const statusIcons = {
-    [RUN_STATUS.RUNNING]: TbLoader,
+export const statusIcons = {
+    [RUN_STATUS.PENDING]: () => <TbLoader className="animate-spin" />,
+    [RUN_STATUS.RUNNING]: () => <TbLoader className="animate-spin" />,
     [RUN_STATUS.FAILED]: TbAlertCircle,
     [RUN_STATUS.COMPLETED]: TbCheck,
 }
@@ -220,7 +229,7 @@ function RunTile({ run, onSelect, selected }) {
                 onClick={onSelect}
             >
                 <Center className="text-white opacity-60 group-hover:opacity-100">
-                    <Icon />
+                    {Icon && <Icon />}
                 </Center>
             </ActionIcon>
         </RunTooltip>
@@ -251,7 +260,7 @@ function RunRow({ run, onSelect, selected }) {
                 onClick={onSelect}
             >
                 <Center c={statusColors[run.status]} className="text-xl">
-                    <Icon />
+                    {Icon && <Icon />}
                 </Center>
                 <Text size="sm">
                     {label}
@@ -275,8 +284,6 @@ function RunRow({ run, onSelect, selected }) {
 function RunTooltip({ run, selected, children, ...props }) {
 
     const theme = useMantineTheme()
-
-    const duration = isStatusFinished(run.status) && ((run.completedAt || run.failedAt).toDate() - run.queuedAt.toDate()) / 1000
 
     return (
         <Tooltip
@@ -304,11 +311,11 @@ function RunTooltip({ run, selected, children, ...props }) {
                         })}
                     </Text>
                 </Group>
-                {duration &&
+                {isStatusFinished(run.status) &&
                     <Group noWrap position="apart">
                         <Text color="dimmed">Duration</Text>
                         <Text>
-                            {duration.toFixed(2)} seconds
+                            {durationSeconds(run.queuedAt.toDate(), run.finishedAt.toDate())}
                         </Text>
                     </Group>}
 

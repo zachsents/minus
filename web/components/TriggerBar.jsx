@@ -113,7 +113,7 @@ export default function TriggerBar() {
                                 </Group>
                                 <Group position="apart">
                                     <WorkflowRunSelector
-                                        closeOnSelect
+                                        closeOnSelect withPopover
                                         onChange={selectRun}
                                     >
                                         <Button
