@@ -1,3 +1,4 @@
+import admin from "firebase-admin"
 import { FieldValue, Timestamp } from "firebase-admin/firestore"
 import { getFunctions } from "firebase-admin/functions"
 import { logger } from "firebase-functions/v2"
@@ -6,6 +7,7 @@ import { onTaskDispatched } from "firebase-functions/v2/tasks"
 import { RUN_STATUS, TRIGGER_TYPE } from "shared"
 import { WORKFLOW_RUNNER_QUEUE, WORKFLOW_RUNNER_URL, WORKFLOW_RUNS_COLLECTION } from "shared/firebase.js"
 import { db } from "./init.js"
+import { sendEmailFromTemplate } from "./modules/mail.js"
 import { getNextDateFromSchedule } from "./modules/scheduling.js"
 
 
@@ -70,6 +72,29 @@ export const onWorkflowRunWritten = onDocumentWritten({
         await event.data.after.ref.update({
             status: RUN_STATUS.SCHEDULED,
             scheduledAt: FieldValue.serverTimestamp(),
+        })
+    }
+
+    if (workflowRun.status === RUN_STATUS.FAILED) {
+        const workflow = await workflowRun.workflow.get().then(doc => doc.data())
+        const organization = await workflow.organization.get().then(doc => doc.data())
+
+        const recipientIds = []
+
+        if (organization.sendErrorNotificationsToOwner)
+            recipientIds.push(organization.owner)
+
+        if (organization.sendErrorNotificationsToMembers)
+            recipientIds.push(...organization.members, ...organization.admins)
+
+        const recipientEmails = await admin.auth().getUsers(recipientIds.map(uid => ({ uid })))
+            .then(res => res.users.map(user => user.email))
+
+        await sendEmailFromTemplate(recipientEmails, "workflow-run-failed", {
+            workflowName: workflow.name,
+            workflowId: workflowRun.workflow.id,
+            runId: event.params.workflowRunId,
+            errors: workflowRun.errors?.map(err => `<li>${err.message}</li>`).join("\n") ?? "",
         })
     }
 })

@@ -22,6 +22,11 @@ export async function sendEmail(to, subject, text, html) {
 }
 
 
+/**
+ * @param {string | Array<string>} to
+ * @param {string} templateName
+ * @param {object} data
+ */
 export async function sendEmailFromTemplate(to, templateName, data) {
     const subjectTemplate = await fs.readFile(`./mail-templates/${templateName}.subject.txt`, "utf-8")
     const htmlTemplate = await fs.readFile(`./mail-templates/${templateName}.html`, "utf-8")

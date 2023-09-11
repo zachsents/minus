@@ -39,6 +39,8 @@ export const api = onCall(async ({ data, auth }) => {
             ...params,
             owner: auth.uid,
             plan: PLAN.FREE,
+            sendErrorNotificationsToOwner: true,
+            sendErrorNotificationsToMembers: false,
         }).then(ref => ({ orgId: ref.id }))
     }
 

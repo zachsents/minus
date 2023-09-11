@@ -1,4 +1,4 @@
-import { Accordion, ActionIcon, Badge, Box, Button, Center, Divider, Group, Loader, Menu, RingProgress, Space, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
+import { Accordion, ActionIcon, Badge, Box, Button, Center, Checkbox, Divider, Group, Loader, Menu, RingProgress, Space, Stack, Table, Tabs, Text, TextInput, Title, Tooltip, useMantineTheme } from "@mantine/core"
 import { useForm } from "@mantine/form"
 import { useHover, useLocalStorage } from "@mantine/hooks"
 import { modals } from "@mantine/modals"
@@ -8,7 +8,6 @@ import EditableText from "@web/components/EditableText"
 import Footer from "@web/components/Footer"
 import GlassButton from "@web/components/GlassButton"
 import HorizontalScrollBox from "@web/components/HorizontalScrollBox"
-import MultiTextInput from "@web/components/MultiTextInput"
 import PageHead from "@web/components/PageHead"
 import ProblemCard from "@web/components/ProblemCard"
 import ScrollBox from "@web/components/ScrollBox"
@@ -512,11 +511,11 @@ function SettingsPanel() {
     const settingsForm = useForm({
         initialValues: {
             name: org?.name ?? "",
-            errorNotificationEmails: org?.errorNotificationEmails ?? [],
+            sendErrorNotificationsToOwner: org?.sendErrorNotificationsToOwner ?? false,
+            sendErrorNotificationsToMembers: org?.sendErrorNotificationsToMembers ?? false,
         },
         validate: {
             name: value => !value,
-            errorNotificationEmails: value => value.some(email => !email || !email.includes("@")),
         },
         validateInputOnChange: true,
     })
@@ -562,18 +561,17 @@ function SettingsPanel() {
                             </Group>
                         </div>
 
-                        <MultiTextInput
-                            label="Error Notifications"
-                            emptyLabel="No error notifications configured."
-                            addLabel="Add Email"
-                            inputProps={{ placeholder: "mark@facebook.com" }}
-                            max={10}
-                            {...settingsForm.getInputProps("errorNotificationEmails")}
-                        >
-                            <Text className="text-xs text-gray mb-2">
-                                Add email addresses to receive notifications when workflows have errors.
-                            </Text>
-                        </MultiTextInput>
+                        <Stack className="gap-2">
+                            <Text fz="sm">Error Notifications</Text>
+                            <Checkbox
+                                label="Send error notifications to owner"
+                                {...settingsForm.getInputProps("sendErrorNotificationsToOwner")}
+                            />
+                            <Checkbox
+                                label="Send error notifications to members"
+                                {...settingsForm.getInputProps("sendErrorNotificationsToMembers")}
+                            />
+                        </Stack>
 
                         {settingsForm.isDirty() &&
                             <Button

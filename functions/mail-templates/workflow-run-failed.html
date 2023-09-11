@@ -1,0 +1,27 @@
+<p>
+    Your workflow run failed.
+</p>
+<br />
+<p>
+    <b>Workflow:</b> {{ $workflowName }}
+</p>
+<p>
+    <b>Run ID:</b> {{ $runId }}
+</p>
+<p>
+    <b>Errors:</b>
+<ul>
+    {{ $errors }}
+</ul>
+</p>
+<p>
+    <a href="https://minuscode.app/workflows/{{ $workflowId }}/edit?run={{ $runId }}">View this workflow run in
+        Minus</a>
+</p>
+<br />
+<p>
+    Thanks,
+</p>
+<p>
+    <b>The Minus Team</b>
+</p>
