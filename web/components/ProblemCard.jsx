@@ -19,7 +19,7 @@ export default function ProblemCard({ children, title, subtitle, level, withTool
     title ??= (level === "error" ? "Error" : "Warning") + " in Workflow"
 
     return (
-        <Tooltip label={tooltipLabel} withArrow position="right" disabled={!withTooltip}>
+        <Tooltip label={tooltipLabel} withArrow position="right" withinPortal disabled={!withTooltip}>
             <Card
                 className={classNames(
                     "cursor-pointer border-solid border-1",

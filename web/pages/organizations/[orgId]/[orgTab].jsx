@@ -11,6 +11,7 @@ import HorizontalScrollBox from "@web/components/HorizontalScrollBox"
 import MultiTextInput from "@web/components/MultiTextInput"
 import PageHead from "@web/components/PageHead"
 import ProblemCard from "@web/components/ProblemCard"
+import ScrollBox from "@web/components/ScrollBox"
 import SearchInput from "@web/components/SearchInput"
 import Section from "@web/components/Section"
 import WorkflowCard, { WorkflowCardRow } from "@web/components/WorkflowCard"
@@ -244,16 +245,20 @@ function OverviewPanel() {
                                 Errors ({totalErrors ?? "Loading..."}) - Last 24 Hours
                             </Text>
 
-                            {erroredRuns?.flatMap(run => run.errors.map((error, i) =>
-                                <ProblemCard
-                                    title={"Error in "}
-                                    subtitle={formatDate(run.queuedAt)}
-                                    level="error" compact
-                                    key={`${run.id}-${i}`}
-                                >
-                                    {error.message}
-                                </ProblemCard>
-                            ))}
+                            <ScrollBox base mah="30rem" >
+                                <Stack spacing="xs">
+                                    {erroredRuns?.flatMap(run => run.errors.map((error, i) =>
+                                        <ProblemCard
+                                            title={"Error in "}
+                                            subtitle={formatDate(run.queuedAt)}
+                                            level="error" compact
+                                            key={`${run.id}-${i}`}
+                                        >
+                                            {error.message}
+                                        </ProblemCard>
+                                    ))}
+                                </Stack>
+                            </ScrollBox>
                         </Stack>
                     </Group>
                 </Stack>

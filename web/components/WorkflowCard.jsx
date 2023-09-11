@@ -10,6 +10,7 @@ import { TbArrowRight, TbConfetti, TbConfettiOff, TbDotsVertical, TbTrash } from
 import ActiveUsersGroup from "./ActiveUsersGroup"
 import CenteredLoader from "./CenteredLoader"
 import ProblemCard from "./ProblemCard"
+import ScrollBox from "./ScrollBox"
 
 
 export default function WorkflowCard({ id, className }) {
@@ -163,18 +164,20 @@ export function WorkflowCardRow({ id, className, highlightParts }) {
                                                 </Badge>
                                             </div>
                                         </Popover.Target>
-                                        <Popover.Dropdown maw="20rem" {...preventDefault("onClick", true)}>
-                                            <Stack spacing="xs">
-                                                {erroredRuns?.flatMap(run => run.errors.map((error, i) =>
-                                                    <ProblemCard
-                                                        subtitle={formatDate(run.failedAt)}
-                                                        level="error" compact
-                                                        key={`${run.id}-${i}`}
-                                                    >
-                                                        {error.message}
-                                                    </ProblemCard>
-                                                ))}
-                                            </Stack>
+                                        <Popover.Dropdown miw="16rem" maw="20rem" p={0} {...preventDefault("onClick", true)}>
+                                            <ScrollBox base mah="20rem" viewportPadding="sm">
+                                                <Stack spacing="xs">
+                                                    {erroredRuns?.flatMap(run => run.errors.map((error, i) =>
+                                                        <ProblemCard
+                                                            subtitle={formatDate(run.failedAt)}
+                                                            level="error" compact
+                                                            key={`${run.id}-${i}`}
+                                                        >
+                                                            {error.message}
+                                                        </ProblemCard>
+                                                    ))}
+                                                </Stack>
+                                            </ScrollBox>
                                         </Popover.Dropdown>
                                     </Popover> :
                                     <Badge color="green" radius="sm" {...preventDefault("onClick", true)}>
