@@ -38,7 +38,7 @@ importers:
       joi: ^17.9.2
       jsdom: ^22.1.0
       lodash: ^4.17.21
-      shared: file:.\local_modules\shared-1.0.0.tgz
+      shared: workspace:*
       stripe: ^13.4.0
     dependencies:
       '@google-cloud/pubsub': 3.7.2
@@ -47,7 +47,7 @@ importers:
       joi: 17.9.2
       jsdom: 22.1.0
       lodash: 4.17.21
-      shared: file:functions/local_modules/shared-1.0.0.tgz
+      shared: link:../shared
       stripe: 13.4.0
     devDependencies:
       '@zachsents/build-workspace-deps': 1.0.0
@@ -71,9 +71,6 @@ importers:
       '@zachsents/meta-definitions': 1.1.1
       nodemon: 3.0.1
       web: link:../web
-
-  script-runner:
-    specifiers: {}
 
   shared:
     specifiers:
@@ -9536,12 +9533,4 @@ packages:
       immer: 10.0.2
       react: 18.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
-    dev: false
-
-  file:functions/local_modules/shared-1.0.0.tgz:
-    resolution: {integrity: sha512-zygL/ae1gbBdyUYT4hWFoROXQFREXIZyLQnv9ZryPcunJjbPQA3oJUtDzEaQt4g6aQlWkTj2cjSyW9LoHc13aA==, tarball: file:functions/local_modules/shared-1.0.0.tgz}
-    name: shared
-    version: 1.0.0
-    dependencies:
-      lodash: 4.17.21
     dev: false

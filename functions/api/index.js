@@ -3,15 +3,15 @@ import { FieldValue } from "firebase-admin/firestore"
 import { HttpsError, onCall } from "firebase-functions/v2/https"
 import Joi from "joi"
 import _ from "lodash"
-import { API_ROUTE, WORKFLOW_RUNS_COLLECTION } from "shared/firebase.js"
+import { API_ROUTE, WORKFLOW_RUNS_COLLECTION, WORKFLOW_TRIGGERS_COLLECTION } from "shared/firebase.js"
 import { RUN_STATUS } from "shared/index.js"
 import { PLAN } from "shared/plans.js"
+import { db } from "../init.js"
 import { assertAny } from "../modules/assert.js"
 import { sendEmailFromTemplate } from "../modules/mail.js"
 import { assertUserCantBeInOrganization, assertUserMustBeInOrganization, assertUserMustHaveAdminRightsForOrganization, assertUserMustOwnOrganization, assertWorkflowLimit, createOrganization, deleteOrganization, getOrganization, organizationRef } from "../modules/organizations.js"
-import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow, workflowRef } from "../modules/workflows.js"
+import { assertUserMustBeWorkflowCreator, createWorkflow, deleteWorkflow, getWorkflow, getWorkflowTrigger, workflowRef, workflowTriggerRef } from "../modules/workflows.js"
 import { APIRequestSchema, validateSchema } from "./schema.js"
-import { db } from "../init.js"
 
 
 export const api = onCall(async ({ data, auth }) => {
@@ -221,5 +221,28 @@ export const api = onCall(async ({ data, auth }) => {
         })
 
         return { workflowRunId: newRunRef.id }
+    }
+
+    else if (route === API_ROUTE.CHANGE_WORKFLOW_TRIGGER) {
+        await validateSchema(Joi.object({
+            triggerId: Joi.string().required(),
+            newTriggerType: Joi.string().required(),
+        }), params)
+
+        const currentTrigger = await getWorkflowTrigger(params.triggerId)
+        const currentTriggerRef = workflowTriggerRef(params.triggerId)
+        const newTriggerRef = db.collection(WORKFLOW_TRIGGERS_COLLECTION).doc()
+
+        const batch = db.batch()
+        batch.delete(currentTriggerRef)
+        batch.set(newTriggerRef, {
+            type: params.newTriggerType,
+            workflow: currentTrigger.workflow,
+            createdAt: FieldValue.serverTimestamp(),
+        })
+
+        await batch.commit()
+
+        return { workflowTriggerId: newTriggerRef.id }
     }
 })

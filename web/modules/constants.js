@@ -24,6 +24,7 @@ export const HANDLE_TYPE = {
 export const MODALS = {
     IMPORTANT_CONFIRM: "importantConfirm",
     ADD_ORGANIZATION_MEMBER: "addOrganizationMember",
+    CHANGE_TRIGGER: "changeTrigger",
 }
 
 export const RF_ELEMENT_ID = "reactflow"

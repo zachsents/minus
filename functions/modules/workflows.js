@@ -32,6 +32,11 @@ export function workflowRef(workflowId) {
 }
 
 
+export function workflowTriggerRef(triggerId) {
+    return db.collection(WORKFLOW_TRIGGERS_COLLECTION).doc(triggerId)
+}
+
+
 /**
  * @param {WorkflowID} workflowId
  * @returns {Promise<Workflow & { id: WorkflowID }>}
@@ -41,6 +46,19 @@ export async function getWorkflow(workflowId) {
 
     if (!doc.exists)
         throw new HttpsError("not-found", "Workflow not found")
+
+    return {
+        id: doc.id,
+        ...doc.data(),
+    }
+}
+
+
+export async function getWorkflowTrigger(triggerId) {
+    const doc = await workflowTriggerRef(triggerId).get()
+
+    if (!doc.exists)
+        throw new HttpsError("not-found", "Trigger not found")
 
     return {
         id: doc.id,

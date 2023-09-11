@@ -24,6 +24,7 @@ export const API_ROUTE = {
     REMOVE_FROM_ORGANIZATION: "remove-from-organization",
 
     RUN_WORKFLOW_MANUALLY: "run-workflow-manually",
+    CHANGE_WORKFLOW_TRIGGER: "change-workflow-trigger",
 }
 
 export const WORKFLOW_RUNNER_QUEUE = "run-workflow-queue"

@@ -11,6 +11,7 @@ import { useForm } from "@mantine/form"
 import { useDisclosure } from "@mantine/hooks"
 import { useAPI } from "@web/modules/firebase/api"
 import { API_ROUTE } from "shared/firebase"
+import { openChangeTriggerModal } from "./ChangeTriggerModal"
 
 
 export default function TriggerBar() {
@@ -68,6 +69,13 @@ export default function TriggerBar() {
                             </Text>
                         </Group>
                         <Button variant="subtle" radius="xl" size="xs" color="gray" compact>
+                            Configure Trigger
+                        </Button>
+                        <Divider orientation="vertical" />
+                        <Button
+                            variant="subtle" radius="xl" size="xs" color="gray" compact
+                            onClick={openChangeTriggerModal}
+                        >
                             Change Trigger
                         </Button>
                     </> :
@@ -79,6 +87,7 @@ export default function TriggerBar() {
                             variant="filled" radius="xl" size="xs" compact
                             component={motion.div} animate={{ scale: [1, 1.1, 1] }}
                             transition={{ repeat: 100 }}
+                            onClick={openChangeTriggerModal}
                         >
                             Add Trigger
                         </Button>
